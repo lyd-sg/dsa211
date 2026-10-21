@@ -1,0 +1,26 @@
+# Python / environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+.pytest_cache/
+.mypy_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Downloaded dataset caches and generated experiment outputs
+.uci_cache/
+results/
+results_selftest/
+data/*
+!data/uci_468.csv
+
+# Local editor / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
