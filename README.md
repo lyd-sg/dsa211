@@ -4,6 +4,14 @@ Prediction-focused classification project using the [UCI Online Shoppers Purchas
 
 > **Status:** Existing exploratory work has been preserved; the notebook is **not an approved final analysis**. The professor's latest baseline instruction and the group's revised business-cost assumptions still need statistical review. This housekeeping change does **not** rerun models, alter results, or validate earlier conclusions.
 
+## Phase 2 — revised core analysis
+
+- [**`online_shoppers_revised.ipynb`**](online_shoppers_revised.ipynb) — new step-by-step, prediction-focused notebook for the professor-specified core analysis and two agreed extensions. The model outputs are **not** claimed to have been regenerated until the notebook is executed on the real dataset.
+- [**`docs/phase2_scope.md`**](docs/phase2_scope.md) — scope, analysis stages, old-versus-new differences and verification caveats.
+- [**Notebook validation workflow**](.github/workflows/validate-notebook.yml) — executes the revised notebook against `data/uci_468.csv` and uploads an executed notebook artifact when GitHub Actions is enabled.
+
+The original main notebook is still kept at the root unchanged as a historical reference. Both notebooks expect the repository root as their working directory.
+
 ## Start here
 
 - [`online_shoppers_full_project.ipynb`](online_shoppers_full_project.ipynb) — full, **unchanged** analysis notebook. It contains EDA, model comparisons, CV, tuning, historical test-set results, and provisional conclusions.
