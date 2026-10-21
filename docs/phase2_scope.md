@@ -27,7 +27,7 @@ The original project notebook already displayed test-set results for the **same*
 - `online_shoppers_full_project.ipynb` is **unchanged**.
 - The revised notebook uses `data/uci_468.csv` and does not download or silently replace it.
 - Every statistical conclusion follows executable code. There are no pre-filled numerical claims that were not recomputed.
-- A smoke run with structurally compatible **synthetic** data confirmed all 28 notebook cells can execute. Synthetic scores were **not** retained as findings.
+- A smoke run with structurally compatible **synthetic** data confirmed the original 28-cell implementation executes; the final 36-cell version adds result interpretations without changing its executable code. Synthetic scores were **not** retained as findings.
 - `.github/workflows/validate-notebook.yml` runs the notebook on the actual committed dataset; when it completes, the executed notebook is available as a workflow artifact.
 - No previously viewed test data are used to fit the CV folds, transformation or selected threshold.
 
