@@ -1,0 +1,19 @@
+,Taiwan SYNTHETIC,ACRA SYNTHETIC
+rows,"9,000","6,503"
+prevalence,0.2200,0.3302
+AUC naive,0.8770,1.0000
+AUC audited,0.8770,0.6436
+leakage premium,0.0000,0.3564
+dropped,none,"sus_acctdue_missing, sus_ar_missing, sus_officers"
+flagged not dropped,PAY_0,none
+best model,Logistic,Logistic
+AUC spread (pooled),0.0083,0.0627
+paired fold gap,0.0015,0.0633
+mean |corr|,0.035,0.022
+p95 |corr|,0.104,0.137
+QDA - LDA,+0.0028,-0.0002
+t empirical,0.170,0.140
+t theoretical,0.167,0.167
+cost cut vs 0.5,41.9%,47.7%
+cost cut vs trivial,55.5%,0.0%
+Brier spread,0.2493,0.1148

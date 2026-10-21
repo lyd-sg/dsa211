@@ -1,0 +1,11 @@
+feature,univariate_auc,pct_missing,diff_missing_by_class,flag
+sus_officers,1.0,0.0,0.0,LEAK?
+sus_ar_missing,1.0,0.0,0.0,LEAK?
+ssic2,0.6499333633720984,0.0,0.0,
+sus_acctdue_missing,0.5131288415873396,0.0,0.0,
+inc_month,0.5094740934661883,0.0,0.0,
+ctype,0.506950456950457,0.0,0.0,
+postal2,0.5021850349913591,0.0,0.0,
+inc_year,0.4963901199079065,0.0,0.0,
+etype,0.4928003924051355,0.0,0.0,
+constit,0.4849698756813382,0.0,0.0,

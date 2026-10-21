@@ -1,0 +1,11 @@
+VERDICT
+==============================================================================
+  ACRA SYNTHETIC               8 of 9 criteria passed
+  Taiwan SYNTHETIC             7 of 9 criteria passed
+
+-> ACRA SYNTHETIC wins on measured criteria, 8 versus 7.
+
+Read the failures, not just the tally. A fail on 'Models separate beyond
+noise' or on 'Cost cut vs best trivial rule' guts a required section of the
+brief and outweighs a fail on CI width, which only makes one comparison
+noisier.

@@ -1,0 +1,190 @@
+{
+  "Taiwan SYNTHETIC": {
+    "dataset": "Taiwan SYNTHETIC",
+    "notes": [
+      "rows 9,000",
+      "no leakage suspects declared - all features are pre-outcome by construction"
+    ],
+    "ok": true,
+    "n_total": 9000,
+    "prevalence": 0.22,
+    "n_train_pos": 1485,
+    "n_test_pos": 495,
+    "flagged": [
+      "PAY_0"
+    ],
+    "dropped_cols": [],
+    "n_features_audited": 8,
+    "auc_naive": 0.8769883066179364,
+    "auc_audited_logit": 0.8769883066179364,
+    "leakage_premium": 0.0,
+    "numeric": [
+      "LIMIT_BAL",
+      "AGE",
+      "BILL_AMT1",
+      "BILL_AMT2"
+    ],
+    "categorical": [
+      "SEX",
+      "EDUCATION",
+      "PAY_0",
+      "PAY_2"
+    ],
+    "cv_auc": {
+      "Logistic": 0.8769883066179364,
+      "GaussianNB": 0.8686930079522672,
+      "LDA": 0.8736464998193394
+    },
+    "brier": {
+      "Logistic": 0.11353905264297652,
+      "GaussianNB": 0.36281991369983574,
+      "LDA": 0.12116111433537652
+    },
+    "fold_auc": {
+      "Logistic": [
+        0.8816752520456225,
+        0.8713376244240442,
+        0.871590229614921,
+        0.8863148739691948,
+        0.8774960750269392
+      ],
+      "GaussianNB": [
+        0.8784009771664093,
+        0.8669474101572868,
+        0.8717788841245632,
+        0.8873460787041034,
+        0.8766391358983951
+      ],
+      "LDA": [
+        0.8795456943605092,
+        0.8672447808250278,
+        0.8642902593519877,
+        0.8839263160250814,
+        0.8764280986503209
+      ]
+    },
+    "best_model": "Logistic",
+    "auc_spread": 0.008295298665669137,
+    "separation_se": 0.0010287272143808756,
+    "separated": false,
+    "paired_fold_diff": 0.0014603138059927634,
+    "t_empirical": 0.17,
+    "t_theoretical": 0.16666666666666666,
+    "cost_at_half": 0.597037037037037,
+    "cost_at_theo": 0.34785185185185186,
+    "cost_at_emp": 0.346962962962963,
+    "cost_trivial": 0.78,
+    "cost_reduction_vs_half": 0.41885856079404465,
+    "cost_reduction_vs_trivial": 0.5551756885090219,
+    "mean_abs_corr": 0.035082737671561864,
+    "p95_abs_corr": 0.10429231790626929,
+    "auc_qda": 0.876456236950064,
+    "qda_minus_lda": 0.002809737130724632,
+    "test_auc": 0.8835062879507324,
+    "cv_minus_test_auc": -0.006517981332796019,
+    "test_sens": 0.896969696969697,
+    "test_spec": 0.7247863247863248,
+    "test_sens_ci": [
+      0.8670610739148041,
+      0.9207643825520404
+    ],
+    "test_sens_ci_width": 0.05370330863723627
+  },
+  "ACRA SYNTHETIC": {
+    "dataset": "ACRA SYNTHETIC",
+    "notes": [
+      "raw rows 12,000",
+      "cohort 2010-2015: 7,102 rows kept of 12,000",
+      "label Struck Off vs Live: 6,503 rows kept, 599 other statuses dropped",
+      "other statuses present: Dissolved",
+      "NOTE letter-file sampling is by first letter of entity name, not random"
+    ],
+    "ok": true,
+    "n_total": 6503,
+    "prevalence": 0.3301553129324927,
+    "n_train_pos": 1610,
+    "n_test_pos": 537,
+    "flagged": [
+      "sus_officers",
+      "sus_ar_missing"
+    ],
+    "dropped_cols": [
+      "sus_acctdue_missing",
+      "sus_ar_missing",
+      "sus_officers"
+    ],
+    "n_features_audited": 7,
+    "auc_naive": 1.0,
+    "auc_audited_logit": 0.6435845372604266,
+    "leakage_premium": 0.35641546273957336,
+    "numeric": [],
+    "categorical": [
+      "etype",
+      "ctype",
+      "constit",
+      "ssic2",
+      "postal2",
+      "inc_year",
+      "inc_month"
+    ],
+    "cv_auc": {
+      "Logistic": 0.6435845372604266,
+      "GaussianNB": 0.5809105548235983,
+      "LDA": 0.6431814854739757
+    },
+    "brier": {
+      "Logistic": 0.20754556892858342,
+      "GaussianNB": 0.32239467373747144,
+      "LDA": 0.2077718831062936
+    },
+    "fold_auc": {
+      "Logistic": [
+        0.6732268695272285,
+        0.6633426406063023,
+        0.6197055158703737,
+        0.6395256484643261,
+        0.6290888683857591
+      ],
+      "GaussianNB": [
+        0.6000128212433757,
+        0.5900906034531882,
+        0.5727459503676295,
+        0.5964040786432423,
+        0.5493803087517716
+      ],
+      "LDA": [
+        0.6718592702338215,
+        0.6618420802704807,
+        0.6213890976192061,
+        0.6390167692351593,
+        0.628998506653477
+      ]
+    },
+    "best_model": "Logistic",
+    "auc_spread": 0.06267398243682831,
+    "separation_se": 0.007552281580870249,
+    "separated": true,
+    "paired_fold_diff": 0.06325115607895648,
+    "t_empirical": 0.14,
+    "t_theoretical": 0.16666666666666666,
+    "cost_at_half": 1.279680131228214,
+    "cost_at_theo": 0.6842321099036293,
+    "cost_at_emp": 0.6696739799056797,
+    "cost_trivial": 0.6698790239901579,
+    "cost_reduction_vs_half": 0.47668642845697806,
+    "cost_reduction_vs_trivial": 0.00030609121518216455,
+    "mean_abs_corr": 0.02230876180268103,
+    "p95_abs_corr": 0.13731927646270561,
+    "auc_qda": 0.642940604995941,
+    "qda_minus_lda": -0.0002408804780347218,
+    "test_auc": 0.669951589707811,
+    "cv_minus_test_auc": -0.026367052447384354,
+    "test_sens": 0.9888268156424581,
+    "test_spec": 0.011937557392102846,
+    "test_sens_ci": [
+      0.975840160248436,
+      0.9948694468603895
+    ],
+    "test_sens_ci_width": 0.019029286611953466
+  }
+}

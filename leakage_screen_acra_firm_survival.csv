@@ -1,0 +1,11 @@
+feature,univariate_auc,pct_missing,diff_missing_by_class,flag
+ctype,0.6285914352581372,0.0,0.0,
+etype,0.6031554296193332,0.0,0.0,
+constit,0.5970197456527011,0.0,0.0,
+ssic2,0.589109441731799,0.0,0.0,
+postal2,0.5773693685882199,0.0,0.0,
+sus_officers,0.5746203283449802,0.0,0.0,
+inc_year,0.5247632477461703,0.0,0.0,
+inc_month,0.5047375933282295,0.0,0.0,
+sus_acctdue_missing,,0.0,0.0,
+sus_ar_missing,,0.0,0.0,

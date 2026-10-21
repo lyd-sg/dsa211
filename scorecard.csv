@@ -1,0 +1,10 @@
+criterion,target,Taiwan SYNTHETIC,ACRA SYNTHETIC
+Train positives,>= 500,1485  PASS,1610  PASS
+Held-out positives,>= 100,495  PASS,537  PASS
+Features after audit,>= 5,8  PASS,7  PASS
+Best CV AUC,>= 0.62,0.8770  PASS,0.6436  PASS
+Max univariate AUC left,<= 0.85,0.8715  fail,0.6499  PASS
+Models separate beyond noise,True,False  fail,True  PASS
+Cost cut vs best trivial rule,>= 5%,0.5552  PASS,0.0003  fail
+|CV AUC - test AUC|,<= 0.03,0.0065  PASS,0.0264  PASS
+"95% CI width, test sens",<= 0.20,0.0537  PASS,0.0190  PASS
