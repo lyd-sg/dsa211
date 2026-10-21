@@ -42,7 +42,7 @@ jobs:
           python - <<'PY'
           import nbformat
           book = nbformat.read('online_shoppers_revised_executed.ipynb', as_version=4)
-          assert len(book.cells) == 28
+          assert len(book.cells) == 36
           errors = [(i, output) for i, cell in enumerate(book.cells)
                     for output in cell.get('outputs', [])
                     if output.get('output_type') == 'error']
