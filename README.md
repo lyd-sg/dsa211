@@ -1,51 +1,54 @@
-# DSA211 Topic 2 dataset bake-off
+# DSA211 — Online Shoppers Purchasing Intention
 
-Decides on measured evidence, not assumption, whether the **ACRA Singapore
-firm-survival** data or the **Taiwan credit-default** data is the better base for a
-classification-evaluation report.
+Prediction-focused classification project using the [UCI Online Shoppers Purchasing Intention dataset](https://archive.ics.uci.edu/dataset/468/online+shoppers+purchasing+intention). The response is `Revenue` (whether a browsing **session** ends in a purchase).
 
-## Run
+> **Status:** Existing exploratory work has been preserved; the notebook is **not an approved final analysis**. The professor's latest baseline instruction and the group's revised business-cost assumptions still need statistical review. This housekeeping change does **not** rerun models, alter results, or validate earlier conclusions.
 
-```bash
-bash run.sh
-```
+## Start here
 
-Or manually:
+- [`online_shoppers_full_project.ipynb`](online_shoppers_full_project.ipynb) — full, **unchanged** analysis notebook. It contains EDA, model comparisons, CV, tuning, historical test-set results, and provisional conclusions.
+- [`docs/project_decisions.md`](docs/project_decisions.md) — recorded professor instructions, group consensus, and outstanding questions.
+- [`docs/methodology.md`](docs/methodology.md) — proposed workflow for the subsequent statistical revision; **not a claim that every step has been completed**.
+- [`data/uci_468.csv`](data/uci_468.csv) — version of the dataset currently used by the notebook.
+- [`archive/README.md`](archive/README.md) — previous dataset-selection work and superseded Online Shoppers drafts.
 
-```bash
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-python bakeoff.py --self-test     # synthetic, no network, proves the pipeline works
-python bakeoff.py                 # the real thing
-```
+## Run the existing notebook
 
-## Outputs, written to `results/`
-
-| File | Contents |
-|---|---|
-| `scorecard.csv` | Nine pass/fail criteria per dataset |
-| `verdict.txt` | The ranking and how to read the failures |
-| `supporting_numbers.csv` | Leakage premium, AUC spread, diagnostics, thresholds |
-| `leakage_screen_*.csv` | Univariate AUC and differential missingness per feature |
-| `results.json` | Everything, machine readable |
-| `roc_*.png` | Out-of-fold ROC overlay and threshold sweep |
-
-## Useful flags
+From the **repository root**, with Python installed:
 
 ```bash
-python bakeoff.py --cost-ratio 10          # C_FN / C_FP, moves the threshold
-python bakeoff.py --cohort 2008 2014       # ACRA incorporation window
-python bakeoff.py --letters A,G,S          # which ACRA letter files
-python bakeoff.py --only taiwan            # one dataset
-python bakeoff.py --acra-local a.csv s.csv # skip the download
-python bakeoff.py --taiwan-local uci.xls   # skip the download
+python -m venv .venv
+# macOS / Linux:
+source .venv/bin/activate
+# Windows PowerShell:
+# .venv\Scripts\Activate.ps1
+
+python -m pip install -r requirements.txt
+python -m jupyter lab
 ```
 
-## If a download fails
+Open `online_shoppers_full_project.ipynb`. Keep its kernel working directory at the repository root: the existing code refers to `data/uci_468.csv` relative to that directory. The notebook also has an upstream UCI download fallback if the local CSV is absent.
 
-The ACRA dataset IDs and the data.gov.sg download endpoint were taken from page
-metadata, not from a confirmed fetch. Both loaders print the real error and the
-real CSV header. Fall back to the manual path:
+**Important:** Running the notebook executes experiments and reuses its existing train/test split; it is not an untouched new holdout evaluation. Preserved notebook outputs and results reflect the earlier modelling and cost assumptions (including `C_FN/C_FP = 5`), not the group's latest CAC/discount proposal.
 
-- ACRA, from <https://data.gov.sg/collections/2/view>, then `--acra-local`
-- Taiwan, from <https://archive.ics.uci.edu/dataset/350/default+of+credit+card+clients>, then `--taiwan-local`
+## Scope and modelling plan
+
+The group has chosen **prediction**, not inference, and will compare the three taught classifier families (logistic regression, Naive Bayes, discriminant analysis). The professor requested an initial attempt with all predictors and each model in its as-is form before testing modifications. Numeric-coded nominal categories must not be treated as ranked quantities. Cross-validation should guide subsequent modifications, and the test partition should remain outside model selection.
+
+The existing notebook's historical 75/25 stratified split is retained. No split, results, model specification, target or cost calculation was changed during this repository cleanup.
+
+## Repository layout
+
+```text
+online_shoppers_full_project.ipynb   # preserved main analysis (root for existing paths)
+data/uci_468.csv                      # dataset used by the notebook
+docs/project_decisions.md             # latest instructions, decisions, open questions
+docs/methodology.md                   # planned workflow; no new analyses
+archive/online-shoppers/             # previous drafts and brief
+archive/dataset-selection/           # old multi-dataset bake-off code and outputs
+AGENTS.md / CLAUDE.md                 # current contributor / agent guidance
+requirements.txt                      # main notebook dependencies
+.gitignore                            # ignore local/generated files
+```
+
+No new predictive or cost-based findings are claimed by this reorganisation.
