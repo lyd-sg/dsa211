@@ -6,7 +6,7 @@ Prediction-focused classification project using the [UCI Online Shoppers Purchas
 
 ## Phase 2 — revised core analysis
 
-- [**`online_shoppers_revised.ipynb`**](online_shoppers_revised.ipynb) — new step-by-step, prediction-focused notebook for the professor-specified core analysis and two agreed extensions. The model outputs are **not** claimed to have been regenerated until the notebook is executed on the real dataset.
+- [**`online_shoppers_revised.ipynb`**](online_shoppers_revised.ipynb) — new step-by-step, prediction-focused notebook for the professor-specified core analysis and two agreed extensions. The notebook has been **executed against the actual committed dataset in GitHub Actions**; the source notebook remains free of generated outputs, and a successful run's executed notebook can be downloaded from the workflow artifacts.
 - [**`docs/phase2_scope.md`**](docs/phase2_scope.md) — scope, analysis stages, old-versus-new differences and verification caveats.
 - [**Notebook validation workflow**](.github/workflows/validate-notebook.yml) — executes the revised notebook against `data/uci_468.csv` and uploads an executed notebook artifact when GitHub Actions is enabled.
 
