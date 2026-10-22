@@ -10,7 +10,7 @@ Predict session-level `Revenue` and compare exactly two simulated revenue scenar
 
 - A1 guaranteed conversion; A2 20% discount without minimum spend; A3 common order value `A`; A4 observed outcomes represent no-voucher behaviour.
 - Revenue opportunity costs are `C_FN=0.20A`, `C_FP=0.80A`, ratio `1:4`. Do not restore superseded business assumptions or invent monetary inputs.
-- The calibrated theoretical threshold is `0.80`. Per the user's audit clarification, select the classifier by highest mean training CV ROC-AUC, then optimise only its threshold using training OOF simulated revenue. Report PR-AUC and fold variation alongside ROC-AUC.
+- The theoretical threshold is `0.80` when the predicted probability equals the true no-voucher purchase probability. Per the user's audit clarification, select the classifier by highest mean training CV ROC-AUC, then optimise only its threshold using training OOF simulated revenue. Report PR-AUC and fold variation alongside ROC-AUC.
 - Preserve 75/25 stratified split, seed 42; five stratified training folds. Fit preprocessing inside folds.
 - First attempt all 17 predictors with logistic regression, Gaussian Naive Bayes, LDA and QDA. Document genuine warnings/failures before changes.
 - Treat nominal numeric-coded categories as unranked. Investigate `PageValues`, then exclude it from operational models on availability grounds.

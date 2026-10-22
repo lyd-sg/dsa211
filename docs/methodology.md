@@ -14,6 +14,18 @@ Compare inclusion/exclusion of `PageValues` on identical training folds. The AUC
 
 Reuse the bounded Phase 2 candidates: raw inputs; log, Yeo–Johnson and quantile transformations; fold-fitted zero indicators; numeric interactions; a predeclared five-predictor subset; and model-specific regularisation or smoothing. Assumption diagnostics inform plausibility rather than guarantee predictive gains. Fit all preprocessing inside pipelines. Do not introduce unrelated classifiers or extensive bootstrap searches.
 
+The expanded comparison means multiple specifications within the same model families, beyond the professor's minimum of fitting one version of each required classifier:
+
+| Group | Number of configurations | Purpose |
+|---|---:|---|
+| All-predictor/operational baselines and initial QDA repair | 9 | Record the first pass and the effect of excluding `PageValues` |
+| Transformations | 12 | Compare log, Yeo–Johnson, quantile and log-plus-zero-indicator inputs across logistic, Gaussian NB and LDA |
+| Interaction/subset alternatives | 3 | Test numeric predictor interactions and one predeclared five-predictor logistic model |
+| Parameter settings | 5 | Compare logistic regularisation, NB smoothing, LDA shrinkage and QDA covariance regularisation |
+| Mixed/numerical-only specifications | 6 | Address the Gaussian/dummy mismatch for NB, LDA and QDA |
+
+These sum to 35 configurations, including baselines and failed fits. The first 29 designs came from the existing Phase 2 workflow; the six mixed/numerical-only alternatives address the subsequent consolidated requirements. Transformation, interaction, subset and tuning searches are optional refinements beyond the professor's minimum list, not separate project objectives.
+
 ## Mixed-predictor resolution
 
 One-hot encoding makes nominal features usable by numeric-input estimators, but it does not make their binary values Gaussian. Transforming numerical columns does not repair that distributional mismatch. Preserve the legacy Gaussian NB, LDA and QDA dummy-coded experiments as approximate diagnostic comparisons, including their failures. Exclude those challenged specifications from the final operational selection registry.
@@ -26,7 +38,7 @@ The numerical-only LDA/QDA alternatives deliberately omit all eight categorical 
 
 ## Training CV and sequential selection
 
-Use five stratified training folds, shuffled with seed 42. Every training session receives a probability from a model fitted without its fold. Report ROC-AUC and PR-AUC (defined as average precision), mean and sample SD across folds, pooled OOF metrics, sensitivity, specificity, confusion matrices, ROC/PR curves and calibration information. Average precision is the recall-step-weighted precision summary, not trapezoidal PR integration. Mean fold scores and pooled OOF scores are different summaries; SD is fold-to-fold spread, not a confidence interval. The PR no-skill reference is training purchase prevalence.
+Use five stratified training folds, shuffled with seed 42. Every training session receives a probability from a model fitted without its fold. Report ROC-AUC and PR-AUC (defined as average precision), mean and sample SD across folds, pooled OOF metrics, sensitivity, specificity, confusion matrices, ROC/PR curves. Average precision is the recall-step-weighted precision summary, not trapezoidal PR integration. Mean fold scores and pooled OOF scores are different summaries; SD is fold-to-fold spread, not a confidence interval. The PR no-skill reference is training purchase prevalence.
 
 The user's audit clarification settles the previously unresolved selection criterion: select the classifier with the highest mean training CV ROC-AUC among defensible eligible specifications, then fix that classifier and optimise only its threshold for training OOF simulated revenue. Break exact AUC ties deterministically by candidate label. Report PR-AUC and the best-AP candidate as additional predictive evidence, not an unstated replacement selection rule. Do not claim this sequential procedure maximises revenue across classifiers.
 
@@ -45,9 +57,9 @@ Apply A1–A4 in [project decisions](project_decisions.md). With positive class 
 | FN | Voucher; baseline buyer receives an unnecessary discount | `0.80A` |
 | TN | Voucher; baseline non-buyer converts under A1 | `0.80A` |
 
-Missing an assumed discounted conversion costs `0.80A` per FP; unnecessarily discounting a baseline purchase costs `0.20A` per FN. Hence `C_FN:C_FP=1:4`. Comparing full-price expected revenue `pA` with voucher revenue `0.80A` gives theoretical threshold `0.80` for calibrated probabilities.
+Missing an assumed discounted conversion costs `0.80A` per FP; unnecessarily discounting a baseline purchase costs `0.20A` per FN. Hence `C_FN:C_FP=1:4`. Comparing full-price expected revenue `pA` with voucher revenue `0.80A` gives theoretical threshold `0.80` when `p` equals the true no-voucher purchase probability.
 
-Compare the training-selected threshold with `0.80` and `0.5`. Plot sensitivity/specificity and revenue/opportunity cost across thresholds. Discuss calibration and finite-sample variation without treating a calibration diagnostic as proof of the cause. These are operating points of the same model-guided scenario, not extra business-policy scenarios.
+Compare the training-selected threshold with `0.80` and `0.5`. Plot sensitivity/specificity and revenue/opportunity cost across thresholds. Explain the distinction between the theoretical true-probability rule and the empirical training OOF optimum; finite-sample variation can affect the empirical cutoff. These are operating points of the same model-guided scenario, not extra business-policy scenarios.
 
 ## Extension 2: historical test and two scenarios
 

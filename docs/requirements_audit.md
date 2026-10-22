@@ -4,7 +4,7 @@ This audit reconciles the final implementation brief with the subsequently suppl
 
 ## Why the voucher allocation becomes extreme
 
-The current assumptions guarantee revenue `0.80A` after a voucher, whereas withholding a voucher has expected revenue `pA`. Therefore every calibrated session probability below `0.80` favours a voucher. In a dataset with approximately 15.5% purchases and few high-confidence buyers, this can favour issuing vouchers to nearly every session.
+The current assumptions guarantee revenue `0.80A` after a voucher, whereas withholding a voucher has expected revenue `pA`. Therefore a true no-voucher purchase probability below `0.80` favours a voucher. In a dataset with approximately 15.5% purchases and few high-confidence buyers, this can favour issuing vouchers to nearly every session.
 
 An extreme allocation is not, by itself, evidence of a reversed decision rule or a revenue-formula error. It does mean the simulation can be dominated by A1 rather than demonstrate useful selective targeting. Keep that distinction explicit. Do not modify assumptions, thresholds or results merely to obtain a preferred allocation.
 
@@ -36,7 +36,7 @@ The six added model specifications follow the explicit mixed-predictor requireme
 | ROC-AUC, PR-AUC, spread, confusion metrics | Fold mean/SD tables, selected per-fold metrics, ROC/PR curves and CV/test audit |
 | Voucher decision rule | `p >= t` → predicted Buy → no voucher; `p < t` → voucher |
 | Opportunity costs | `C_FP=0.80A`, `C_FN=0.20A`, hence FN:FP=1:4 |
-| Theoretical and empirical thresholds | Calibrated reference 0.80 and exact training OOF cutpoint search |
+| Theoretical and empirical thresholds | True-probability theoretical reference 0.80 and exact training OOF cutpoint search |
 | Fixed no-voucher baseline | `TP+FN` equals observed buyers at every cutoff |
 | Exactly two revenue scenarios | No voucher versus selected model-guided vouchers; no extra policy comparator |
 | Revenue arithmetic | `Rmodel/A=TP+0.80(FN+TN)`; `delta/A=0.80TN-0.20FN`; divide by fixed buyers for relative change |

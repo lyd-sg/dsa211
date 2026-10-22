@@ -19,7 +19,7 @@ A false positive receives no voucher and misses an assumed discounted conversion
 
 The no-voucher baseline is `R0/A=TP+FN`. Model-guided revenue is `Rmodel/A=TP+0.80(FN+TN)`. The difference is `delta/A=0.80TN-0.20FN`, with relative change `(0.80TN-0.20FN)/(TP+FN)`. Revenue is higher exactly when `4TN>FN`.
 
-For calibrated purchase probability `p`, full-price expected revenue is `pA`, versus `0.80A` with a voucher under A1. The theoretical threshold is therefore `0.80`. The user's subsequent audit clarification selects the classifier by highest mean training CV ROC-AUC, then optimises only that classifier's threshold using training OOF simulated revenue. This explicitly supersedes the earlier joint revenue-based model-selection instruction. Report PR-AUC and fold variation alongside ROC-AUC; keep predictive model choice separate from the business extension.
+If `p` represents the true no-voucher purchase probability, full-price expected revenue is `pA`, versus `0.80A` with a voucher under A1. The theoretical threshold is therefore `0.80`. The user's subsequent audit clarification selects the classifier by highest mean training CV ROC-AUC, then optimises only that classifier's threshold using training OOF simulated revenue. This explicitly supersedes the earlier joint revenue-based model-selection instruction. Report PR-AUC and fold variation alongside ROC-AUC; keep predictive model choice separate from the business extension.
 
 ## Statistical decisions retained
 

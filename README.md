@@ -20,7 +20,7 @@ Assume **A1** guaranteed conversion for every voucher recipient; **A2** a 20% di
 
 In units of `A`, no-voucher revenue is `TP+FN`, and model-guided revenue is `TP+0.80(FN+TN)`. The difference is `0.80TN−0.20FN`; relative change divides this by `TP+FN`. The common order value cancels. FP and FN opportunity costs are `0.80A` and `0.20A`, respectively: `C_FN:C_FP=1:4`.
 
-The calibrated theoretical cutoff is `0.80`. Select the classifier by **highest mean training CV ROC-AUC**, then optimise **only its threshold** using training out-of-fold simulated revenue, as clarified during the requirements audit. Report PR-AUC and fold variation as additional predictive evidence. Compare exactly the two stated revenue scenarios, even if the selected threshold allocates vouchers to nearly every session under guaranteed conversion.
+The theoretical cutoff is `0.80` when the predicted probability equals the true no-voucher purchase probability. Select the classifier by **highest mean training CV ROC-AUC**, then optimise **only its threshold** using training out-of-fold simulated revenue, as clarified during the requirements audit. Report PR-AUC and fold variation as additional predictive evidence. Compare exactly the two stated revenue scenarios, even if the selected threshold allocates vouchers to nearly every session under guaranteed conversion.
 
 ## Computed results
 

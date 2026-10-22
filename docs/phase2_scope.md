@@ -16,7 +16,7 @@ The group's final revision brief replaces the prior business assumptions. It pre
 - Six targeted mixed/numeric-only alternatives resolve the consolidated checklist's predictor-likelihood concern; challenged dummy-Gaussian fits remain diagnostic rather than final eligible models.
 - PR-AUC defined as average precision, ROC-AUC, fold means/sample SDs, selected per-fold results, ROC/PR curves and pooled OOF/test comparisons.
 - Classifier selection by highest mean training CV ROC-AUC, followed by training OOF revenue optimisation of only its threshold, as clarified by the user during the consolidated-requirements audit.
-- **Extension 1:** empirical training threshold, theoretical 0.80 reference, sensitivity/specificity, revenue/opportunity-cost plots and calibration context.
+- **Extension 1:** empirical training threshold, theoretical 0.80 reference, sensitivity/specificity, revenue/opportunity-cost plots.
 - **Extension 2:** fixed-strategy CV versus historical test comparison.
 - Exactly two revenue scenarios: no voucher and selected model-guided vouchers; unchanged observed labels; all four confusion outcomes explained.
 - Executed outputs and computed interpretations in the revised notebook.
@@ -34,7 +34,7 @@ Execute the entire revised notebook using actual committed data, inspect its out
 Dataset SHA-256: `b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9`.
 Original notebook SHA-256: `debec6b36b796a2bc41d92d6abe57a645281d1d027a5d56f99cde32880636e17`.
 
-The final consolidated-checklist execution completed all **21 code cells** without a cell error. Of **35 candidate designs**, 33 completed; the two default-QDA covariance failures remain recorded analysis outcomes. All six added mixed/numeric-only designs completed. The original 29 designs remain in the ledger. Nine generated figures, tables, full warnings and the HTML export were inspected manually; no automated code-checking tests were added.
+The final consolidated-checklist execution completed all **21 code cells** without a cell error. Of **35 candidate designs**, 33 completed; the two default-QDA covariance failures remain recorded analysis outcomes. All six added mixed/numeric-only designs completed. The original 29 designs remain in the ledger. Eight generated figures, tables, full warnings and the HTML export were inspected manually; no automated code-checking tests were added.
 
 The selected candidate is Yeo–Johnson logistic regression, threshold `0.8018563753337375`: mean fold AUC `0.7620988792` (SD `0.0230554998`), pooled OOF AUC `0.7619108289`, historical test AUC `0.7410410744`. Mean fold AP is `0.3418941992` (SD `0.0360919107`); pooled OOF AP is `0.3376999418`, versus historical test AP `0.3288474677`.
 
