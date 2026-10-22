@@ -1,32 +1,57 @@
-# Working methodology — for statistical revision (not executed here)
+# Revised classification and voucher-revenue methodology
 
-This is the intended flow from the uploaded `project_cv_workflow.html`, the Week 7/8 course materials, and the latest professor/group instructions. It is **not** a replacement for the results already shown in the preserved notebook.
+## Data and validation protocol
 
-## Dataset and existing split
+Run `online_shoppers_revised.ipynb` from the repository root using committed `data/uci_468.csv`. The unit is a browsing session and `Revenue=1` is an observed purchase without the proposed intervention. Vouchers are downstream hypothetical actions, never predictors or replacement labels.
 
-- Prediction target: `Revenue`; observational unit: **browsing session**, not an identified individual customer.
-- Existing notebook: 12,330 sessions with a **75/25 stratified split** (`random_state=42`). Phase 1 does **not** change this.
-- Course guide: perform only data-quality checks before splitting; do outcome-related EDA and model selection on **training data only**. The final test set is used once for the chosen model.
-- **Historical holdout caveat:** The existing notebook has already produced test results. Its test set cannot be presented as newly untouched merely by reorganising files or re-running the notebook.
+Check schema, types, missingness, duplicates and class balance. Do not remove identical rows on the assumption they identify duplicate customers. Preserve the historical 75/25 stratified split, seed 42: 9,247 training and 3,083 historical test sessions. Outcome-related numerical and categorical EDA uses training data only; explain how skewness, zeros, sparse categories and dependence motivate candidate improvements.
 
-## Intended analysis order
+## First pass and bounded improvements
 
-1. Check dataset structure, response type, missing values, duplicate rows and class balance; preserve an audit trail.
-2. Split training/test once (or retain the already executed 75/25 split when continuing the historical analysis).
-3. Conduct EDA using **training data only**: class balance, skewness, zero frequencies, numerical/categorical relationships, and likely encoding issues.
-4. Attempt **all required first-pass classifier families** with all original predictors in unoptimised forms. Apply only technically essential encoding so a numeric-input estimator can be fitted; record any default-model failure instead of hiding it.
-5. Evaluate initial models by a shared **StratifiedKFold** scheme. Record AUC, sensitivity, specificity, confusion matrices and other predeclared metrics. Clearly separate first-pass diagnostics from subsequent improvements.
-6. Compare proposed preprocessing, binary representations, transformations, model-specific tuning and predictor subsets **inside leakage-free CV pipelines**. Any fitted encoder, scaler, imputer or selector must learn only from that fold's training partition.
-7. Choose the final family, specification and classification threshold using training/CV data. The **CAC and discount×AOV cost framework remains pending** and replaces no prior output until clarified and recomputed.
-8. Reserve final independent test scoring for one predeclared winner. If examining the historical test results, identify them as **previously viewed**, not an unused fresh audit. Refit the final, fixed specification on all data only after assessment if appropriate.
+Attempt logistic regression, Gaussian Naive Bayes, LDA and QDA with all 17 original predictors. Technical encoding and fold-fitted imputation/scaling permit numeric-input fitting; do not drop predictors, binarise zeros or silently repair QDA before this pass. Retain warnings and failures in the ledger.
 
-## Known Phase 2 review items
+Compare inclusion/exclusion of `PageValues` on identical training folds. The AUC difference is diagnostic, not proof of leakage. Its possible transaction-derived definition and uncertain availability at allocation justify exclusion from operational 16-predictor candidates. Whole-session totals and rates also need prospective availability checks.
 
-- Historical notebook omits `PageValues` after an early leakage argument, whereas the new professor instruction calls for a first-pass all-predictor attempt. Make the stages explicit when revising.
-- Baseline QDA has a documented singular-covariance fitting failure; preserve that observation and distinguish any stabilised QDA variant.
-- Historic threshold calculations assume `C_FN/C_FP=5`; these must be revisited rather than reported as the current group's business-cost conclusion.
-- The old source notebook and all outputs are preserved **byte-for-byte** in this housekeeping change.
+Reuse the bounded Phase 2 candidates: raw inputs; log, Yeo–Johnson and quantile transformations; fold-fitted zero indicators; numeric interactions; a predeclared five-predictor subset; and model-specific regularisation or smoothing. Assumption diagnostics inform plausibility rather than guarantee predictive gains. Fit all preprocessing inside pipelines. Do not introduce unrelated classifiers or extensive bootstrap searches.
 
-## Executing the current notebook
+## Training CV and joint selection
 
-Run from the **repository root**; it opens `data/uci_468.csv` through a relative path. Consult `README.md` for environment setup. Changes to notebook code, tests and metrics belong in Phase 2.
+Use five stratified training folds, shuffled with seed 42. Every training session receives a probability from a model fitted without its fold. Report mean fold AUC, pooled out-of-fold AUC, sensitivity, specificity, confusion matrices, ROC curves and calibration information. Mean fold AUC and pooled AUC are different summaries.
+
+For each eligible operational candidate, choose the threshold maximising training out-of-fold simulated revenue. Select model and threshold jointly by revenue, using a declared deterministic tie rule and AUC as a secondary discrimination measure. Do not first select on AUC and then claim to maximise revenue across models.
+
+Evaluate attainable classifications at observed probability cutpoints, including endpoint assignments. Keep the no-voucher revenue baseline fixed for each sample. Threshold changes affect voucher allocation, not observed labels. Do not constrain an extreme optimum to create a preferred story or add a third business-policy comparison.
+
+Although each fold's preprocessing and fitting exclude its validation rows, candidate and threshold selection reuse the out-of-fold results. Selected training estimates have selection optimism and are not a separate unbiased post-selection evaluation. The already-viewed test set does not provide a fresh confirmatory audit.
+
+## Extension 1: threshold and revenue
+
+Apply A1–A4 in [project decisions](project_decisions.md). With positive class `Revenue=1`:
+
+| Outcome | Action and simulated outcome | Revenue |
+|---|---|---|
+| TP | No voucher; baseline buyer purchases | `A` |
+| FP | No voucher; baseline non-buyer does not purchase | `0` |
+| FN | Voucher; baseline buyer receives an unnecessary discount | `0.80A` |
+| TN | Voucher; baseline non-buyer converts under A1 | `0.80A` |
+
+Missing an assumed discounted conversion costs `0.80A` per FP; unnecessarily discounting a baseline purchase costs `0.20A` per FN. Hence `C_FN:C_FP=1:4`. Comparing full-price expected revenue `pA` with voucher revenue `0.80A` gives theoretical threshold `0.80` for calibrated probabilities.
+
+Compare the training-selected threshold with `0.80` and `0.5`. Plot sensitivity/specificity and revenue/opportunity cost across thresholds. Discuss calibration and finite-sample variation without treating a calibration diagnostic as proof of the cause. These are operating points of the same model-guided scenario, not extra business-policy scenarios.
+
+## Extension 2: historical test and two scenarios
+
+Freeze the winning specification and threshold, fit on the entire training partition, then evaluate on the historical test once. Report CV-versus-test AUC, sensitivity, specificity and confusion matrices. Do not revise the strategy after viewing test results.
+
+Compare exactly:
+
+1. No vouchers: `R0/A=TP+FN`.
+2. Selected model-guided vouchers: `Rmodel/A=TP+0.80(FN+TN)`.
+
+Then `delta/A=0.80TN-0.20FN` and relative change is `(0.80TN-0.20FN)/(TP+FN)`. The common order value cancels. Positive, zero and negative changes mean higher, equal and lower simulated sales revenue. Show counts and arithmetic; the conclusion concerns direction under the assumptions, not an actual sales-growth forecast.
+
+## Interpretation and limitations
+
+Every major section states its objective, methodology and implementation, followed by computed results, interpretation and implication. Retain executed tables and plots. Numerical interpretations must derive from the current run.
+
+Disclose unverified conversion, absent intervention outcomes, no causal revenue effects, revenue rather than profit, predictor timing, unavailable customer identity, candidate/threshold selection optimism and historical test reuse. New independent sessions and intervention evidence are needed for stronger claims.

@@ -1,49 +1,45 @@
-# Phase 2 scope and verification
+# Final revision scope and verification
 
-## Agreed scope
+## Provenance and preserved work
 
-This branch adds `online_shoppers_revised.ipynb`, using the uploaded two-page *Predicting Online Purchases* brief as the starting point, with the professor's later instruction to **attempt all predictors with all model families first**.
+The revision incorporates the complete existing `analysis/phase-2-core-notebook` history through `ab31c233850d0b6692eac275cc120a8194b2abeb`, rather than replacing or discarding that branch. The original notebook, source CSV and historical archives remain unchanged.
 
-- **Prediction, not coefficient inference.**
-- Dataset: UCI 468, target `Revenue`, 12,330 browsing **sessions**.
-- Outer split: retain the previously used **75/25 stratified split, random seed 42**.
-- CV: **5-fold stratified** training-only validation; each fold fits its own preprocessing.
-- Models: logistic regression, Gaussian Naive Bayes, LDA and QDA (with transparent default-QDA failure or repair notes).
-- Explicit all-17-predictor first pass, then operational 16-predictor models excluding `PageValues`, following the brief's timing/leakage argument.
-- EDA, assumptions, bounded CV-guided transformations and tuning, before/after comparisons, confusion matrices, sensitivity, specificity, ROC/AUC.
-- **Extension 1:** training-OOF threshold optimisation and sensitivity/specificity/cost curves.
-- **Extension 2:** CV-versus-historical-holdout comparison on the preselected winner and threshold.
+The group's final revision brief replaces the prior business assumptions. It preserves the professor's core classification work and two extensions, while excluding unrelated experiments. The archived PDF is a historical project source; its earlier intervention narrative, costs, optional experiments and unviewed-test claims are superseded by the explicit current brief.
 
-The previously discussed optional additional analyses—KNN, gradient boosting, splines, a bootstrap of the threshold, learning curves and exhaustive experimentation—are **deliberately excluded from this Phase 2 notebook**.
+## Included analysis
 
-## Cost and historical evaluation
+- Session-level UCI 468 purchase prediction; four families: logistic regression, Gaussian Naive Bayes, LDA and QDA.
+- Historical 75/25 stratified split, seed 42; five stratified training folds.
+- Data quality and training-only numerical/categorical EDA with modelling implications.
+- All-17-predictor first passes, recorded warnings/failures, `PageValues` review and operational exclusion.
+- Bounded Phase 2 transformations, zero indicators, interactions, subset and model-specific tuning; fold-fitted preprocessing.
+- Joint model/threshold selection maximising training OOF simulated revenue; AUC reported separately.
+- **Extension 1:** empirical training threshold, theoretical 0.80 reference, sensitivity/specificity, revenue/opportunity-cost plots and calibration context.
+- **Extension 2:** fixed-strategy CV versus historical test comparison.
+- Exactly two revenue scenarios: no voucher and selected model-guided vouchers; unchanged observed labels; all four confusion outcomes explained.
+- Executed outputs and computed interpretations in the revised notebook.
 
-The two-page brief uses a **hypothetical** cost ratio `C_FN/C_FP=5`; this Phase 2 notebook implements that assumption and stress-tests alternatives, rather than treating the group's later CAC/discount × AOV proposal as settled. It does not make causal claims about live support creating purchases.
+## Current business specification
 
-The original project notebook already displayed test-set results for the **same** 25% holdout. Consequently, re-executing the revised notebook's test section is **retrospective**, not an entirely new independent validation. New data would be required for that claim.
+A1 guaranteed voucher conversion; A2 20% discount without minimum spend; A3 common order value `A`; A4 observed labels represent no-intervention behaviour. Predict Buy means no voucher; Predict No Buy means voucher. `C_FN:C_FP=1:4` follows from `0.20A` versus `0.80A` opportunity costs.
 
-## Notebook quality controls
+Report `R0/A=TP+FN`, `Rmodel/A=TP+0.80(FN+TN)`, and relative change `(0.80TN−0.20FN)/(TP+FN)`. No invented monetary parameters, profit claims, universal-voucher policy comparison or causal effect estimates are introduced.
 
-- `online_shoppers_full_project.ipynb` is **unchanged**.
-- The revised notebook uses `data/uci_468.csv` and does not download or silently replace it.
-- Every statistical conclusion follows executable code. There are no pre-filled numerical claims that were not recomputed.
-- A smoke run with structurally compatible **synthetic** data confirmed the original 28-cell implementation executes; the final 36-cell version adds result interpretations without changing its executable code. Synthetic scores were **not** retained as findings.
-- `.github/workflows/validate-notebook.yml` runs the notebook on the actual committed dataset; when it completes, the executed notebook is available as a workflow artifact.
-- No previously viewed test data are used to fit the CV folds, transformation or selected threshold.
+## Verification protocol
 
-## Reproduce
+Execute the entire revised notebook using actual committed data, inspect its output, render an HTML copy for review, and inspect formulas, confusion interpretation, threshold selection and all narrative claims manually. No automated code-checking test suite is added. The existing GitHub workflow remains an end-to-end notebook execution workflow with output artifacts.
 
-```bash
-python -m pip install -r requirements.txt
-python -m pip install nbconvert nbclient
-jupyter nbconvert --to notebook --execute online_shoppers_revised.ipynb \
-  --output online_shoppers_revised_executed.ipynb
-```
+Dataset SHA-256: `b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9`.
+Original notebook SHA-256: `debec6b36b796a2bc41d92d6abe57a645281d1d027a5d56f99cde32880636e17`.
 
-Run from the repository root. The generated executed notebook is an **output**, not a replacement for the archived full notebook.
+The actual-data execution completed all 20 code cells without a cell error. Of 29 candidate designs, 27 completed; the two default-QDA covariance failures are intentional recorded analysis outcomes, not unhandled notebook errors. Separately labelled regularised QDA designs completed. Tables, all eight generated figures and the HTML export were inspected manually; no automated code-checking tests were added.
 
-## Changes deferred to a later approval
+The selected candidate is quantile-transformed logistic regression, threshold `0.8359523283877723`: mean fold AUC `0.7614554422`, pooled OOF AUC `0.7610129055`, historical test AUC `0.7408914439`. Training confusion counts are TP=1, FP=0, FN=1,430, TN=7,816. Test counts are TP=0, FP=0, FN=477, TN=2,606. The training-optimal rule sends vouchers to every historical test session, so its simulated test revenue `2,466.4A` exceeds the no-voucher `477A` by `1,989.4A` (`417.06%`) under guaranteed conversion. This is an assumption-driven simulation, not a growth forecast or evidence of meaningful test-set targeting.
 
-- Optional extra benchmarks, calibration/bootstrapping/learning curves.
-- New business-cost assumption based on a defined intervention and actual CAC/AOV.
-- Genuine fresh confirmatory testing on new, independent sessions.
+Python 3.12.14, NumPy 2.5.4, pandas 3.0.6 and scikit-learn 1.9.1 were used locally; runtime metadata is also printed in the notebook. Thread counts were capped at one for BLAS/OpenMP. The existing requirements file remains unchanged and specifies minimum versions rather than a frozen environment.
+
+[GitHub Actions](https://github.com/lyd-sg/dsa211/actions/workflows/validate-notebook.yml) reruns the real-data notebook on `main` pushes and retains the executed artifact. The workflow definition by itself is not evidence of a successful remote run; inspect the run for the delivered commit.
+
+## Remaining methodological limitations
+
+Voucher effectiveness cannot be verified without intervention outcomes. Revenue simulation is conditional on A1–A4, excludes profitability, and is not a sales-growth forecast. Predictor availability at decision time remains unresolved. Session identities do not identify unique customers. Selecting among candidates and thresholds on the same OOF predictions induces selection optimism. The previously inspected historical holdout cannot become a new independent evaluation by rerunning the notebook.

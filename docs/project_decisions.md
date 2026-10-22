@@ -1,30 +1,38 @@
-# Project decisions and open questions
+# Project decisions
 
-**Source:** Group meeting minutes provided in this project and the professor's subsequent first-pass instruction. These notes distinguish **agreed directions** from **unresolved details**; they are not empirical findings.
+The current authority is the group's **Final Project Revision and GitHub Implementation** brief supplied for this revision. It replaces earlier business assumptions while retaining the professor's core classification workflow. The archived two-page brief remains historical evidence; its previous intervention narrative and additional experiments are superseded.
 
-## Agreed direction
+## Research and voucher framework
 
-1. **Prediction only**, rather than an inference-focused report.
-2. Compare **all three taught approaches**: logistic regression, Naive Bayes, and discriminant analysis (LDA; QDA can be documented when applicable). Do not presuppose a winning model.
-3. **First-pass baseline:** attempt all model families with all original candidate predictors *as-is*, even where a family's distributional assumptions seem questionable. Record warnings and failures. Perform subsequent transformations, variable selection and other model-specific adjustments under cross-validation. Technical category encoding needed to fit a model is distinct from dropping/binarising predictors to improve performance.
-4. **Nominal predictor encoding:** never treat operating-system, browser, region or traffic-source codes as numerical rankings.
-5. **Zero-heavy numeric predictors:** investigate binary representations later, after the initial baselines; EDA alone is not proof that binarisation improves prediction.
-6. **Business cost proposals from meeting minutes:** FP cost = CAC; FN cost = discount applied to AOV. This is the group's proposed mapping, **not yet validated or implemented**. The older fixed `C_FN/C_FP=5` analysis must not be described as reflecting it.
-7. Investigate candidate solutions before asking the professor.
+Predict whether a browsing **session** purchases (`Revenue=1`). This is a prediction project, not coefficient inference or a causal study. Predict Buy (`p >= t`) means no voucher; Predict No Buy (`p < t`) means voucher. Recorded labels remain unchanged. Vouchers are a hypothetical downstream intervention, never predictors.
 
-## Customer scenarios raised in meeting
+- **A1:** every voucher recipient redeems and purchases with 100% certainty. This is hypothetical and unverified.
+- **A2:** each voucher discounts the order by 20%, with no minimum spend.
+- **A3:** all orders share representative value `A`; report revenue in units of `A`, without assigning money.
+- **A4:** recorded outcomes represent purchasing behaviour without the proposed intervention.
 
-- Customer buys once.
-- Customer buys in year 1 and again the next year.
-- Customer begins purchasing this year and buys again within that year.
-- A random one-observation-per-customer convention was discussed. **Do not apply this without resolving** whether unique customer IDs and repeated customer histories can be identified from the session-level data.
+Compare exactly two scenarios: no vouchers and the selected model-guided voucher strategy. Evaluate sales revenue, not profitability. Do not invent AOV, margins, acquisition costs or voucher-effect estimates.
 
-## Questions to resolve
+## Opportunity costs and revenue
 
-- Whether a 75/25 (existing notebook) or different train/test split should be retained. Professor left the ratio to the group; the course CV workflow allows commonly used 20–30% holdouts.
-- Model-specific treatment of the **mixed numeric/categorical predictors** after researching options.
-- Whether customer uniqueness needs to be addressed and, if so, whether that is feasible for a session-level dataset.
-- Decision/action definitions required before assigning CAC or discount × AOV to FP and FN, and before selecting a cost-based threshold.
-- Timing/availability of `PageValues` at actual prediction time, and how an **all-predictor first pass** is distinguished from a later leakage-safe operational specification.
+A false positive receives no voucher and misses an assumed discounted conversion: `C_FP=0.80A`. A false negative receives an unnecessary discount on an otherwise full-price order: `C_FN=0.20A`. Thus `C_FN:C_FP=1:4`. These are conditional opportunity costs, not measured financial losses.
 
-These are recorded as unresolved; they have not been settled by this housekeeping pull request.
+The no-voucher baseline is `R0/A=TP+FN`. Model-guided revenue is `Rmodel/A=TP+0.80(FN+TN)`. The difference is `delta/A=0.80TN-0.20FN`, with relative change `(0.80TN-0.20FN)/(TP+FN)`. Revenue is higher exactly when `4TN>FN`.
+
+For calibrated purchase probability `p`, full-price expected revenue is `pA`, versus `0.80A` with a voucher under A1. The theoretical threshold is therefore `0.80`. Choose the empirical threshold and model using training out-of-fold simulated revenue. ROC-AUC describes discrimination; it does not replace this selection objective.
+
+## Statistical decisions retained
+
+- UCI 468; historical 75/25 stratified split, seed 42; five stratified training folds.
+- Attempt all 17 predictors with logistic regression, Gaussian Naive Bayes, LDA and QDA first. Record actual numerical warnings and failures before repairs.
+- Treat numeric-coded nominal predictors as unranked. Fit imputation, encoding, scaling and transformations inside CV pipelines.
+- Investigate `PageValues` in first-pass fits, then exclude it operationally because its availability before voucher allocation is uncertain. AUC differences alone do not prove leakage.
+- Retain the bounded Phase 2 transformation, interaction, subset and tuning comparisons. Exclude unrelated classifiers and extensive resampling experiments.
+- Select specification and threshold before historical test evaluation; never use that partition for tuning.
+- Retain both extensions: threshold analysis and CV-versus-historical-test comparison.
+
+## Unresolved practical limitations
+
+Voucher response is absent, so A1 cannot be verified. Large simulated gains cannot be forecast as actual sales growth. Costs, margins and expenses are omitted. Session totals, durations, exit/bounce information and `PageValues` require prediction-time availability checks. Customer IDs are absent, so repeated people cannot be reliably identified or group-split. The historical test has already been inspected; candidate and threshold selection on the same training CV predictions introduces selection optimism.
+
+The original notebook, dataset and archives remain unchanged historical records; their retained results and assumptions are not current findings.

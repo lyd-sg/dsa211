@@ -1,62 +1,70 @@
 # DSA211 — Online Shoppers Purchasing Intention
 
-Prediction-focused classification project using the [UCI Online Shoppers Purchasing Intention dataset](https://archive.ics.uci.edu/dataset/468/online+shoppers+purchasing+intention). The response is `Revenue` (whether a browsing **session** ends in a purchase).
-
-> **Status:** Existing exploratory work has been preserved; the notebook is **not an approved final analysis**. The professor's latest baseline instruction and the group's revised business-cost assumptions still need statistical review. This housekeeping change does **not** rerun models, alter results, or validate earlier conclusions.
-
-## Phase 2 — revised core analysis
-
-- [**`online_shoppers_revised.ipynb`**](online_shoppers_revised.ipynb) — new step-by-step, prediction-focused notebook for the professor-specified core analysis and two agreed extensions. The notebook has been **executed against the actual committed dataset in GitHub Actions**; the source notebook remains free of generated outputs, and a successful run's executed notebook can be downloaded from the workflow artifacts.
-- [**`docs/phase2_scope.md`**](docs/phase2_scope.md) — scope, analysis stages, old-versus-new differences and verification caveats.
-- [**Notebook validation workflow**](.github/workflows/validate-notebook.yml) — executes the revised notebook against `data/uci_468.csv` and uploads an executed notebook artifact when GitHub Actions is enabled.
-
-The original main notebook is still kept at the root unchanged as a historical reference. Both notebooks expect the repository root as their working directory.
+Predict whether a browsing **session** ends in a purchase, then evaluate a hypothetical model-guided voucher strategy against a no-voucher baseline. The positive class is `Revenue=1`. This is prediction and simulated sales-revenue analysis, not a causal intervention study or a profitability forecast.
 
 ## Start here
 
-- [`online_shoppers_full_project.ipynb`](online_shoppers_full_project.ipynb) — full, **unchanged** analysis notebook. It contains EDA, model comparisons, CV, tuning, historical test-set results, and provisional conclusions.
-- [`docs/project_decisions.md`](docs/project_decisions.md) — recorded professor instructions, group consensus, and outstanding questions.
-- [`docs/methodology.md`](docs/methodology.md) — proposed workflow for the subsequent statistical revision; **not a claim that every step has been completed**.
-- [`data/uci_468.csv`](data/uci_468.csv) — version of the dataset currently used by the notebook.
-- [`archive/README.md`](archive/README.md) — previous dataset-selection work and superseded Online Shoppers drafts.
+- [Executed revised notebook](online_shoppers_revised.ipynb): the current analysis, including EDA, all-predictor first passes, bounded CV improvements, threshold optimisation and historical test evaluation.
+- [Project decisions](docs/project_decisions.md): assumptions, decision rule and revenue derivation.
+- [Methodology](docs/methodology.md): split, CV, selection and interpretation.
+- [Scope and verification](docs/phase2_scope.md): provenance, execution evidence and limitations.
+- [Validation workflow](.github/workflows/validate-notebook.yml): reruns the revised notebook on the committed dataset and retains an executed artifact.
+- [Original notebook](online_shoppers_full_project.ipynb) and [archives](archive/README.md): unchanged historical records, not the current business framework.
 
-## Run the existing notebook
+## Voucher framework
 
-From the **repository root**, with Python installed:
+Predict Buy → **no voucher**. Predict No Buy → **voucher**. Observed labels never change.
+
+Assume **A1** guaranteed conversion for every voucher recipient; **A2** a 20% discount with no minimum spend; **A3** identical representative order value `A`; and **A4** recorded purchases represent no-voucher behaviour. Voucher effectiveness is unobserved, so A1 is hypothetical.
+
+In units of `A`, no-voucher revenue is `TP+FN`, and model-guided revenue is `TP+0.80(FN+TN)`. The difference is `0.80TN−0.20FN`; relative change divides this by `TP+FN`. The common order value cancels. FP and FN opportunity costs are `0.80A` and `0.20A`, respectively: `C_FN:C_FP=1:4`.
+
+The calibrated theoretical cutoff is `0.80`. Select the model and empirical threshold jointly using **training out-of-fold simulated revenue**; report ROC-AUC separately as discrimination. Compare exactly the two stated scenarios, even if the selected threshold allocates vouchers to nearly every session under guaranteed conversion.
+
+## Computed results
+
+The actual-data execution selected **logistic regression with quantile-transformed numeric predictors**, cutoff **0.8359523283877723**. Model and cutoff were fixed from training OOF revenue before evaluating the historical test.
+
+| Metric | Training CV/OOF | Historical test |
+|---|---:|---:|
+| Mean fold ROC-AUC | 0.761455 | — |
+| Pooled ROC-AUC | 0.761013 | 0.740891 |
+| Sensitivity at selected cutoff | 0.000699 | 0.000000 |
+| Specificity at selected cutoff | 1.000000 | 1.000000 |
+| TP / FP / FN / TN | 1 / 0 / 1,430 / 7,816 | 0 / 0 / 477 / 2,606 |
+| Vouchers issued | 9,246 / 9,247 | 3,083 / 3,083 |
+| No-voucher revenue | 1,431.0A | 477.0A |
+| Model-guided simulated revenue | 7,397.8A | 2,466.4A |
+| Simulated difference | +5,966.8A (+416.97%) | +1,989.4A (+417.06%) |
+
+The selected rule sends vouchers to **every historical test session**. Its test sensitivity is therefore zero and specificity one; it provides no selective targeting on that partition. Higher simulated revenue is conditional on A1–A4 and chiefly reflects guaranteed conversion, not evidence of actual sales growth or profit.
+
+Quantile and log-transformed logistic candidates tied on maximum training OOF revenue; the declared AUC tie-break selected the quantile candidate. Do not interpret this tiny, sample-dependent distinction as robust superiority. Of 29 attempted designs, 27 completed; default QDA failed on singular covariance in both initial predictor sets and its regularised alternatives were evaluated separately.
+
+## Reproduce
+
+Use Python 3.12, as validated for this revision. From the repository root:
 
 ```bash
 python -m venv .venv
-# macOS / Linux:
 source .venv/bin/activate
-# Windows PowerShell:
-# .venv\Scripts\Activate.ps1
-
 python -m pip install -r requirements.txt
 python -m jupyter lab
 ```
 
-Open `online_shoppers_full_project.ipynb`. Keep its kernel working directory at the repository root: the existing code refers to `data/uci_468.csv` relative to that directory. The notebook also has an upstream UCI download fallback if the local CSV is absent.
+Open `online_shoppers_revised.ipynb`. The committed local dataset avoids a network download. Run all cells in order, or produce a separate executed notebook:
 
-**Important:** Running the notebook executes experiments and reuses its existing train/test split; it is not an untouched new holdout evaluation. Preserved notebook outputs and results reflect the earlier modelling and cost assumptions (including `C_FN/C_FP = 5`), not the group's latest CAC/discount proposal.
-
-## Scope and modelling plan
-
-The group has chosen **prediction**, not inference, and will compare the three taught classifier families (logistic regression, Naive Bayes, discriminant analysis). The professor requested an initial attempt with all predictors and each model in its as-is form before testing modifications. Numeric-coded nominal categories must not be treated as ranked quantities. Cross-validation should guide subsequent modifications, and the test partition should remain outside model selection.
-
-The existing notebook's historical 75/25 stratified split is retained. No split, results, model specification, target or cost calculation was changed during this repository cleanup.
-
-## Repository layout
-
-```text
-online_shoppers_full_project.ipynb   # preserved main analysis (root for existing paths)
-data/uci_468.csv                      # dataset used by the notebook
-docs/project_decisions.md             # latest instructions, decisions, open questions
-docs/methodology.md                   # planned workflow; no new analyses
-archive/online-shoppers/             # previous drafts and brief
-archive/dataset-selection/           # old multi-dataset bake-off code and outputs
-AGENTS.md / CLAUDE.md                 # current contributor / agent guidance
-requirements.txt                      # main notebook dependencies
-.gitignore                            # ignore local/generated files
+```bash
+python -m jupyter nbconvert --to notebook --execute online_shoppers_revised.ipynb \
+  --ExecutePreprocessor.timeout=1200 \
+  --output online_shoppers_revised_executed.ipynb \
+  --output-dir=/tmp
 ```
 
-No new predictive or cost-based findings are claimed by this reorganisation.
+Execution performs real statistical analysis. In the cloud, the prepared virtual environment is `/workspace/dsa211/.venv`. If the home directory is read-only, set Jupyter/IPython/Matplotlib configuration and runtime paths to writable workspace directories as described in the saved cloud startup instructions.
+
+## Statistical scope and limitations
+
+Retain the historical **75/25 stratified split, seed 42**, and **five-fold stratified training CV**. Attempt logistic regression, Gaussian Naive Bayes, LDA and QDA with all 17 predictors first; record real warnings and failures. Exclude `PageValues` operationally after its timing review, and fit all preprocessing inside folds. Retain the two extensions: threshold analysis and CV versus historical test comparison.
+
+The same OOF results guide candidate and threshold selection, so selected CV results have selection optimism. The historical test partition was already viewed in the original notebook and is **not fresh independent confirmation**. Session-end predictor timing requires review before real-time deployment; customer IDs are unavailable. Voucher outcomes are absent, guaranteed conversion is unverified, and expenses and margins are excluded. Numerical simulated gains must not be presented as a reliable forecast of actual growth.

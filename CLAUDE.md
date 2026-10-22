@@ -2,26 +2,24 @@
 
 ## Current project
 
-The active task is a **prediction-focused** comparison of classification methods for UCI Online Shoppers Purchasing Intention (`Revenue`, **session-level** observations).
+The active entry point is `online_shoppers_revised.ipynb`. Read `README.md`, `docs/project_decisions.md`, `docs/methodology.md` and `docs/phase2_scope.md` before changing the analysis. The current authorised phase includes statistical revision and execution; the old Phase 1 housekeeping-only restriction is superseded.
 
-**Entry point:** `online_shoppers_full_project.ipynb` at the repository root. It is a preserved historical notebook. `data/uci_468.csv` matches its existing relative file path. Read [`docs/project_decisions.md`](docs/project_decisions.md), [`docs/methodology.md`](docs/methodology.md), and [`README.md`](README.md) before modifying analysis.
+Predict session-level `Revenue` and compare exactly two simulated revenue scenarios: no vouchers and model-guided vouchers. Predict Buy means no voucher; Predict No Buy means voucher. Keep observed labels unchanged. Vouchers are hypothetical actions after classification, not predictors.
 
-## Project-specific requirements
+## Required framework
 
-- Respect the professor's instruction to attempt **all required models with all candidate predictors on the first pass**, recording genuine numerical failures before CV-guided alterations.
-- Compare the three taught families: logistic regression, Naive Bayes and discriminant analysis. Do not preselect the winner.
-- Treat nominal numeric-coded categories as **unranked**; do not automatically binarise zero-heavy numeric predictors prior to the first pass.
-- Keep outcome-related EDA, preprocessing fitted from data, selection and hyperparameter tuning within the training/CV workflow; the held-out test is not a tuning set.
-- Distinguish existing historical results from any new execution. Do not present the already-viewed notebook test set as a fresh unused holdout.
-- The group's proposed **CAC/discount×AOV** error costs are **not yet implemented or validated**. The preserved notebook uses `C_FN/C_FP=5`; do not silently present its threshold or final conclusion as updated.
-- Do not assume repeated customers are identifiable. The dataset represents **sessions**; the group has unresolved questions about customer uniqueness.
+- A1 guaranteed conversion; A2 20% discount without minimum spend; A3 common order value `A`; A4 observed outcomes represent no-voucher behaviour.
+- Revenue opportunity costs are `C_FN=0.20A`, `C_FP=0.80A`, ratio `1:4`. Do not restore superseded business assumptions or invent monetary inputs.
+- The calibrated theoretical threshold is `0.80`. Select the empirical threshold and model using training OOF simulated revenue; AUC measures discrimination separately.
+- Preserve 75/25 stratified split, seed 42; five stratified training folds. Fit preprocessing inside folds.
+- First attempt all 17 predictors with logistic regression, Gaussian Naive Bayes, LDA and QDA. Document genuine warnings/failures before changes.
+- Treat nominal numeric-coded categories as unranked. Investigate `PageValues`, then exclude it from operational models on availability grounds.
+- Keep improvements bounded and relevant; preserve threshold analysis and CV-versus-historical-test comparison. Do not add unrelated classifiers or extensive bootstrap experiments.
+- Freeze specification and threshold before historical test evaluation. Disclose candidate/threshold selection optimism and the previously viewed test partition.
+- Do not claim actual voucher effects, profitability, unique customers or reliable sales-growth forecasts. Record predictor-timing limitations.
 
-## File and change discipline
+## File and review discipline
 
-- Phase 1 housekeeping: **no notebook cell/source/output changes, statistical recomputation or modified CSV/PDF findings**.
-- Preserve `online_shoppers_full_project.ipynb` at root until a separately reviewed code-path change permits moving it without breaking `data/uci_468.csv` loading.
-- Historical dataset-selection work is under `archive/`; do not use its old `bakeoff.py` or `FINAL_REPORT.md` as the current project specification.
-- For future analysis changes: work on a branch, preserve an audit trail, document split/seed/CV/fitted preprocessing, and review the existing test-set caveat before claiming out-of-sample validation.
-- Do not manufacture experiments, metrics, business costs or professor requirements.
+Preserve `online_shoppers_full_project.ipynb`, `data/uci_468.csv` and historical archives unchanged. Keep the original notebook at root so its relative path continues to resolve. Preserve valid Phase 2 history and document splits, seeds, CV, preprocessing and actual execution. Use a branch for changes before authorised delivery.
 
-See `archive/README.md` for the historical files.
+Ground interpretations in freshly computed results and keep notebook outputs, plots and documentation consistent. The current revision uses manual code/deliverable review plus full notebook execution; do not add automated code-checking tests for this task. Preserve the existing end-to-end GitHub notebook execution workflow.
