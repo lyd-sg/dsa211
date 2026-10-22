@@ -8,12 +8,14 @@ The group's final revision brief replaces the prior business assumptions. It pre
 
 ## Included analysis
 
-- Session-level UCI 468 purchase prediction; four families: logistic regression, Gaussian Naive Bayes, LDA and QDA.
+- Session-level UCI 468 purchase prediction; four families: logistic regression, Naive Bayes, LDA and QDA. Gaussian NB is the required historical first pass; mixed Gaussian/Categorical NB supplies the defensible operational likelihood.
 - Historical 75/25 stratified split, seed 42; five stratified training folds.
 - Data quality and training-only numerical/categorical EDA with modelling implications.
 - All-17-predictor first passes, recorded warnings/failures, `PageValues` review and operational exclusion.
 - Bounded Phase 2 transformations, zero indicators, interactions, subset and model-specific tuning; fold-fitted preprocessing.
-- Joint model/threshold selection maximising training OOF simulated revenue; AUC reported separately.
+- Six targeted mixed/numeric-only alternatives resolve the consolidated checklist's predictor-likelihood concern; challenged dummy-Gaussian fits remain diagnostic rather than final eligible models.
+- PR-AUC defined as average precision, ROC-AUC, fold means/sample SDs, selected per-fold results, ROC/PR curves and pooled OOF/test comparisons.
+- Classifier selection by highest mean training CV ROC-AUC, followed by training OOF revenue optimisation of only its threshold, as clarified by the user during the consolidated-requirements audit.
 - **Extension 1:** empirical training threshold, theoretical 0.80 reference, sensitivity/specificity, revenue/opportunity-cost plots and calibration context.
 - **Extension 2:** fixed-strategy CV versus historical test comparison.
 - Exactly two revenue scenarios: no voucher and selected model-guided vouchers; unchanged observed labels; all four confusion outcomes explained.
@@ -32,9 +34,13 @@ Execute the entire revised notebook using actual committed data, inspect its out
 Dataset SHA-256: `b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9`.
 Original notebook SHA-256: `debec6b36b796a2bc41d92d6abe57a645281d1d027a5d56f99cde32880636e17`.
 
-The actual-data execution completed all 20 code cells without a cell error. Of 29 candidate designs, 27 completed; the two default-QDA covariance failures are intentional recorded analysis outcomes, not unhandled notebook errors. Separately labelled regularised QDA designs completed. Tables, all eight generated figures and the HTML export were inspected manually; no automated code-checking tests were added.
+The final consolidated-checklist execution completed all **21 code cells** without a cell error. Of **35 candidate designs**, 33 completed; the two default-QDA covariance failures remain recorded analysis outcomes. All six added mixed/numeric-only designs completed. The original 29 designs remain in the ledger. Nine generated figures, tables, full warnings and the HTML export were inspected manually; no automated code-checking tests were added.
 
-The selected candidate is quantile-transformed logistic regression, threshold `0.8359523283877723`: mean fold AUC `0.7614554422`, pooled OOF AUC `0.7610129055`, historical test AUC `0.7408914439`. Training confusion counts are TP=1, FP=0, FN=1,430, TN=7,816. Test counts are TP=0, FP=0, FN=477, TN=2,606. The training-optimal rule sends vouchers to every historical test session, so its simulated test revenue `2,466.4A` exceeds the no-voucher `477A` by `1,989.4A` (`417.06%`) under guaranteed conversion. This is an assumption-driven simulation, not a growth forecast or evidence of meaningful test-set targeting.
+The selected candidate is Yeo–Johnson logistic regression, threshold `0.8018563753337375`: mean fold AUC `0.7620988792` (SD `0.0230554998`), pooled OOF AUC `0.7619108289`, historical test AUC `0.7410410744`. Mean fold AP is `0.3418941992` (SD `0.0360919107`); pooled OOF AP is `0.3376999418`, versus historical test AP `0.3288474677`.
+
+Training confusion counts are TP=0, FP=0, FN=1,431, TN=7,816. Test counts are TP=0, FP=0, FN=477, TN=2,606. The rule issues vouchers to every session in both samples. Its simulated test revenue `2,466.4A` exceeds the no-voucher `477A` by `1,989.4A` (`417.06%`) under A1. This is an assumption-driven simulation, not a growth forecast or evidence of selective targeting.
+
+The criterion was clarified by the user during the follow-up audit: classify best by mean CV ROC-AUC, then optimize only that model's threshold; the voucher discount stays fixed at 20%. The earlier joint-revenue-selection result is superseded. [The manual requirements audit](requirements_audit.md) identifies the two technical gaps corrected and maps the consolidated checklist to the final notebook.
 
 Python 3.12.14, NumPy 2.5.4, pandas 3.0.6 and scikit-learn 1.9.1 were used locally; runtime metadata is also printed in the notebook. Thread counts were capped at one for BLAS/OpenMP. The existing requirements file remains unchanged and specifies minimum versions rather than a frozen environment.
 

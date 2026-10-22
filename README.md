@@ -8,6 +8,7 @@ Predict whether a browsing **session** ends in a purchase, then evaluate a hypot
 - [Project decisions](docs/project_decisions.md): assumptions, decision rule and revenue derivation.
 - [Methodology](docs/methodology.md): split, CV, selection and interpretation.
 - [Scope and verification](docs/phase2_scope.md): provenance, execution evidence and limitations.
+- [Requirements audit](docs/requirements_audit.md): consolidated checklist, corrected gaps and why guaranteed conversion can produce an extreme allocation.
 - [Validation workflow](.github/workflows/validate-notebook.yml): reruns the revised notebook on the committed dataset and retains an executed artifact.
 - [Original notebook](online_shoppers_full_project.ipynb) and [archives](archive/README.md): unchanged historical records, not the current business framework.
 
@@ -19,27 +20,31 @@ Assume **A1** guaranteed conversion for every voucher recipient; **A2** a 20% di
 
 In units of `A`, no-voucher revenue is `TP+FN`, and model-guided revenue is `TP+0.80(FN+TN)`. The difference is `0.80TN−0.20FN`; relative change divides this by `TP+FN`. The common order value cancels. FP and FN opportunity costs are `0.80A` and `0.20A`, respectively: `C_FN:C_FP=1:4`.
 
-The calibrated theoretical cutoff is `0.80`. Select the model and empirical threshold jointly using **training out-of-fold simulated revenue**; report ROC-AUC separately as discrimination. Compare exactly the two stated scenarios, even if the selected threshold allocates vouchers to nearly every session under guaranteed conversion.
+The calibrated theoretical cutoff is `0.80`. Select the classifier by **highest mean training CV ROC-AUC**, then optimise **only its threshold** using training out-of-fold simulated revenue, as clarified during the requirements audit. Report PR-AUC and fold variation as additional predictive evidence. Compare exactly the two stated revenue scenarios, even if the selected threshold allocates vouchers to nearly every session under guaranteed conversion.
 
 ## Computed results
 
-The actual-data execution selected **logistic regression with quantile-transformed numeric predictors**, cutoff **0.8359523283877723**. Model and cutoff were fixed from training OOF revenue before evaluating the historical test.
+The actual-data execution selected **logistic regression with Yeo–Johnson-transformed numerical predictors**, by highest mean training CV ROC-AUC. Its voucher discount is fixed at **20%**. Only after freezing that classifier was its threshold selected from training OOF revenue: **0.8018563753337375**.
 
 | Metric | Training CV/OOF | Historical test |
 |---|---:|---:|
-| Mean fold ROC-AUC | 0.761455 | — |
-| Pooled ROC-AUC | 0.761013 | 0.740891 |
-| Sensitivity at selected cutoff | 0.000699 | 0.000000 |
+| Mean fold ROC-AUC ± sample SD | 0.762099 ± 0.023055 | — |
+| Pooled ROC-AUC | 0.761911 | 0.741041 |
+| Mean fold PR-AUC/AP ± sample SD | 0.341894 ± 0.036092 | — |
+| Pooled PR-AUC/AP | 0.337700 | 0.328847 |
+| Sensitivity at selected cutoff | 0.000000 | 0.000000 |
 | Specificity at selected cutoff | 1.000000 | 1.000000 |
-| TP / FP / FN / TN | 1 / 0 / 1,430 / 7,816 | 0 / 0 / 477 / 2,606 |
-| Vouchers issued | 9,246 / 9,247 | 3,083 / 3,083 |
+| TP / FP / FN / TN | 0 / 0 / 1,431 / 7,816 | 0 / 0 / 477 / 2,606 |
+| Vouchers issued | 9,247 / 9,247 | 3,083 / 3,083 |
 | No-voucher revenue | 1,431.0A | 477.0A |
-| Model-guided simulated revenue | 7,397.8A | 2,466.4A |
-| Simulated difference | +5,966.8A (+416.97%) | +1,989.4A (+417.06%) |
+| Model-guided simulated revenue | 7,397.6A | 2,466.4A |
+| Simulated difference | +5,966.6A (+416.95%) | +1,989.4A (+417.06%) |
 
-The selected rule sends vouchers to **every historical test session**. Its test sensitivity is therefore zero and specificity one; it provides no selective targeting on that partition. Higher simulated revenue is conditional on A1–A4 and chiefly reflects guaranteed conversion, not evidence of actual sales growth or profit.
+PR-AUC is reported as average precision, not trapezoidal PR integration. Fold SD describes variation, not a confidence interval. The revised notebook reports all five selected-model fold scores.
 
-Quantile and log-transformed logistic candidates tied on maximum training OOF revenue; the declared AUC tie-break selected the quantile candidate. Do not interpret this tiny, sample-dependent distinction as robust superiority. Of 29 attempted designs, 27 completed; default QDA failed on singular covariance in both initial predictor sets and its regularised alternatives were evaluated separately.
+The selected rule sends vouchers to **every training and historical test session**. Its sensitivity at that operating cutoff is zero and specificity one; it provides no selective targeting on these samples. Higher simulated revenue chiefly reflects guaranteed conversion under A1, not actual sales growth or profit. The probability rankings still have the AUC/AP performance shown above; those ranking metrics answer a different question from the thresholded voucher rule.
+
+The leading ROC-AUC candidates differ by only about 0.0006; this does not establish robust superiority. Quantile logistic has the highest AP among eligible models, but the agreed selection criterion is mean CV ROC-AUC. Of **35** attempted designs, **33** completed. Default QDA failed on singular covariance in both initial predictor sets. Mixed Gaussian/Categorical NB and numerical-only LDA/QDA were added to resolve the consolidated checklist's mixed-predictor concern; legacy Gaussian fits on dummies remain visible diagnostics outside final eligibility.
 
 ## Reproduce
 
