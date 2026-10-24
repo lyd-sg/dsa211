@@ -1,5 +1,13 @@
 # DSA211 repository instructions
 
+## Source-of-truth and change-control rule (user-confirmed 24 October 2026)
+
+- **Read `docs/PRD.md` first.** It is the consolidated project-specific requirements document. While marked **DRAFT**, it is a working register for grilling: only explicitly confirmed choices are settled, and its proposed/open items do **not** authorize implementation. Once the user explicitly approves PRD v1.0, the **approved PRD becomes the authoritative consolidated source of truth** for the project's objectives, modelling/reporting scope, requirements, boundaries, acceptance criteria and agreed decisions.
+- **Priority:** official DSA211 assignment requirements and instructor instructions > approved `docs/PRD.md` > `AGENTS.md` and other technical/implementation documentation > legacy notebooks, historical notes or older chat prompts. Never interpret the PRD as permission to disregard the academic brief. Surface contradictions and request a decision; never silently override one source.
+- **Approval gates:** drafting and grilling do not authorize changes to models/notebooks; approval of the PRD is separate from approval of a technical plan and implementation batch. Explicitly approved changes to `AGENTS.md` and PRD documentation during grilling are exceptions limited to documenting governance/decisions.
+- **Maintenance:** when a project requirement is revised, update/version the PRD first following the user's approval; reconcile `AGENTS.md`, methodology, README, notebooks and relevant supporting docs with it. Do not treat prior implementation or a newly proposed prompt as superior to the PRD.
+- **Confirmed Q1:** predictive classification is the primary research objective; voucher simulation is a secondary, hypothetical application. Do not claim causal sales lift or real-world voucher effectiveness.
+
 ## Current project
 
 The active entry point is `online_shoppers_revised.ipynb`. Read `README.md`, `docs/project_decisions.md`, `docs/methodology.md` and `docs/phase2_scope.md` before changing the analysis. The current authorized revision removes QDA and the Yeo–Johnson/quantile-transform experiments. The prior executed revised notebook and original full-project notebook are retained byte-for-byte under `archive/online-shoppers/`.
