@@ -1,7 +1,7 @@
 # DSA211 — Online Shoppers Classification Study
-## Product Requirements Document · Draft v0.4 · 24 October 2026
+## Product Requirements Document · Draft v0.5 · 24 October 2026
 
-> **Status: UNAPPROVED WORKING DRAFT for grilling.** This is not authorization to implement notebook or modelling changes. Requirements below are categorized as **Source constraint**, **Previously recorded decision**, **Proposal**, or **Open**. A retrospective PRD cannot pretend that past modelling and test inspections were prospective.
+> **Status: UNAPPROVED WORKING DRAFT — decision checkpoint after Q7.** The decisions marked **Confirmed** are agreed; remaining items are proposals or open questions. This checkpoint is **not approval to implement** notebook or modelling changes. This is a retrospective PRD: previously viewed test results and past decisions must not be represented as prospective.
 
 ### Governance — consolidated source of truth [Confirmed, 24 October 2026]
 
@@ -19,7 +19,9 @@
 
 **Main outcome [Confirmed during grilling, Q1].** A **prediction-focused** project: compare eligible models on defensible validation, explain what the data support, select a model reproducibly, and communicate limitations. The project is not a coefficient-inference or causal voucher-effect study.
 
-**Secondary application [Confirmed during grilling, Q2].** After choosing a classifier using statistical predictive-performance criteria, apply its predictions and an independently chosen classification threshold to assign hypothetical vouchers to predicted non-buyers. Compare simulated revenue under the original no-voucher observations and the voucher scenario. **Do not select models or thresholds to maximize voucher revenue**, and do not change the model to make voucher results look favourable. Positive, negative or null simulated differences are acceptable. There is no intervention/response dataset: simulated revenue is **not observed revenue uplift or a causal effect**. The original two-page brief instead describes allocating *live sales support to likely buyers* with 5:1 missed-buyer-to-wasted-support costs; the current repository uses a voucher rule with an illustrative 1:4 opportunity-cost ratio. Retain this documented brief/repository conflict for reconciliation against academic requirements; Q2 does not authorize overlooking the original brief.
+**Secondary application [Confirmed Q2–Q5].** Select the classifier using predictive performance, then apply a **pre-specified cost-based classification threshold** from DSA211 Lecture 5. Predicted buyers receive no voucher; predicted non-buyers receive a hypothetical 20%-discount voucher. The reference assumption is that **50% of people who would not otherwise purchase convert if offered a voucher**, while people who would already purchase continue to do so. This implies a theoretical cutoff of **2/3 (≈0.667)** (derivation below). Hold the selected classifier, threshold and recipient assignments fixed, then compare no-voucher revenue with simulated voucher revenue for **10%, 25%, 50%, and 100%** assumed incremental conversion. Report outcomes whether favourable or not. **Do not search for the model or threshold that maximizes empirical simulated revenue.** The theoretical threshold is nevertheless derived from assumed voucher opportunity costs; it is **not independent of voucher economics**. There are no observed voucher treatment outcomes, so this cannot establish actual sales lift or causality.
+
+**Academic-brief conflict [Open].** The original two-page project brief frames *live sales support directed toward likely buyers* with a **5:1** missed-buyer-to-wasted-support assumption; the revised illustrative action is a **voucher to predicted non-buyers**, with a threshold derived from 20% discounts and 50% incremental conversion. The original rationale and any mandatory assignment obligations must be reconciled before final approval, not silently overwritten.
 
 ### 2. Source hierarchy and non-negotiable academic constraints
 
@@ -30,9 +32,9 @@
 
 ### 3. Desired outcomes
 
-**O1 — Methodological validity.** Features, preprocessing, model selection and any classification-threshold selection avoid preventable data leakage and unjustified claims. Voucher revenue must not determine classifier or threshold selection.
+**O1 — Methodological validity.** Features, preprocessing, model selection and classification-threshold selection avoid preventable data leakage and unjustified claims. Select the model on predictive metrics, not voucher revenue; derive the cost-based threshold from declared reference assumptions **without** searching the data for maximum simulated revenue.
 
-**O2 — Empirical discipline.** EDA and model diagnostics motivate a small number of hypothesis-driven experiments; failures and negligible gains are reported honestly.
+**O2 — Empirical discipline.** EDA and model diagnostics justify **at most one deliberately chosen modification per classifier** (potentially none). Transformation is a minor supporting component, not the main study. Failures or negligible gains are reported honestly.
 
 **O3 — Coherent decision.** The study selects an eligible classifier using a predeclared primary statistic; if an operational policy is included, that policy has a logically consistent objective, metrics and limitations.
 
@@ -46,23 +48,24 @@
 |---|---|---|
 | R1 | **[Source / recorded]** Define `Revenue` and distinguish sessions from customers; establish dataset provenance, basic quality, class imbalance and appropriate EDA. | Dataset checks, focused numerical/categorical summaries, and interpretation linked to modelling decisions. |
 | R2 | **[Recorded]** Historical stratified 75/25 train–test split, `random_state=42`; five stratified folds on training; identical fold membership for fair model comparisons. | Explicit split/fold configuration, counts and reproducible CV results. Historical test reuse disclosed. |
-| R3 | **[Recorded]** Start with all 17 original predictors for Logistic Regression, Gaussian Naive Bayes and LDA; inspect `PageValues`; exclude it from 16-feature operational candidates if not available at decision time. | Three first-pass results and reasoned feature-availability/leakage comparison. No unsupported claim that leakage is proven solely by association. |
-| R4 | **[Recorded / proposal]** Compare operational raw, `log1p`, zero-indicator treatments; retain suitable NB/LDA alternatives and appropriate regularization/smoothing checks. Explicitly mark eligibility rules. | Side-by-side five-fold CV metrics, equivalent preprocessing standards, documented candidate selection. |
-| R5 | **[New proposal]** Replace arbitrary five-variable and blanket 28-interaction experiments with five separate targeted experiments relative to Logistic `log1p`: (i) remove `BounceRates`; (ii) replace product duration with safe mean time per product page; (iii) replace two informational variables with `Informational>0`; (iv) `ProductRelated × ExitRates`; (v) `VisitorType × log1p(ProductRelated_Duration)`. Keep main effects for interactions. | Training-only correlation/VIF diagnostic; CV AUC and ΔAUC comparison for each isolated experiment; do not label hypotheses as successful before results. |
+| R3 | **[Confirmed Q6 / previously recorded]** Compare **exactly three classifier families**: Logistic Regression, Naive Bayes and LDA (**exclude QDA**). Start each with all 17 original predictors as the professor instructed; examine `PageValues`, then exclude it from 16-feature operational candidates based on decision-time availability. | Three initial all-predictor baselines, availability/leakage reasoning, three operational baselines and valid comparison. No unsupported claim that association alone proves leakage. |
+| R4 | **[Confirmed Q7 scope limit; details Open]** Keep operational raw baselines, then allow **at most one EDA-justified modification for each of the three classifier families**. A classifier need not be modified if there is no compelling rationale; a tested modification need not be retained. Prior raw/`log1p`/zero-indicator grids, additional NB/LDA variants and broad tuning are **historical/proposed**, not automatically required in the final scope. | One concise EDA-to-hypothesis-to-CV comparison per modified classifier, reporting performance change and decision; explicit comparable baseline and eligibility criteria. |
+| R5 | **[Confirmed Q7: bounded, EDA-led changes; exact three experiments Open]** Transformation and feature engineering must **not** dominate the project. Select up to one candidate change for each of Logistic Regression, Naive Bayes and LDA **after reviewing actual EDA and model assumptions**; do not pre-approve the five experiments from the pasted revision request or exhaustive pairwise interactions. Separate hypothesis from verified improvement. | A brief justification tied to a specific EDA finding or taught assumption, isolated CV ROC-AUC comparison, and defensible retain/reject decision; no exploratory sprawl. |
 | R6 | **[Recorded]** Fit data-derived preprocessing in training folds; avoid using historical test outcomes for feature selection, hyperparameter tuning or thresholds. | Inspected preprocessing pipelines and complete runnable notebook. |
 | R7 | **[Recorded]** Primary classifier selection by mean five-fold training ROC-AUC; AP reported as complementary; report variability, confusion matrix, sensitivity and specificity where decision thresholds matter. | Model comparison with numerically reproducible values and modest interpretation of small differences. |
-| R8 | **[Confirmed Q2 / threshold rule still open]** After choosing the classifier by training-CV predictive performance, classify `Buy` → no voucher; `No Buy` → voucher. Use a classification threshold selected independently of voucher revenue (precise statistical rule: Q3 pending). Retain existing illustrative voucher assumptions provisionally: A1 guaranteed conversion, A2 20% discount, A3 uniform order value `A`, A4 historical purchases reflect no intervention. Compare the two simulated scenarios without optimizing model or threshold on revenue; the old theoretical 0.80 revenue cutoff is **not** the selection rule. | Explicit predefined classification rule, share receiving vouchers, revenue arithmetic and assumption-based scenario comparison; never claim observed/causal lift, actual sales or profit. Positive, zero or negative simulated impact is acceptable. |
+| R8 | **[Confirmed Q2–Q5]** Select a classifier by mean training-fold CV ROC-AUC, **not** revenue. Use the **Lecture 5 cost-based theoretical threshold** with 50% reference incremental conversion and 20% discount, giving **t*=2/3**. Classify predicted `Buy` (p ≥ t*) → no voucher; predicted `No Buy` (p < t*) → voucher. Freeze model, threshold and assignments; compute illustrative revenue for incremental conversion rates **10%, 25%, 50%, 100%** against no vouchers. Do not re-optimize for any scenario. | Threshold derived clearly from costs, training-only application, confusion matrix and recipient share, plus transparent four-scenario simulation. Revenue may rise or fall; no claim of causal lift, actual profit or real-world response. |
 | R9 | **[New proposal]** Reduce explanatory prose by at least ~50% where possible, excluding equations/code/tables; use concise tables/plots and minimal warning clutter while preserving genuine error detection and essential methodological detail. | Before/after prose comparison, reader-facing notebook review and warnings/error audit. |
 | R10 | **[New proposal]** Preserve report order: introduction, EDA, initial baselines, diagnostics, targeted improvements, model selection, threshold/revenue (if retained), historical test/conclusion. | Executed notebook follows flow, avoids repetition and uses consistent numerical rounding. |
 | R11 | **[Recorded / proposal]** Preserve prior revisions, execute the entire notebook, recompute all dependent metrics, and leave a brief change log. | Complete run, checks for divide-by-zero/category issues, final result consistency audit, archived source history. |
 
-### 5. Technical constraints already proposed, not additional goals
+### 5. Confirmed analytical boundaries and proposed technical constraints
 
-- Focus on taught methods: Logistic Regression, Gaussian NB and LDA. **[Latest proposed scope]** Do not reintroduce QDA, gradient boosting, KNN, Yeo–Johnson, quantile transforms, splines, broad subset searches or arbitrary feature expansion. **[Conflict to verify]** The earlier two-page brief did propose QDA and some extensions; exclusions require academic-requirement check.
-- `AvgProductTime=ProductRelated_Duration/ProductRelated` must define the zero-denominator case without creating artificial signal.
-- All comparisons should use the same training folds and be transparent about model-specific feature representations.
-- `PageValues` timing and other session-end predictor availability are prerequisites to any claim about real-time intervention feasibility.
-- Preserve the existing committed data and archived notebooks; do not quietly overwrite previous results.
+- **[Confirmed Q6]** Use only Logistic Regression, Naive Bayes and LDA; **no QDA**. Do not expand to KNN, gradient boosting, splines or unrelated classifiers without a further decision. The original brief listed QDA and broader extensions; verify whether they are mandatory before treating exclusions as assignment-compliant.
+- **[Confirmed Q7]** Limit feature/model alterations to **at most one EDA-motivated change per classifier**. Do not automatically run the earlier five-feature-experiment request, all-28 interactions, broad regularisation/smoothing searches, or every named transformation. Exact three candidate changes are **unresolved** until EDA review. Preserve the original raw comparisons as a reference.
+- **[Previously recorded]** Use the same training folds across comparisons; fit encoders, transformations and other data-derived preprocessing inside training folds. Explain any model-specific feature representation, rather than treating all comparisons as identical.
+- **[Confirmed Q3–Q5]** Derive the theoretical classification threshold using lecture-taught error costs, rather than selecting a threshold from maximum *observed simulated* voucher revenue. It is still a **voucher-economics-based** threshold.
+- **[Recorded]** Consider `PageValues` timing and session-end features before claiming real-time voucher feasibility. Preserve committed data and historical archives; avoid carrying forward stale execution results.
+- **[Unapproved example only]** If an eventual selected feature requires division by `ProductRelated`, handle zeros safely. This is not a requirement to engineer `AvgProductTime`.
 
 ### 6. Explicit non-goals
 
@@ -72,24 +75,41 @@
 - A claim of a never-seen test set, since the historical partition was previously inspected.
 - Automatically chasing higher AUC through indiscriminate specification search.
 
-### 7. Known current state — not prospective targets
+### 7. Known current state — historical, not a project target
 
-**[From current repo at `revise-three-model-scope`, before latest proposed changes]** The active report completed 21 code cells, 20 candidate designs (9 eligible). Selected Logistic Regression `zeroind` with mean five-fold ROC-AUC **0.761161**, test ROC-AUC **0.742293**, and training-selected threshold **0.80**. Under that threshold **every tested session received a voucher**. The all-voucher outcome is the dominant conceptual issue: it produces simulated increases under the unverified assumption of guaranteed voucher conversion, but is not evidence of model-guided targeting. Revisions must recompute rather than copy these results.
+**[Executed state on `revise-three-model-scope` before checkpoint]** The notebook completed 21 code cells, 20 candidate designs (9 eligible) and selected Logistic Regression `zeroind` with mean five-fold ROC-AUC **0.761161** and historical test ROC-AUC **0.742293**. Its legacy revenue-optimised threshold **0.80** gave vouchers to every evaluated session **under the old 100%-conversion assumption**. That historic result illustrates how assumptions can dominate a policy; it is **not** evidence of model-guided targeting, and **must not be copied** into results for the agreed 50%-reference / sensitivity-analysis framework. After the approved implementation batch, rerun and recompute all relevant predictions, classifications and scenarios.
 
-### 8. Key risks / unresolved decisions (grilling queue)
+### 7A. Agreed threshold mathematics — for implementation and verification
 
-1. **[RESOLVED Q1]** Primary objective: predictive classification. Voucher simulation: secondary illustrative analysis. Still resolve the original live-sales-support framing and 5:1 cost requirement.
-2. **[RESOLVED Q2]** Voucher revenue is only a secondary illustrative calculation, not a modelling/threshold optimisation objective. Use the selected classifier's predictions to allocate vouchers and report simulated results without forcing a gain. The former revenue-maximising 0.80 threshold/all-voucher outcome is historical, not a desired behaviour or rule.
-3. **[HIGH]** Are all proposed exclusions (notably QDA and the original brief's broader methods) compatible with actual submission requirements?
-4. **[MEDIUM]** Are the five specified experiments the complete intended search space, and which legacy variants are truly essential?
-5. **[MEDIUM]** What counts as a meaningful performance improvement versus a simpler equivalent model? Preserve fixed AUC-based selection or add parsimony rule?
-6. **[MEDIUM]** What evidence is adequate to call a predictor available before purchase completion? Where must deployment feasibility be qualified?
-7. **[MEDIUM]** What constitutes sufficient final acceptance: fully executed notebook, reporting artifacts, reviewer inspection, CI, and/or independent reproducibility?
+Let `A` be the common no-discount order value; `d=0.20` the voucher discount; `q=0.50` the **reference incremental conversion probability among otherwise non-buyers**; and `p` the model-predicted probability of buying **without** a voucher. Assume existing buyers still buy if offered a voucher; all voucher buyers pay `0.80A`; observed `Revenue` records no-voucher outcomes.
 
-### 9. Grilling decisions
+- Giving a voucher to an actual existing buyer (predicted non-buyer: FN) forgoes `C_FN = dA = 0.20A`.
+- Not giving a voucher to an actual non-buyer (predicted buyer: FP) forgoes *expected* incremental revenue `C_FP = (1-d)qA = 0.80 × 0.50 A = 0.40A`.
+- **Fixed theoretical threshold** (Lecture 5): `t* = C_FP / (C_FP + C_FN) = 0.40/(0.40+0.20) = 2/3 ≈ 0.667`. Apply this same threshold to all scenarios; no search over thresholds for revenue lift.
+- For any scenario `q_s ∈ {0.10, 0.25, 0.50, 1.00}`, let `TP, FP, FN, TN` use observed `Revenue=1` as the positive class **at the fixed classification rule**. No-voucher revenue: `R0/A = TP + FN`. Expected model-voucher revenue: `Rq/A = TP + 0.80 FN + 0.80 q_s TN`. Simulated difference: `ΔRq/A = 0.80 q_s TN − 0.20 FN`. Thus only the assumed incremental conversion rate changes across scenarios, not predicted probabilities or assignments.
+- Cost-based `t*` is theory-based **under assumptions**, not a guarantee of empirical optimality, calibrated probabilities or actual causal uplift. The real `q` is unknown and there are no voucher intervention labels.
 
-- **Q1 — CONFIRMED (24 October 2026):** Predictive classification is the primary research objective. Voucher simulation is a secondary analysis; do not assert actual causal or commercial benefit. This choice does not itself settle which business framing/cost structure the report must retain.
-- **Q2 — CONFIRMED (24 October 2026):** Determine the best eligible classifier statistically (currently mean training-CV ROC-AUC primary); next use a classification threshold chosen independently of voucher revenue to route hypothetical vouchers to predicted non-buyers; then calculate and honestly report the simulated revenue difference against no vouchers. Do not maximise model or threshold on revenue. A successful project need not produce positive simulated revenue. Historical 0.80 revenue-optimal cutoff is not an approved selection rule. The actual threshold-selection statistic remains open.
+### 8. Key risks / unresolved decisions — after checkpoint
+
+1. **[OPEN, NEXT]** Choose **up to one exact EDA-justified modification per classifier**, only after reviewing actual EDA. None is automatically mandatory. Decide what counts as sufficient improvement to retain a change.
+2. **[OPEN: academic alignment]** Reconcile the original two-page *live-support* / 5:1 brief and its QDA/extension proposals with the agreed *voucher demonstration* / three-classifier approach. The PRD cannot independently waive any compulsory assessment requirement.
+3. **[OPEN: reporting scope]** Which legacy modelling variants and supporting plots are necessary given the one-change-per-classifier cap? Avoid silently retaining the old 20-design search.
+4. **[OPEN: assumptions and limits]** Confirm how to explain `PageValues` and session-end timing, score calibration for cost thresholds, generalisability, and previously examined test data.
+5. **[OPEN: acceptance]** Final criteria for adequate model performance reporting, notebook concision, completed execution, numerical consistency, reproducibility and final review.
+
+### 9. Confirmed grilling decisions — checkpoint 24 October 2026
+
+| Decision | Confirmed agreement | Status |
+|---|---|---|
+| **Q1 — Objective** | **Prediction-focused** project; model performance is primary. No coefficient-inference or causal voucher-effect goal. | Confirmed |
+| **Q2 — Voucher extension** | A **small secondary demonstration**: take the selected classifier's outputs, assign vouchers according to a prechosen cost-based cutoff, and report simulated revenue whether positive or negative. **No data-driven revenue optimisation** of the classifier or threshold. | Confirmed |
+| **Q3 — Threshold method** | Use the **Lecture 5 cost-based threshold** `C_FP/(C_FP+C_FN)`, not default 0.5, base-rate selection, or Youden's J. | Confirmed |
+| **Q4 — Conversion uncertainty** | Replace the guaranteed-conversion assumption with **sensitivity analysis at 10%, 25%, 50% and 100%** assumed incremental conversion among otherwise non-buyers; keep classification decisions fixed for all scenarios. | Confirmed |
+| **Q5 — Reference economics** | Assume 20% voucher discount and 50% reference incremental conversion. Thus `C_FP=0.40A`, `C_FN=0.20A`, and the **fixed reference threshold is 2/3 ≈ 0.667**. The conversion assumption is illustrative, not observed; no claim it is objectively realistic. | Confirmed |
+| **Q6 — Classifiers** | **Exactly three** model families: Logistic Regression, Naive Bayes and LDA. **QDA excluded**, subject to checking any compulsory assignment requirement. | Confirmed |
+| **Q7 — Model changes** | **At most one** purposeful, EDA-/assumption-driven modification for each model family. Modifications may fail or be unnecessary. **No five-experiment slate is preapproved**; the exact modifications remain **OPEN** until EDA review. | Confirmed boundary; details Open |
+
+**Checkpoint rule:** these seven agreements supersede conflicting draft proposals or obsolete notebook assumptions **within the working PRD**, but they do not constitute approval to modify the analysis. Further grilling resumes with choosing the specific EDA-led modifications.
 
 ### 10. Approval and delivery gates
 
