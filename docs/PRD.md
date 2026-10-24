@@ -1,5 +1,5 @@
 # DSA211 — Online Shoppers Classification Study
-## Product Requirements Document · Draft v0.3 · 24 October 2026
+## Product Requirements Document · Draft v0.4 · 24 October 2026
 
 > **Status: UNAPPROVED WORKING DRAFT for grilling.** This is not authorization to implement notebook or modelling changes. Requirements below are categorized as **Source constraint**, **Previously recorded decision**, **Proposal**, or **Open**. A retrospective PRD cannot pretend that past modelling and test inspections were prospective.
 
@@ -19,7 +19,7 @@
 
 **Main outcome [Confirmed during grilling, Q1].** A **prediction-focused** project: compare eligible models on defensible validation, explain what the data support, select a model reproducibly, and communicate limitations. The project is not a coefficient-inference or causal voucher-effect study.
 
-**Unresolved business application [Open, priority 2].** Predictive classification is now confirmed as the primary objective; voucher simulation is secondary. The two-page project brief originally frames **targeting live sales support to visitors likely to buy** with missed-buyer cost five times wasted-support cost. The current repo instead frames **giving 20%-discount vouchers to sessions classified as non-buyers**, with a reversed 1:4 opportunity-cost ratio. They are different business actions and cannot be presented interchangeably. Voucher simulation is confirmed as a secondary illustrative analysis, not the primary objective. Its relationship to the original support use case and cost assumptions remains open.
+**Secondary application [Confirmed during grilling, Q2].** After choosing a classifier using statistical predictive-performance criteria, apply its predictions and an independently chosen classification threshold to assign hypothetical vouchers to predicted non-buyers. Compare simulated revenue under the original no-voucher observations and the voucher scenario. **Do not select models or thresholds to maximize voucher revenue**, and do not change the model to make voucher results look favourable. Positive, negative or null simulated differences are acceptable. There is no intervention/response dataset: simulated revenue is **not observed revenue uplift or a causal effect**. The original two-page brief instead describes allocating *live sales support to likely buyers* with 5:1 missed-buyer-to-wasted-support costs; the current repository uses a voucher rule with an illustrative 1:4 opportunity-cost ratio. Retain this documented brief/repository conflict for reconciliation against academic requirements; Q2 does not authorize overlooking the original brief.
 
 ### 2. Source hierarchy and non-negotiable academic constraints
 
@@ -30,7 +30,7 @@
 
 ### 3. Desired outcomes
 
-**O1 — Methodological validity.** Features, preprocessing, model selection and threshold selection avoid preventable data leakage and unjustified claims.
+**O1 — Methodological validity.** Features, preprocessing, model selection and any classification-threshold selection avoid preventable data leakage and unjustified claims. Voucher revenue must not determine classifier or threshold selection.
 
 **O2 — Empirical discipline.** EDA and model diagnostics motivate a small number of hypothesis-driven experiments; failures and negligible gains are reported honestly.
 
@@ -51,7 +51,7 @@
 | R5 | **[New proposal]** Replace arbitrary five-variable and blanket 28-interaction experiments with five separate targeted experiments relative to Logistic `log1p`: (i) remove `BounceRates`; (ii) replace product duration with safe mean time per product page; (iii) replace two informational variables with `Informational>0`; (iv) `ProductRelated × ExitRates`; (v) `VisitorType × log1p(ProductRelated_Duration)`. Keep main effects for interactions. | Training-only correlation/VIF diagnostic; CV AUC and ΔAUC comparison for each isolated experiment; do not label hypotheses as successful before results. |
 | R6 | **[Recorded]** Fit data-derived preprocessing in training folds; avoid using historical test outcomes for feature selection, hyperparameter tuning or thresholds. | Inspected preprocessing pipelines and complete runnable notebook. |
 | R7 | **[Recorded]** Primary classifier selection by mean five-fold training ROC-AUC; AP reported as complementary; report variability, confusion matrix, sensitivity and specificity where decision thresholds matter. | Model comparison with numerically reproducible values and modest interpretation of small differences. |
-| R8 | **[Recorded but open for challenge]** If retaining vouchers: classify `Buy` → no voucher and `No Buy` → voucher; use hypothetical A1 guaranteed conversion, A2 20% discount, A3 uniform order value `A`, A4 historical purchases as no-voucher behavior. Compare exactly two simulated revenue scenarios; select threshold on training OOF only; 0.80 is a theoretical calibrated-probability reference, not guaranteed empirical optimum. | Explicit equations and assumption-based scenario comparison; never claim actual incremental revenue/profit or causal conversion impact. Show the actual share receiving vouchers. |
+| R8 | **[Confirmed Q2 / threshold rule still open]** After choosing the classifier by training-CV predictive performance, classify `Buy` → no voucher; `No Buy` → voucher. Use a classification threshold selected independently of voucher revenue (precise statistical rule: Q3 pending). Retain existing illustrative voucher assumptions provisionally: A1 guaranteed conversion, A2 20% discount, A3 uniform order value `A`, A4 historical purchases reflect no intervention. Compare the two simulated scenarios without optimizing model or threshold on revenue; the old theoretical 0.80 revenue cutoff is **not** the selection rule. | Explicit predefined classification rule, share receiving vouchers, revenue arithmetic and assumption-based scenario comparison; never claim observed/causal lift, actual sales or profit. Positive, zero or negative simulated impact is acceptable. |
 | R9 | **[New proposal]** Reduce explanatory prose by at least ~50% where possible, excluding equations/code/tables; use concise tables/plots and minimal warning clutter while preserving genuine error detection and essential methodological detail. | Before/after prose comparison, reader-facing notebook review and warnings/error audit. |
 | R10 | **[New proposal]** Preserve report order: introduction, EDA, initial baselines, diagnostics, targeted improvements, model selection, threshold/revenue (if retained), historical test/conclusion. | Executed notebook follows flow, avoids repetition and uses consistent numerical rounding. |
 | R11 | **[Recorded / proposal]** Preserve prior revisions, execute the entire notebook, recompute all dependent metrics, and leave a brief change log. | Complete run, checks for divide-by-zero/category issues, final result consistency audit, archived source history. |
@@ -79,7 +79,7 @@
 ### 8. Key risks / unresolved decisions (grilling queue)
 
 1. **[RESOLVED Q1]** Primary objective: predictive classification. Voucher simulation: secondary illustrative analysis. Still resolve the original live-sales-support framing and 5:1 cost requirement.
-2. **[HIGH]** If vouchers remain, what is the purpose of model-based allocation when the current optimum vouchers everybody? Should a non-targeted policy comparator be added, or must the business framing be narrowed?
+2. **[RESOLVED Q2]** Voucher revenue is only a secondary illustrative calculation, not a modelling/threshold optimisation objective. Use the selected classifier's predictions to allocate vouchers and report simulated results without forcing a gain. The former revenue-maximising 0.80 threshold/all-voucher outcome is historical, not a desired behaviour or rule.
 3. **[HIGH]** Are all proposed exclusions (notably QDA and the original brief's broader methods) compatible with actual submission requirements?
 4. **[MEDIUM]** Are the five specified experiments the complete intended search space, and which legacy variants are truly essential?
 5. **[MEDIUM]** What counts as a meaningful performance improvement versus a simpler equivalent model? Preserve fixed AUC-based selection or add parsimony rule?
@@ -89,6 +89,7 @@
 ### 9. Grilling decisions
 
 - **Q1 — CONFIRMED (24 October 2026):** Predictive classification is the primary research objective. Voucher simulation is a secondary analysis; do not assert actual causal or commercial benefit. This choice does not itself settle which business framing/cost structure the report must retain.
+- **Q2 — CONFIRMED (24 October 2026):** Determine the best eligible classifier statistically (currently mean training-CV ROC-AUC primary); next use a classification threshold chosen independently of voucher revenue to route hypothetical vouchers to predicted non-buyers; then calculate and honestly report the simulated revenue difference against no vouchers. Do not maximise model or threshold on revenue. A successful project need not produce positive simulated revenue. Historical 0.80 revenue-optimal cutoff is not an approved selection rule. The actual threshold-selection statistic remains open.
 
 ### 10. Approval and delivery gates
 
