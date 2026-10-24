@@ -1,32 +1,11 @@
-# Final revision scope and verification
+# PRD implementation scope and provenance
 
-## Provenance and preserved work
+The approved [PRD v1.0](PRD.md) supersedes the older three-baseline, 75/25, revenue-optimised analysis. Its contents are preserved unchanged. The owner explicitly authorised independent technical-plan review and autonomous implementation after PASS; see [plan review](technical_plan_review.md) and [recipe review](recipe_review.md).
 
-The prior executed analysis is retained as a read-only historical record. Its exact source files remain in `archive/online-shoppers/`. The current active entry point is `online_shoppers_revised.ipynb`; the source dataset remains unchanged. The current revision follows the latest user brief and clarification, including the removal of QDA, Yeo–Johnson and quantile-transform work and retention of the 1:4 voucher-revenue threshold framework.
+The implementation branch descends from `revise-three-model-scope` at `8cbeeb085be1c6b322f7a7dca8885dd7c5cbe536`. The dataset and existing archives remain protected. The pre-revision active notebook was preserved byte-for-byte at `archive/online-shoppers/online_shoppers_pre_prd_v1.ipynb` (SHA-256 `fe15cdefe2449245ca5a4ccbbaa09307050090fb5ae0b2d46dde7f9fcb448292`). Old outputs are historical, not evidence for current model choices.
 
-## Included analysis
+The current scope is training-only EDA, four all-17 diagnostics, four raw 16-source baselines and three independently approved EDA-informed revisions; seven common-fold operational comparison slots, one CV-selected winner, fixed 2/3 policy, four OOF threshold references, four fixed-recipient conversion scenarios, one winner test audit, then exact all-data refit. No automatic feature search, regularisation competition, QDA or unrelated classifiers.
 
-- Session-level UCI 468 purchase prediction with Logistic Regression, Gaussian Naive Bayes and LDA.
-- Historical 75/25 stratified split, seed 42; five stratified training folds.
-- Data quality and training-only numerical/categorical EDA.
-- All-17-predictor first passes, actual warnings/failures, `PageValues` timing review and operational exclusion.
-- Raw, `log1p` and fold-fitted `zeroind` comparisons for each classifier.
-- Retained logistic L2 settings, numerical interactions, predeclared five-predictor logistic model, GaussianNB smoothing and LDA shrinkage.
-- Existing raw mixed Gaussian/Categorical NB and numeric-only LDA eligible alternatives.
-- ROC-AUC and PR-AUC (average precision), fold means/sample SDs, per-fold selected-model scores, ROC/PR curves, pooled OOF and historical test results.
-- Classifier selection by mean training-CV ROC-AUC, followed by training OOF threshold optimization under the latest-confirmed 1:4 revenue framework.
-- Threshold and CV-versus-historical-test comparisons; exactly two revenue scenarios, with unchanged observed labels.
+The separate supplementary notebook contains the five PRD investigations and is not submitted. All split/fold original row IDs are retained in `artifacts/`; they document membership, not identified visitors. The supervision record distinguishes implementation evidence from Sol's independent inspection and corrections.
 
-## Verification status
-
-All active notebook outputs now come from the full current execution; earlier cached results were cleared before the run. Full execution completed successfully: all 21 code cells ran in order, all 20 candidate designs completed and 9 candidates were eligible; no cell or candidate failed. Expected rare unseen-category one-hot warnings were recorded. Tables and eight figures were inspected manually, and an HTML review copy was rendered. No automated code-checking tests were added; the existing GitHub notebook-execution workflow remains unchanged.
-
-Dataset SHA-256: `b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9`.
-Historical active notebook SHA-256: `e860944111af5684ceeccd88e54a45b72fa2354f4719aecc5cebc2445a452f92`.
-Historical original notebook SHA-256: `debec6b36b796a2bc41d92d6abe57a645281d1d027a5d56f99cde32880636e17`.
-
-The current winner is Logistic Regression `zeroind`, threshold 0.800000: mean fold AUC 0.761161 (SD 0.022013), pooled OOF AUC 0.760887, historical test AUC 0.742293. Mean fold AP is 0.340692 (SD 0.034901), pooled OOF AP 0.335089 and historical test AP 0.328956. Training confusion counts are TP=0, FP=0, FN=1,431, TN=7,816; historical test counts are TP=0, FP=0, FN=477, TN=2,606. At this cutoff all sessions receive vouchers. The run summary, baselines and simulated-revenue calculations are in `revision_summary.md`.
-
-## Remaining methodological limitations
-
-Voucher effectiveness cannot be verified without intervention outcomes. Revenue simulation is conditional on A1–A4, excludes profitability, and is not a sales-growth forecast. Predictor availability at decision time remains unresolved. Session identities do not identify unique customers. Selecting candidates and threshold on the same OOF predictions induces selection optimism. The previously inspected historical holdout is not independent confirmation.
+The final verification report will record completed execution and criterion-by-criterion evidence. Original course source files are absent, so direct lab/lecture/workflow-file comparison cannot be claimed. Historical overlapping test exposure, duplicate patterns, selection optimism, probability/distributional assumptions and unresolved feature timing remain limitations regardless of successful execution. Voucher response, order values and margins are unobserved; scenarios do not establish actual effectiveness or profit.
