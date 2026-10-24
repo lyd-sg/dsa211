@@ -24,3 +24,6 @@ data/*
 Thumbs.db
 .vscode/
 .idea/
+
+# Projectless scratch, local review and kernel state
+work/

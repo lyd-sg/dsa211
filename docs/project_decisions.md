@@ -1,6 +1,6 @@
 # Project decisions
 
-The current authorities are the group's **Final Project Revision and GitHub Implementation** brief and the subsequent **Consolidated Requirements and Agreed Decisions** supplied for the follow-up audit. They replace earlier business assumptions while retaining the professor's core classification workflow. The archived two-page brief remains historical evidence; its previous intervention narrative and additional experiments are superseded.
+The latest user clarification retains the existing voucher-revenue framework at `C_FN:C_FP=1:4`. It supersedes the pasted brief's conflicting 5:1 threshold instruction. The active notebook is `online_shoppers_revised.ipynb`; prior executed/revised and original notebooks are preserved in `archive/online-shoppers/`.
 
 ## Research and voucher framework
 
@@ -13,28 +13,21 @@ Predict whether a browsing **session** purchases (`Revenue=1`). This is a predic
 
 Compare exactly two scenarios: no vouchers and the selected model-guided voucher strategy. Evaluate sales revenue, not profitability. Do not invent AOV, margins, acquisition costs or voucher-effect estimates.
 
-## Opportunity costs and revenue
+No-voucher revenue is `R0/A=TP+FN`; model-guided revenue is `Rmodel/A=TP+0.80(FN+TN)`. The difference is `delta/A=0.80TN-0.20FN`, and relative change is `(0.80TN-0.20FN)/(TP+FN)`. The theoretical cutoff is 0.80 when predicted probability equals true no-voucher purchase probability. The associated conditional opportunity costs are `C_FN=0.20A`, `C_FP=0.80A`, ratio `1:4`.
 
-A false positive receives no voucher and misses an assumed discounted conversion: `C_FP=0.80A`. A false negative receives an unnecessary discount on an otherwise full-price order: `C_FN=0.20A`. Thus `C_FN:C_FP=1:4`. These are conditional opportunity costs, not measured financial losses.
-
-The no-voucher baseline is `R0/A=TP+FN`. Model-guided revenue is `Rmodel/A=TP+0.80(FN+TN)`. The difference is `delta/A=0.80TN-0.20FN`, with relative change `(0.80TN-0.20FN)/(TP+FN)`. Revenue is higher exactly when `4TN>FN`.
-
-If `p` represents the true no-voucher purchase probability, full-price expected revenue is `pA`, versus `0.80A` with a voucher under A1. The theoretical threshold is therefore `0.80`. The user's subsequent audit clarification selects the classifier by highest mean training CV ROC-AUC, then optimises only that classifier's threshold using training OOF simulated revenue. This explicitly supersedes the earlier joint revenue-based model-selection instruction. Report PR-AUC and fold variation alongside ROC-AUC; keep predictive model choice separate from the business extension.
+Select the classifier by highest mean training-fold ROC-AUC with deterministic label tie-breaking, then optimize only that classifier's threshold using training OOF simulated revenue. Report PR-AUC and fold variation alongside ROC-AUC. Keep predictive model choice separate from the voucher-policy objective.
 
 ## Statistical decisions retained
 
-- UCI 468; historical 75/25 stratified split, seed 42; five stratified training folds.
-- Attempt all 17 predictors with logistic regression, Gaussian Naive Bayes, LDA and QDA first. Record actual numerical warnings and failures before repairs.
-- Treat numeric-coded nominal predictors as unranked. Fit imputation, encoding, scaling and transformations inside CV pipelines.
-- Investigate `PageValues` in first-pass fits, then exclude it operationally because its availability before voucher allocation is uncertain. AUC differences alone do not prove leakage.
-- Retain the bounded Phase 2 transformation, interaction, subset and tuning comparisons. Exclude unrelated classifiers and extensive resampling experiments.
-- Resolve the Gaussian/dummy mismatch with mixed Gaussian/Categorical NB and numerical-only LDA/QDA alternatives. Preserve the old dummy-coded experiments as diagnostics; exclude them from final operational selection. Compare all four families without preselecting a winner.
-- Report ROC-AUC and PR-AUC (average precision), including fold-to-fold SD and selected per-fold scores, as well as pooled OOF and historical test results.
-- Select specification and threshold before historical test evaluation; never use that partition for tuning.
-- Retain both extensions: threshold analysis and CV-versus-historical-test comparison.
+- UCI 468 session-level target; historical 75/25 stratified split, seed 42; five stratified training folds.
+- First pass: Logistic Regression, Gaussian Naive Bayes and LDA with all 17 original predictors. Preserve actual warnings and failures.
+- Treat numeric-coded nominal predictors as unranked. Fit imputation, encoding, scaling and transforms within each fold.
+- Compare `PageValues` in first pass, then exclude it from operational 16-predictor candidates because availability at decision time is uncertain.
+- Compare raw, `log1p` and `zeroind` treatments for all three classifiers. `zeroind` adds fold-fitted indicators for predictors with at least 50% training-fold zeros after log1p; it does not binarize predictors.
+- Retain logistic numerical interactions, five-original-predictor logistic model, L2 `C=0.1` and `C=10`, GaussianNB variance smoothing and LDA shrinkage.
+- Retain existing raw mixed Gaussian/Categorical Naive Bayes and raw numeric-only LDA alternatives. One-hot GaussianNB/LDA comparisons are approximate diagnostics; eligible candidates are Logistic variants plus those two existing raw alternatives.
+- Preserve the threshold analysis and historical CV-versus-test comparison. Do not add unrelated classifiers or experiments.
 
-## Unresolved practical limitations
+## Limitations
 
-Voucher response is absent, so A1 cannot be verified. Large simulated gains cannot be forecast as actual sales growth. Costs, margins and expenses are omitted. Session totals, durations, exit/bounce information and `PageValues` require prediction-time availability checks. Customer IDs are absent, so repeated people cannot be reliably identified or group-split. The historical test has already been inspected; candidate and threshold selection on the same training CV predictions introduces selection optimism.
-
-The original notebook, dataset and archives remain unchanged historical records; their retained results and assumptions are not current findings.
+Voucher response is absent, so A1 cannot be verified. Simulated gains are not actual sales growth. Costs beyond the stated discount, margins and expenses are excluded. Session totals, durations, exit/bounce information and `PageValues` require prediction-time availability checks. Customer IDs are absent, so repeated people cannot be reliably identified or group-split. The historical test has already been inspected; candidate/threshold selection also introduces optimism.

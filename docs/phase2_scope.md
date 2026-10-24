@@ -2,50 +2,31 @@
 
 ## Provenance and preserved work
 
-The revision incorporates the complete existing `analysis/phase-2-core-notebook` history through `ab31c233850d0b6692eac275cc120a8194b2abeb`, rather than replacing or discarding that branch. The original notebook, source CSV and historical archives remain unchanged.
-
-The group's final revision brief replaces the prior business assumptions. It preserves the professor's core classification work and two extensions, while excluding unrelated experiments. The archived PDF is a historical project source; its earlier intervention narrative, costs, optional experiments and unviewed-test claims are superseded by the explicit current brief.
+The prior executed analysis is retained as a read-only historical record. Its exact source files remain in `archive/online-shoppers/`. The current active entry point is `online_shoppers_revised.ipynb`; the source dataset remains unchanged. The current revision follows the latest user brief and clarification, including the removal of QDA, Yeo–Johnson and quantile-transform work and retention of the 1:4 voucher-revenue threshold framework.
 
 ## Included analysis
 
-- Session-level UCI 468 purchase prediction; four families: logistic regression, Naive Bayes, LDA and QDA. Gaussian NB is the required historical first pass; mixed Gaussian/Categorical NB supplies the defensible operational likelihood.
+- Session-level UCI 468 purchase prediction with Logistic Regression, Gaussian Naive Bayes and LDA.
 - Historical 75/25 stratified split, seed 42; five stratified training folds.
-- Data quality and training-only numerical/categorical EDA with modelling implications.
-- All-17-predictor first passes, recorded warnings/failures, `PageValues` review and operational exclusion.
-- Bounded Phase 2 transformations, zero indicators, interactions, subset and model-specific tuning; fold-fitted preprocessing.
-- Six targeted mixed/numeric-only alternatives resolve the consolidated checklist's predictor-likelihood concern; challenged dummy-Gaussian fits remain diagnostic rather than final eligible models.
-- PR-AUC defined as average precision, ROC-AUC, fold means/sample SDs, selected per-fold results, ROC/PR curves and pooled OOF/test comparisons.
-- Classifier selection by highest mean training CV ROC-AUC, followed by training OOF revenue optimisation of only its threshold, as clarified by the user during the consolidated-requirements audit.
-- **Extension 1:** empirical training threshold, theoretical 0.80 reference, sensitivity/specificity, revenue/opportunity-cost plots.
-- **Extension 2:** fixed-strategy CV versus historical test comparison.
-- Exactly two revenue scenarios: no voucher and selected model-guided vouchers; unchanged observed labels; all four confusion outcomes explained.
-- Executed outputs and computed interpretations in the revised notebook.
+- Data quality and training-only numerical/categorical EDA.
+- All-17-predictor first passes, actual warnings/failures, `PageValues` timing review and operational exclusion.
+- Raw, `log1p` and fold-fitted `zeroind` comparisons for each classifier.
+- Retained logistic L2 settings, numerical interactions, predeclared five-predictor logistic model, GaussianNB smoothing and LDA shrinkage.
+- Existing raw mixed Gaussian/Categorical NB and numeric-only LDA eligible alternatives.
+- ROC-AUC and PR-AUC (average precision), fold means/sample SDs, per-fold selected-model scores, ROC/PR curves, pooled OOF and historical test results.
+- Classifier selection by mean training-CV ROC-AUC, followed by training OOF threshold optimization under the latest-confirmed 1:4 revenue framework.
+- Threshold and CV-versus-historical-test comparisons; exactly two revenue scenarios, with unchanged observed labels.
 
-## Current business specification
+## Verification status
 
-A1 guaranteed voucher conversion; A2 20% discount without minimum spend; A3 common order value `A`; A4 observed labels represent no-intervention behaviour. Predict Buy means no voucher; Predict No Buy means voucher. `C_FN:C_FP=1:4` follows from `0.20A` versus `0.80A` opportunity costs.
-
-Report `R0/A=TP+FN`, `Rmodel/A=TP+0.80(FN+TN)`, and relative change `(0.80TN−0.20FN)/(TP+FN)`. No invented monetary parameters, profit claims, universal-voucher policy comparison or causal effect estimates are introduced.
-
-## Verification protocol
-
-Execute the entire revised notebook using actual committed data, inspect its output, render an HTML copy for review, and inspect formulas, confusion interpretation, threshold selection and all narrative claims manually. No automated code-checking test suite is added. The existing GitHub workflow remains an end-to-end notebook execution workflow with output artifacts.
+All active notebook outputs now come from the full current execution; earlier cached results were cleared before the run. Full execution completed successfully: all 21 code cells ran in order, all 20 candidate designs completed and 9 candidates were eligible; no cell or candidate failed. Expected rare unseen-category one-hot warnings were recorded. Tables and eight figures were inspected manually, and an HTML review copy was rendered. No automated code-checking tests were added; the existing GitHub notebook-execution workflow remains unchanged.
 
 Dataset SHA-256: `b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9`.
-Original notebook SHA-256: `debec6b36b796a2bc41d92d6abe57a645281d1d027a5d56f99cde32880636e17`.
+Historical active notebook SHA-256: `e860944111af5684ceeccd88e54a45b72fa2354f4719aecc5cebc2445a452f92`.
+Historical original notebook SHA-256: `debec6b36b796a2bc41d92d6abe57a645281d1d027a5d56f99cde32880636e17`.
 
-The final consolidated-checklist execution completed all **21 code cells** without a cell error. Of **35 candidate designs**, 33 completed; the two default-QDA covariance failures remain recorded analysis outcomes. All six added mixed/numeric-only designs completed. The original 29 designs remain in the ledger. Eight generated figures, tables, full warnings and the HTML export were inspected manually; no automated code-checking tests were added.
-
-The selected candidate is Yeo–Johnson logistic regression, threshold `0.8018563753337375`: mean fold AUC `0.7620988792` (SD `0.0230554998`), pooled OOF AUC `0.7619108289`, historical test AUC `0.7410410744`. Mean fold AP is `0.3418941992` (SD `0.0360919107`); pooled OOF AP is `0.3376999418`, versus historical test AP `0.3288474677`.
-
-Training confusion counts are TP=0, FP=0, FN=1,431, TN=7,816. Test counts are TP=0, FP=0, FN=477, TN=2,606. The rule issues vouchers to every session in both samples. Its simulated test revenue `2,466.4A` exceeds the no-voucher `477A` by `1,989.4A` (`417.06%`) under A1. This is an assumption-driven simulation, not a growth forecast or evidence of selective targeting.
-
-The criterion was clarified by the user during the follow-up audit: classify best by mean CV ROC-AUC, then optimize only that model's threshold; the voucher discount stays fixed at 20%. The earlier joint-revenue-selection result is superseded. [The manual requirements audit](requirements_audit.md) identifies the two technical gaps corrected and maps the consolidated checklist to the final notebook.
-
-Python 3.12.14, NumPy 2.5.4, pandas 3.0.6 and scikit-learn 1.9.1 were used locally; runtime metadata is also printed in the notebook. Thread counts were capped at one for BLAS/OpenMP. The existing requirements file remains unchanged and specifies minimum versions rather than a frozen environment.
-
-[GitHub Actions](https://github.com/lyd-sg/dsa211/actions/workflows/validate-notebook.yml) reruns the real-data notebook on `main` pushes and retains the executed artifact. The workflow definition by itself is not evidence of a successful remote run; inspect the run for the delivered commit.
+The current winner is Logistic Regression `zeroind`, threshold 0.800000: mean fold AUC 0.761161 (SD 0.022013), pooled OOF AUC 0.760887, historical test AUC 0.742293. Mean fold AP is 0.340692 (SD 0.034901), pooled OOF AP 0.335089 and historical test AP 0.328956. Training confusion counts are TP=0, FP=0, FN=1,431, TN=7,816; historical test counts are TP=0, FP=0, FN=477, TN=2,606. At this cutoff all sessions receive vouchers. The run summary, baselines and simulated-revenue calculations are in `revision_summary.md`.
 
 ## Remaining methodological limitations
 
-Voucher effectiveness cannot be verified without intervention outcomes. Revenue simulation is conditional on A1–A4, excludes profitability, and is not a sales-growth forecast. Predictor availability at decision time remains unresolved. Session identities do not identify unique customers. Selecting among candidates and thresholds on the same OOF predictions induces selection optimism. The previously inspected historical holdout cannot become a new independent evaluation by rerunning the notebook.
+Voucher effectiveness cannot be verified without intervention outcomes. Revenue simulation is conditional on A1–A4, excludes profitability, and is not a sales-growth forecast. Predictor availability at decision time remains unresolved. Session identities do not identify unique customers. Selecting candidates and threshold on the same OOF predictions induces selection optimism. The previously inspected historical holdout is not independent confirmation.
