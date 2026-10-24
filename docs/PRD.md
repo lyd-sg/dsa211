@@ -11,7 +11,7 @@
 
 **Secondary objective: interpretation of a hypothetical voucher policy.** Use the selected model's predicted purchase probabilities to illustrate how alternative classification thresholds affect targeting, and how assumed voucher conversion rates affect hypothetical revenue. The simulation **does not measure actual voucher effectiveness**.
 
-**Deliverable:** One self-contained, executable, lab-style Python notebook with focused plots/tables and concise statistical interpretation. A separate supplementary EDA notebook may be retained in the repository but is **not submitted**.
+**Deliverable:** One self-contained, executable, lab-style Python notebook with focused plots/tables and concise statistical interpretation. A separate **supplementary training-only EDA notebook must be maintained in the repository but is not submitted**, as agreed in Q9 and Q15.
 
 **Target reader:** DSA211 instructor/markers and a statistically literate reader. All methods must be traceable to the course, with extensions clearly labelled.
 
@@ -55,10 +55,10 @@ A one-sentence purpose and one-to-three concise sentences of interpretation are 
 | Dataset | UCI *Online Shoppers Purchasing Intention*: **12,330 sessions**, 17 source predictors and binary `Revenue` outcome |
 | Unit of analysis | **Session**, not an identified unique customer |
 | Data completeness | Dataset reported with no missing values; verify types/missing markers when loading |
-| Duplicate policy | **Retain all 12,330 observations**, including **125 excess exact duplicate rows** (12,205 unique full rows). Matching records are not reliable proof of the same visitor/session; disclose repeated-pattern limitations. |
+| Duplicate policy | **Retain all 12,330 observations**, including **125 excess exact duplicate rows** (12,205 unique full rows). Earlier inspection found that these repeated rows describe **low-activity, non-purchasing sessions (`Revenue=0`)**; reverify this descriptive finding during data-quality checks. Matching records are **not** proof of the same visitor/session, and repeated patterns may affect fitted models and cross-validation. |
 | Outcome imbalance | Approximately **15.5%** purchase rate; do not rely on accuracy alone |
 | Split | New **stratified 80% train / 20% held-out test**, **9,864 / 2,466** records |
-| Reproducibility | Use a fixed seed and document it. The professor's project workflow uses **`random_state=2026`**; this replaces the earlier draft's provisional `42` for the new split and CV where applicable. |
+| Reproducibility | Use **`random_state=42`** for the agreed new stratified 80/20 split and shuffled five-fold stratified CV, preserving Q14's earlier decision. The professor's project workflow illustrates `2026` as a seed, **not a mandate to override our fixed seed**. Record the seed and folds for reproducibility. |
 | CV | **Five-fold StratifiedKFold**, shuffled with fixed seed, **identical folds for all seven operational specifications** |
 | Test access | The 20% test set is reserved for **one single-winner audit only**; no exploratory plots, target-dependent EDA, feature/model selection or threshold tuning on it |
 | Historic caveat | A previously explored 75/25 partition of the **same dataset** was seen before this revised protocol. Do **not** describe the new holdout as historically untouched or fully independent of that earlier exposure. |
@@ -213,7 +213,7 @@ An additional precision–recall curve may be included if it illuminates the imb
 - **Association vs timing:** strong `PageValues`–`Revenue` association alone does not prove leakage; its potential unavailability at voucher time justifies a cautious exclusion. The remaining 16 features are **not certified available mid-session**.
 - **Class imbalance and calibration:** high accuracy can coexist with poor buyer detection; ROC-AUC evaluates ranking, not probability calibration or monetary utility.
 - **Naive Bayes/LDA assumptions:** predictors are skewed, zero-heavy, categorical and dependent, so fitted probability values may be unreliable even when discrimination is reasonable.
-- **Duplicates:** 125 excess full-row duplicates retained; matching values need not identify the same real-world session, but repeated patterns can influence results and CV.
+- **Duplicates:** retain the 125 excess full-row duplicates; earlier analysis found them to be **low-activity, `Revenue=0` observations** (to be reverified). Identical fields do not establish identical real-world sessions, but repeated patterns may influence model fit and CV.
 - **Historical holdout exposure:** previous evaluation on an overlapping sample means the new test cannot honestly be called entirely untouched.
 - **Voucher claims:** no observed counterfactuals, order values, margins or treatment labels exist to establish real conversion uplift, profit or deployability. All voucher amounts are in assumed common-`A` units.
 
