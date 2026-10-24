@@ -1,33 +1,15 @@
-# Project decisions
+# Current project decisions
 
-The latest user clarification retains the existing voucher-revenue framework at `C_FN:C_FP=1:4`. It supersedes the pasted brief's conflicting 5:1 threshold instruction. The active notebook is `online_shoppers_revised.ipynb`; prior executed/revised and original notebooks are preserved in `archive/online-shoppers/`.
+Approved [PRD v1.0](PRD.md) is authoritative and unchanged. The owner's autonomous instruction delegates separate technical-plan approval to independent Sol; [review](technical_plan_review.md) records staged PASS. Previous75/25, three-baseline, scaled/penalised and revenue-optimised.80 rules are superseded historical work.
 
-## Research and voucher framework
+Predict session-level Revenue; prediction is primary and hypothetical voucher arithmetic secondary. Quality checks precede a new stratified80/20 split, seed42 (9,864/2,466); retain all12,330 rows. Five common shuffled stratified training folds, seed42. Predictor EDA, recipes and threshold references use training only; previous overlapping-data exposure is disclosed.
 
-Predict whether a browsing **session** purchases (`Revenue=1`). This is a prediction project, not coefficient inference or a causal study. Predict Buy (`p >= t`) means no voucher; Predict No Buy (`p < t`) means voucher. Recorded labels remain unchanged. Vouchers are a hypothetical downstream intervention, never predictors.
+Four all17 diagnostic fits and four operational baselines: unpenalised raw Logit, GaussianNB, BernoulliNB, standard LDA. All operational baselines use16 sources without PageValues, excluded for timing uncertainty rather than predictive association alone. Six nominal inputs are unranked indicators; SpecialDay remains numeric, Weekend0/1. Baseline model-required encodings follow PRD§6.2; no optional scaling, transforms, weights or penalty.
 
-- **A1:** every voucher recipient redeems and purchases with 100% certainty. This is hypothetical and unverified.
-- **A2:** each voucher discounts the order by 20%, with no minimum spend.
-- **A3:** all orders share representative value `A`; report revenue in units of `A`, without assigning money.
-- **A4:** recorded outcomes represent purchasing behaviour without the proposed intervention.
+At most one EDA-supported revision per family, frozen after independent evidence review before scoring. All seven planned operational slots share folds and eligibility. Highest mean CV ROC-AUC wins, exact ties by label; AP and fold SD/SE support interpretation. One-SE proximity is descriptive, not equivalence or a model-selection test.
 
-Compare exactly two scenarios: no vouchers and the selected model-guided voucher strategy. Evaluate sales revenue, not profitability. Do not invent AOV, margins, acquisition costs or voucher-effect estimates.
+Buyer if p>=2/3→no voucher; otherwise voucher. Labels remain unchanged. Discount.20 and assumed q_ref=.50 give C_FN=.20A, C_FP=.40A and threshold2/3, conditional on meaningful probabilities. Four training references: exact prevalence,.5,2/3,rate crossover. Never substitute the most revenue-favourable threshold.
 
-No-voucher revenue is `R0/A=TP+FN`; model-guided revenue is `Rmodel/A=TP+0.80(FN+TN)`. The difference is `delta/A=0.80TN-0.20FN`, and relative change is `(0.80TN-0.20FN)/(TP+FN)`. The theoretical cutoff is 0.80 when predicted probability equals true no-voucher purchase probability. The associated conditional opportunity costs are `C_FN=0.20A`, `C_FP=0.80A`, ratio `1:4`.
+R0/A=TP+FN; Rq/A=TP+.8FN+.8qTN; delta/A=.8qTN−.2FN. At fixed2/3 recipients vary only q=.10,.25,.50,1.00. A is common normalisation; q is unobserved, not measured voucher response. This is neither profit nor actual lift.
 
-Select the classifier by highest mean training-fold ROC-AUC with deterministic label tie-breaking, then optimize only that classifier's threshold using training OOF simulated revenue. Report PR-AUC and fold variation alongside ROC-AUC. Keep predictive model choice separate from the voucher-policy objective.
-
-## Statistical decisions retained
-
-- UCI 468 session-level target; historical 75/25 stratified split, seed 42; five stratified training folds.
-- First pass: Logistic Regression, Gaussian Naive Bayes and LDA with all 17 original predictors. Preserve actual warnings and failures.
-- Treat numeric-coded nominal predictors as unranked. Fit imputation, encoding, scaling and transforms within each fold.
-- Compare `PageValues` in first pass, then exclude it from operational 16-predictor candidates because availability at decision time is uncertain.
-- Compare raw, `log1p` and `zeroind` treatments for all three classifiers. `zeroind` adds fold-fitted indicators for predictors with at least 50% training-fold zeros after log1p; it does not binarize predictors.
-- Retain logistic numerical interactions, five-original-predictor logistic model, L2 `C=0.1` and `C=10`, GaussianNB variance smoothing and LDA shrinkage.
-- Retain existing raw mixed Gaussian/Categorical Naive Bayes and raw numeric-only LDA alternatives. One-hot GaussianNB/LDA comparisons are approximate diagnostics; eligible candidates are Logistic variants plus those two existing raw alternatives.
-- Preserve the threshold analysis and historical CV-versus-test comparison. Do not add unrelated classifiers or experiments.
-
-## Limitations
-
-Voucher response is absent, so A1 cannot be verified. Simulated gains are not actual sales growth. Costs beyond the stated discount, margins and expenses are excluded. Session totals, durations, exit/bounce information and `PageValues` require prediction-time availability checks. Customer IDs are absent, so repeated people cannot be reliably identified or group-split. The historical test has already been inspected; candidate/threshold selection also introduces optimism.
+Freeze the winner/specification/policy before one test prediction vector. Report ROC/AUC/AP and confusion/rates at2/3 without alternative test models or thresholds. Refit exact winner on all data after audit, with no further score. Saved audit predictions support numerical/presentation verification. Historical exposure, timing uncertainty, duplicates, selection optimism and distributional/probability limitations remain disclosed.
