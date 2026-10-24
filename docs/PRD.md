@@ -1,7 +1,7 @@
 # DSA211 — Predicting Online Purchases
-## Product Requirements Document (PRD) · v1.0 approval candidate · 25 October 2026
+## Product Requirements Document (PRD) · v1.0 · APPROVED · 25 October 2026
 
-> **Status: Final PRD prepared for user approval; implementation NOT authorised.** This document consolidates agreed planning decisions through Q27 and adds an explicit purpose requirement for every substantive analysis. It replaces earlier PRD drafts on this branch. No notebook, dataset or modelling implementation has been changed by preparation of this PRD.
+> **Status: APPROVED by the project owner on 25 October 2026.** This is the authoritative agreed project-specific requirements baseline, consolidating decisions Q1–Q27 and the purpose-first reporting rule. **Technical implementation plan is NOT YET APPROVED; code/notebook changes are not authorised by PRD approval alone.** No notebook, dataset or modelling code has been modified as part of this approval.
 
 ### 1. Project purpose
 
@@ -22,7 +22,7 @@
 **Instructor's project-specific workflow (`project_cv_workflow.html`, 1 October 2026):** check data quality and split once → training-only EDA → fold-contained preprocessing → common CV folds/metric → compare candidates → choose and refit one winner on training → score the winner on test **once** → refit that exact specification on all data without a new test score. This supersedes the simpler in-sample evaluation used for teaching in parts of Lab 6.
 
 **Approval gates:**
-1. **PRD approval:** user explicitly approves this v1.0 candidate.
+1. **PRD approval — COMPLETE:** user explicitly approved PRD v1.0 on 25 October 2026.
 2. **Technical plan approval:** code-level methods, source files, candidate revisions, checks and implementation sequence are agreed separately.
 3. **Implementation and review:** only then modify analysis notebooks; execute and verify against this PRD.
 
@@ -237,7 +237,7 @@ An additional precision–recall curve may be included if it illuminates the imb
 - Specify exact pipeline steps, categorical ordering/unknown-level behaviour, Bernoulli binary conversion, solver/convergence checks and file-level implementation details in the **technical plan**.
 - Choose only the most informative final plots, preserving each required analytical purpose and evidence.
 
-**No further user-facing scope decision is required solely to prepare this PRD.** The user must still explicitly approve this final PRD and then approve the separate technical implementation plan before code changes.
+**PRD v1.0 was explicitly approved on 25 October 2026.** The **separate technical implementation plan still requires explicit approval before any code/notebook changes**. After technical-plan approval, implementation may proceed under this PRD.
 
 ---
 
