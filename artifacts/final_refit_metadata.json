@@ -1,0 +1,68 @@
+{
+  "winner_label": "Revised | Logit",
+  "training_rows": 9864,
+  "test_rows": 2466,
+  "all_rows": 12330,
+  "row_id_min": 0,
+  "row_id_max": 12329,
+  "source_csv_sha256": "b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+  "source_columns": [
+    "Administrative",
+    "Administrative_Duration",
+    "Informational",
+    "Informational_Duration",
+    "ProductRelated",
+    "ProductRelated_Duration",
+    "BounceRates",
+    "ExitRates",
+    "SpecialDay",
+    "Month",
+    "OperatingSystems",
+    "Browser",
+    "Region",
+    "TrafficType",
+    "VisitorType",
+    "Weekend"
+  ],
+  "recipe": "Exact reviewed Revised | Logit pipeline: log1p six activity columns; >0 activity indicators where full-data fit zero share >=.50; raw remaining numeric fields; k-1 nominal indicators; Weekend 0/1.",
+  "estimator": {
+    "class": "sklearn.linear_model.LogisticRegression",
+    "C": "Infinity",
+    "penalty": "none by C=np.inf under pinned sklearn version",
+    "solver": "newton-cg",
+    "tol": 1e-08,
+    "max_iter": 2000,
+    "n_iter": 27,
+    "max_abs_coefficient": 25.474797677582036,
+    "intercept": -2.4788336919992338
+  },
+  "presence_columns": [
+    "Informational",
+    "Informational_Duration"
+  ],
+  "zero_shares": {
+    "Administrative": 0.4678021086780211,
+    "Administrative_Duration": 0.4787510137875101,
+    "Informational": 0.78661800486618,
+    "Informational_Duration": 0.8049472830494728,
+    "ProductRelated": 0.0030819140308191405,
+    "ProductRelated_Duration": 0.061232765612327655
+  },
+  "design_rank": 68,
+  "design_columns": 69,
+  "pure_nominal_levels": [
+    "Browser=9:n1:y0",
+    "TrafficType=12:n1:y0",
+    "TrafficType=15:n38:y0",
+    "TrafficType=17:n1:y0",
+    "TrafficType=18:n10:y0"
+  ],
+  "convergence_warning": false,
+  "finite_parameter_checks": {
+    "coef_": true,
+    "intercept_": true
+  },
+  "fit_warnings": [],
+  "predict_or_score_after_final_refit": false,
+  "reported_performance_remains_single_winner_test_audit": true
+}

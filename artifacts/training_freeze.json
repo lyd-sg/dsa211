@@ -1,5 +1,6 @@
 {
   "status": "TRAINING DECISION PASSED INDEPENDENT PRE-TEST REVIEW; TEST ACCESS ONLY AFTER A12 GUARDS",
+  "pretest_review": "docs/pretest_review.md (PASS, 2026-10-25)",
   "winner_label": "Revised | Logit",
   "winner_exact_recipe": {
     "family": "Logit",
@@ -81,8 +82,8 @@
       "auc_fold_sd": 0.01216969067445288,
       "auc_fold_se": 0.00544245112264438,
       "mean_fold_ap": 0.32495533648229225,
-      "ap_fold_sd": 0.018933286415605474,
-      "ap_fold_se": 0.008467223092553435,
+      "ap_fold_sd": 0.01893328641560546,
+      "ap_fold_se": 0.008467223092553428,
       "numerical_status": "Boundary MLE; IRLS reference stable",
       "warning_count": 8,
       "within_winner_one_se": false,
@@ -91,11 +92,11 @@
     {
       "candidate": "Operational16 | GaussianNB",
       "mean_fold_auc": 0.6920208109690764,
-      "auc_fold_sd": 0.0205575528147546,
-      "auc_fold_se": 0.0091936171089667,
+      "auc_fold_sd": 0.020557552814754656,
+      "auc_fold_se": 0.00919361710896671,
       "mean_fold_ap": 0.2574496509939156,
-      "ap_fold_sd": 0.0166269226232547,
-      "ap_fold_se": 0.0074357858484453,
+      "ap_fold_sd": 0.01662692262325472,
+      "ap_fold_se": 0.007435785848445336,
       "numerical_status": "Finite fit; assumptions apply",
       "warning_count": 0,
       "within_winner_one_se": false,
@@ -104,11 +105,11 @@
     {
       "candidate": "Operational16 | BernoulliNB",
       "mean_fold_auc": 0.7231327707873715,
-      "auc_fold_sd": 0.0181601660318277,
-      "auc_fold_se": 0.0081214731459698,
+      "auc_fold_sd": 0.018160166031827733,
+      "auc_fold_se": 0.008121473145969884,
       "mean_fold_ap": 0.2763532954389563,
-      "ap_fold_sd": 0.0154232907466049,
-      "ap_fold_se": 0.0068975053092304,
+      "ap_fold_sd": 0.01542329074660494,
+      "ap_fold_se": 0.006897505309230426,
       "numerical_status": "Finite fit; assumptions apply",
       "warning_count": 0,
       "within_winner_one_se": false,
@@ -117,11 +118,11 @@
     {
       "candidate": "Operational16 | LDA",
       "mean_fold_auc": 0.7408786514529002,
-      "auc_fold_sd": 0.0127678339117585,
-      "auc_fold_se": 0.0057099489104238,
+      "auc_fold_sd": 0.012767833911758598,
+      "auc_fold_se": 0.0057099489104238555,
       "mean_fold_ap": 0.3164879186173554,
-      "ap_fold_sd": 0.0224535877854727,
-      "ap_fold_se": 0.0100415497254151,
+      "ap_fold_sd": 0.022453587785472705,
+      "ap_fold_se": 0.010041549725415187,
       "numerical_status": "Finite fit; warnings logged",
       "warning_count": 3,
       "within_winner_one_se": false,
@@ -61896,6 +61897,5 @@
     "voucher_count": 9858
   },
   "training_policy_and_scenarios_use_oof_only": true,
-  "test_predictions_or_outcomes_accessed": false,
-  "pretest_review": "docs/pretest_review.md (PASS, 2026-10-25)"
+  "test_predictions_or_outcomes_accessed": false
 }

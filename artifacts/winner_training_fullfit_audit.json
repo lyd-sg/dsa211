@@ -1,0 +1,68 @@
+{
+  "model_label": "Revised | Logit",
+  "row_count": 9864,
+  "source_columns": [
+    "Administrative",
+    "Administrative_Duration",
+    "Informational",
+    "Informational_Duration",
+    "ProductRelated",
+    "ProductRelated_Duration",
+    "BounceRates",
+    "ExitRates",
+    "SpecialDay",
+    "Month",
+    "OperatingSystems",
+    "Browser",
+    "Region",
+    "TrafficType",
+    "VisitorType",
+    "Weekend"
+  ],
+  "representation": "All 16 sources; log1p six activity columns; fit-population zero-share >=.50 adds activity presence indicators; raw rates/SpecialDay/Weekend; k-1 nominal encoding.",
+  "presence_columns": [
+    "Informational",
+    "Informational_Duration"
+  ],
+  "zero_shares": {
+    "Administrative": 0.46705190592051904,
+    "Administrative_Duration": 0.477088402270884,
+    "Informational": 0.7853811841038119,
+    "Informational_Duration": 0.8047445255474452,
+    "ProductRelated": 0.002737226277372263,
+    "ProductRelated_Duration": 0.06204379562043796
+  },
+  "design_rank": 68,
+  "design_columns": 69,
+  "normalized_condition_number": 8031179477995917.0,
+  "pure_nominal_levels": [
+    "Browser=9:n1:y0",
+    "TrafficType=12:n1:y0",
+    "TrafficType=15:n33:y0",
+    "TrafficType=17:n1:y0",
+    "TrafficType=18:n9:y0"
+  ],
+  "finite_parameter_checks": {
+    "coef_": true,
+    "intercept_": true
+  },
+  "max_abs_coefficient": 27.634552915184837,
+  "intercept": -2.5462330981030172,
+  "iterations": 25,
+  "convergence_warning": false,
+  "training_mean_nll": 0.3641335348027673,
+  "irls_reference_mean_training_nll": 0.3641335338414054,
+  "abs_mean_training_nll_delta": 9.613618789927614e-10,
+  "max_training_probability_delta": 1.5119333076777423e-06,
+  "irls_converged": true,
+  "irls_iterations": 13,
+  "numerical_gate_passed": true,
+  "pipeline_warnings": [],
+  "irls_reference_warnings": [
+    {
+      "type": "SingularMatrixWarning",
+      "message": "The design matrix is rank-deficient. The model parameters are not uniquely determined."
+    }
+  ],
+  "finite_MLE_certified": false
+}

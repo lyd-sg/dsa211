@@ -8,6 +8,7 @@ Predict whether a browsing **session** ends in a purchase, compare the approved 
 - [Supplementary training EDA](supplementary/training_eda.ipynb): five targeted investigations; retained separately and **not submitted**.
 - [Approved PRD v1.0](docs/PRD.md): unchanged requirements.
 - [Repository audit](docs/repository_audit.md), [technical plan](docs/technical_plan.md), [independent plan review](docs/technical_plan_review.md) and [recipe review](docs/recipe_review.md): provenance and approval gates.
+- [Final verification](docs/verification_report.md) and [independent final review](docs/final_independent_review.md): acceptance criteria, actual execution, numerical checks and limitations.
 - [Supervision record](docs/implementation_log.md): Sol instructions, Luna implementation, inspections and corrections.
 - [Methodology](docs/methodology.md), [project decisions](docs/project_decisions.md) and [requirements audit](docs/requirements_audit.md).
 - [Historical archives](archive/): prior work. The immediately preceding active notebook is preserved byte-for-byte as `archive/online-shoppers/online_shoppers_pre_prd_v1.ipynb`; its old scores are not current results.
@@ -36,6 +37,12 @@ The supplementary notebook runs from the repository root or its own directory; a
 Quality checks precede a new stratified **80/20** split, seed 42: 9,864 training and 2,466 test sessions. Five common shuffled stratified training folds (seed 42) fit preprocessing within folds. All predictor EDA and choices use training only. Four all-17 diagnostic counterparts explain possible `PageValues` timing leakage; the operational comparison excludes it.
 
 Four minimally processed baselines are unpenalised Logit, GaussianNB, BernoulliNB and standard LDA. One independently reviewed, EDA-supported revision per family gives seven operational specifications. Highest mean CV ROC-AUC selects one; AP and fold SD/SE support interpretation. After its one held-out audit, refit that exact specification on all 12,330 observations without another score.
+
+## Executed results
+
+The main notebook completed all 18 code cells in 4m52s. Revised Logit wins mean training-CV ROC-AUC at **0.757647**; its single-winner test ROC-AUC/AP are **0.741210 / 0.326790**. At the fixed 2/3 threshold, **TN=2,082, FP=2, FN=382, TP=0**: no buyers are detected, and **2,464/2,466 sessions receive vouchers**. The model and threshold were not changed after this finding. The exact final pipeline was then fitted on all 12,330 rows without another score.
+
+The ranking result does not establish useful targeting under this almost-universal voucher policy. Revenue differences are conditional on assumed q, not measured voucher effects. See the verification report for the full criterion-by-criterion audit.
 
 ## Hypothetical policy
 

@@ -1,0 +1,26 @@
+{
+  "Month": {
+    "count": 0,
+    "levels": []
+  },
+  "OperatingSystems": {
+    "count": 0,
+    "levels": []
+  },
+  "Browser": {
+    "count": 0,
+    "levels": []
+  },
+  "Region": {
+    "count": 0,
+    "levels": []
+  },
+  "TrafficType": {
+    "count": 0,
+    "levels": []
+  },
+  "VisitorType": {
+    "count": 0,
+    "levels": []
+  }
+}
