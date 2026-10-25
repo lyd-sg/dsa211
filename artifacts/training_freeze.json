@@ -1,5 +1,5 @@
 {
-  "status": "PENDING ROOT AND INDEPENDENT PRE-TEST REVIEW; DOES NOT AUTHORIZE TEST ACCESS",
+  "status": "TRAINING DECISION PASSED INDEPENDENT PRE-TEST REVIEW; TEST ACCESS ONLY AFTER A12 GUARDS",
   "winner_label": "Revised | Logit",
   "winner_exact_recipe": {
     "family": "Logit",
@@ -61896,5 +61896,6 @@
     "voucher_count": 9858
   },
   "training_policy_and_scenarios_use_oof_only": true,
-  "test_predictions_or_outcomes_accessed": false
+  "test_predictions_or_outcomes_accessed": false,
+  "pretest_review": "docs/pretest_review.md (PASS, 2026-10-25)"
 }

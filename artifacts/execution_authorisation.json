@@ -1,0 +1,17 @@
+{
+  "decision": "PASS \u2014 authorised by lead Sol after independent training and static code reviews",
+  "date_asia_singapore": "2026-10-25",
+  "scope": "One official full self-contained execution; one frozen-winner held-out audit, followed by exact all-data refit without a new score",
+  "training_review": "docs/pretest_review.md",
+  "static_code_review": "docs/audit_code_review.md",
+  "approved_notebook_sha256": "e45b4cc2be310452130097cd5a62d7533603587cefaf3890b099e08c7c2f4872",
+  "approved_code_sha256": "0e4f0f0dab80d2ac61a6a6e62ee0c0f6397c99e6f049b642632bcd6d19ca302e",
+  "training_checkpoint_commit": "f49e0bf",
+  "frozen_winner": "Revised | Logit",
+  "primary_threshold": 0.6666666666666666,
+  "discount": 0.2,
+  "q_reference": 0.5,
+  "source_csv_sha256": "b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+  "test_prediction_file_existed_at_authorisation": false,
+  "final_runtime_audit_still_required": true
+}
