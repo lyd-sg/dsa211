@@ -6,7 +6,7 @@ Predict whether a browsing **session** ends in a purchase, compare the approved 
 
 The active notebook now compares **exactly seven** training-CV candidates: four unchanged operational baselines and three EDA-informed revisions. Revised Logit adds fixed **L2 C=1.0** with fold-only standardisation to the existing activity log/presence engineering; revised LDA adds **automatic covariance shrinkage** to its log-activity engineering; revised MixedNB retains mixed likelihoods and categorical smoothing. Exact motivations and the one-table revision log are in [Regularisation revision log](docs/regularisation_revision_log.md).
 
-**Evaluation boundary:** This reopened model search is **training-only**. The project's previously inspected test set is not a fresh independent holdout for the changed candidate selection. Scores in the 25 October verification report and archived test artifacts belong to the **older unpenalised** winner and must not be attributed to this revision. The current notebook prints the new seven-candidate CV results and writes a separate `regularisation_revision_summary.json` upon execution.
+**Evaluation boundary:** This reopened model search is **training-only**. The project's previously inspected test set is not a fresh independent holdout for the changed candidate selection. Scores in the 25 October verification report and archived test artifacts belong to the **older unpenalised** winner and must not be attributed to this revision. The current notebook prints the new seven-candidate CV results and writes a separate `regularisation_revision_summary.json` upon execution. It reports the best-performing **tested** CV specification, not a newly validated test winner.
 
 ## Review and reproduce
 
@@ -46,7 +46,7 @@ Four minimally processed baselines are unpenalised Logit, GaussianNB, BernoulliN
 
 ## Executed results
 
-The **25 October historical, unpenalised** notebook completed 18 code cells, with revised Logit CV AUC **0.757647** and historical test AUC/AP **0.741210 / 0.326790**. The old 2/3 voucher policy selected almost everyone. **These are not results for the regularisation revision.** The reopened seven-model CV produces its own results upon execution; it deliberately does not compute a fresh test metric from previously inspected data.
+The **25 October historical, unpenalised** notebook completed 18 code cells, with revised Logit CV AUC **0.757647** and historical test AUC/AP **0.741210 / 0.326790**. The old 2/3 voucher policy selected almost everyone. **These are not results for the regularisation revision.** **Validated on GitHub Actions:** the reopened seven-model CV completed successfully with revised L2 Logit the winner (mean five-fold ROC-AUC **0.758074**, SD **0.012727**, average precision **0.335193**). Regularised LDA scored **0.741698** and revised MixedNB **0.731474**. Execution artifact: [GitHub Actions run](https://github.com/lyd-sg/dsa211/actions/runs/40255397327). The new notebook deliberately does not compute a fresh test metric from previously inspected data.
 
 The ranking result does not establish useful targeting under this almost-universal voucher policy. Revenue differences are conditional on assumed q, not measured voucher effects. See the verification report for the full criterion-by-criterion audit.
 
