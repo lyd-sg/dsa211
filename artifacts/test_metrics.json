@@ -1,0 +1,28 @@
+{
+  "winner_label": "Revised | Logit",
+  "positive_class": 1,
+  "threshold": 0.6666666666666666,
+  "n_test": 2466,
+  "buyers": 382,
+  "nonbuyers": 2084,
+  "roc_auc": 0.7412095145260322,
+  "average_precision": 0.3267904930247765,
+  "confusion_matrix_labels": [
+    "observed_0_1",
+    "predicted_0_1"
+  ],
+  "TN": 2082,
+  "FP": 2,
+  "FN": 382,
+  "TP": 0,
+  "sensitivity": 0.0,
+  "specificity": 0.9990403071017274,
+  "precision": 0.0,
+  "precision_display": "0.0000",
+  "voucher_count": 2464,
+  "voucher_share": 0.9991889699918897,
+  "R0_over_A": 382.0,
+  "Rq_over_A_at_q_reference": 1138.4,
+  "historical_overlapping_sample_exposure": "The reserved split was not used in this analysis before A12, but prior evaluation used an overlapping sample; it is not historically untouched.",
+  "q_scenarios_are_hypothetical_not_causal_or_measured_revenue": true
+}

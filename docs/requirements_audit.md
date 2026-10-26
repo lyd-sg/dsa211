@@ -1,29 +1,25 @@
-# Current requirements audit
+# Approved PRD traceability
 
-This audit maps the latest revision request to the active notebook. It replaces the prior consolidated-checklist audit where that document described QDA, Yeo–Johnson, quantile transforms, a 35-design search or stale model results. The pasted brief's cost ratio conflict was resolved by the user: preserve the latest notebook's voucher-revenue objective at `C_FN:C_FP=1:4`.
+The unchanged approved [PRD](PRD.md) governs the revision. The autonomous owner instruction delegates the separate technical-plan gate to independent Sol; see [plan review](technical_plan_review.md) and [recipe review](recipe_review.md). This replaces older current-scope summaries; historical notebook outputs remain archived.
 
-| Requirement | Active implementation |
+| Requirement | Implementation / evidence location |
 |---|---|
-| Session prediction; unchanged `Revenue` labels | Introduction, fixed target and voucher limitations |
-| Historical 75/25 stratified split, seed 42 | Data/split cell |
-| Five stratified CV folds; fold-fitted preprocessing | Shared fold evaluator and pipelines |
-| Three classifier families only | Logistic Regression, Gaussian Naive Bayes and LDA |
-| All-17 first pass | One baseline candidate for each family, with `PageValues` |
-| Operational models exclude `PageValues` | 16-predictor operational set and availability discussion |
-| Raw/log1p/zeroind across all three classifiers | Common five-fold transformation loop; zero threshold learned within each training fold |
-| Preserve Logistic L2 `C=.1,10`, interactions and five-predictor model | Retained candidate registrations |
-| Preserve GaussianNB smoothing and LDA shrinkage | Retained model-specific candidate registrations |
-| Retain existing raw mixed NB and numeric-only LDA | Raw alternatives; no transformed variants |
-| ROC-AUC primary, AP and spread reported | Candidate ranking, fold metrics and selected-fold results |
-| OOF threshold selection and holdout warning | Training OOF threshold scan; fixed historical test evaluation and disclosure |
-| Keep current voucher revenue framework | A1–A4, `C_FN:C_FP=1:4`, theoretical reference 0.80 |
-| Current computed outputs | Active notebook was fully re-executed; reported tables/plots and summary reflect the current 20-design scope |
-| Preserve archive files and notebook workflow | Prior notebooks archived byte-for-byte; workflow retained |
+| A1 quality before split, imbalance, retained duplicates | Main data-quality block; supplementary provenance; source hash and split ID artifacts |
+| New stratified 80/20, seed 42; five common stratified folds | Both notebook provenance blocks; `artifacts/*row_ids.csv` |
+| A2–A4 numerical/categorical/assumption evidence, training only | Focused main EDA and separate supplementary five investigations |
+| Supplementary extends main and is not submitted | `supplementary/training_eda.ipynb`; compact decision-relevant findings in main |
+| A5 four all-17 diagnostics and PageValues comparison | Same-fold all-17 versus operational baseline evidence; availability rationale |
+| A6 four prescribed minimal baselines | Logit, GaussianNB, BernoulliNB, LDA; all 16 remaining sources and required encodings |
+| A7 one justified revision per family | Technical-plan evidence addendum and independent recipe review; no search |
+| A8 seven-slot same-fold CV, AUC/SD/SE/AP and OOF ROC | Main training selection block; fold/OOF artifacts |
+| A9 winner OOF probability histogram | Main probability/threshold section; calibration caveat |
+| A10 four OOF thresholds, fixed 2/3 primary | Prevalence, 0.5, 2/3, rate crossover; rates/precision/voucher/revenue evidence |
+| A11 four q scenarios at constant recipients | q = 0.10, 0.25, 0.50, 1.00; discount 0.20 and threshold 2/3 fixed |
+| A12 one winner, one frozen holdout audit | Training decision manifest, one saved test probability vector; ROC/confusion at 2/3 |
+| A13 exact all-data refit after audit | Final fit on 12,330 rows, no further score |
+| A14 actual conclusion and limits | Main conclusion plus final verification report |
+| Purpose → evidence → implication throughout | Manual source/output review; substantive blocks labelled A1–A14 |
+| Numerical validity and reproducibility | Warning, convergence/separation/stability evidence; official notebook execution and independent reconstruction |
+| Preserve data, archives, history, original workflow and approved PRD | Protected-file hashes; separate branch and preserved pre-revision active copy |
 
-## Execution result
-
-The notebook completed all 21 code cells. All 20 attempted designs completed, 9 were eligible, and 0 failed. Logistic `zeroind` won mean-fold AUC at 0.761161 ± 0.022013; threshold 0.800000; historical test AUC 0.742293 and AP 0.328956. At the selected threshold the rule vouchers every session in the training and historical-test samples. Full metrics and first-pass baselines are recorded in `revision_summary.md`.
-
-## Interpretation limits
-
-Successful execution and correct arithmetic do not establish voucher effectiveness. The data contain no voucher assignment or response. Predictor timing, unavailable customer identity, selection optimism and historical test reuse remain unresolved limitations. Do not claim causal lift, profitability or reliable actual sales growth.
+The [verification report](verification_report.md) records completed acceptance checks and unperformed checks. This mapping alone does not claim that unexecuted or unreviewed sections have passed.

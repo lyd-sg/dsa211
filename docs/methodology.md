@@ -1,25 +1,27 @@
-# Revised classification and voucher-revenue methodology
+# Approved methodology
 
-## Data and validation protocol
+The unchanged [PRD](PRD.md), [plan](technical_plan.md), [independent plan review](technical_plan_review.md) and [recipe review](recipe_review.md) define requirements and staged evidence gates.
 
-Run `online_shoppers_revised.ipynb` from the repository root using committed `data/uci_468.csv`. The unit is a browsing session and `Revenue=1` is an observed purchase without the proposed intervention. Vouchers are downstream hypothetical actions, never predictors or replacement labels.
+## Data and preprocessing
 
-Check schema, types, missingness, duplicates and class balance. Do not remove identical rows on the assumption they identify duplicate customers. Preserve the historical 75/25 stratified split, seed 42: 9,247 training and 3,083 historical test sessions. Outcome-related numerical and categorical EDA uses training data only.
+Use the committed UCI 468 CSV. Verify 12,330 rows, 17 predictors plus binary target, types/missing markers, duplicates/description and class balance before splitting. Retain repeated rows; identical fields do not identify sessions or unique people. New stratified 80/20 split, seed 42: training 9,864 / test 2,466. Supplementary EDA reconstructs identical row IDs and immediately drops nontraining rows. All predictor EDA and recipe choices remain training-only. This holdout overlaps previous historical exposure and is not pristine.
 
-## Classifiers and candidate scope
+Materialise five shuffled stratified training folds (seed 42) once. Candidate clones fit categories, mappings and any learned preprocessing only within each fit fold. Retain row/fold assignments, warning and numerical evidence; unknown categories have deterministic documented handling.
 
-The first pass fits Logistic Regression, Gaussian Naive Bayes and LDA with all 17 predictors. Preserve actual warnings and failures. Compare `PageValues` during the diagnostic stage, then exclude it from operational models because its availability at voucher-allocation time is uncertain. This is an availability decision, not a conclusion from AUC alone.
+## Models and comparison
 
-The 20 attempted designs comprise three all-17 first-pass models, three operational raw baselines, two existing raw mixed/numeric-only alternatives, six log1p/zeroind comparisons (two transforms across all three classifiers), two retained logistic interaction/subset variants, and four retained model-specific variants. The original numeric scope excludes the prohibited Yeo–Johnson and quantile experiments. `zeroind` applies `log1p` plus indicators for numerical predictors whose training-fold zero share is at least 50%; it does not binarize predictors. All preprocessing is fitted inside each CV fold.
+Four all-17 diagnostic and four 16-source operational baselines use unpenalised Logit, GaussianNB, BernoulliNB and standard LDA. PageValues is operationally excluded for possible timing leakage. Baselines retain raw numeric magnitudes and numeric SpecialDay; Bernoulli alone uses the required magnitude > 0 indicators. Weekend remains 0/1. Nominal fields use k−1 OHE for Logit/LDA and full k for NB. No optional baseline scaling, logs, penalty, weights or deletion.
 
-Retain logistic L2 regularization at `C=0.1` and `C=10`, logistic numerical interactions, the five-original-predictor logistic model, GaussianNB variance smoothing and LDA covariance shrinkage. Retain the existing raw mixed Gaussian/Categorical NB and raw numeric-only LDA alternatives. The one-hot GaussianNB and LDA variants are reported as approximate diagnostics; only Logistic variants and the existing raw mixed NB/numeric-only LDA alternatives enter final eligibility. The Naive Bayes and LDA coverage trade-offs remain explicit.
+Inspect Logit convergence, separation, rank and objective/prediction stability. Finite returned coefficients do not establish a finite MLE. Inspect LDA feasibility. Gaussian dummy marginals, dependence, Bernoulli intensity loss and mixed-data Gaussian assumptions are explicit limitations; correlation alone is permitted under LDA.
 
-## Selection and reporting
+Supplementary training evidence supports one revision per family. Exact recipes are frozen in the plan addendum and independently reviewed before scoring; no grid/search. Compare seven operational slots. Highest mean fold ROC-AUC selects one, ties by label; report AP, sample SD, SE and per-fold evidence. OOF ROC overlay is illustrative; pooled AUC differs from mean fold AUC. One-SE proximity is descriptive; training-informed candidate selection can be optimistic.
 
-Select the eligible classifier by highest mean training-fold ROC-AUC, with deterministic candidate-label tie-breaking. Then select only its threshold from training OOF simulated revenue under the retained 1:4 opportunity-cost framework. Report average precision as a complementary metric, fold means and sample SDs, selected fold scores, OOF/test metrics, sensitivity/specificity, confusion matrices and ROC/PR plots. Freeze the model and threshold before historical test evaluation.
+## Policy and final evaluation
 
-The theoretical voucher-revenue cutoff is 0.80 only when a score equals the true no-voucher purchase probability. It is a reference rather than a forced empirical threshold. Do not use test labels to select candidates, transforms or thresholds.
+Winner OOF histogram and sensitivity/specificity plot inform threshold interpretation. Exactly four OOF references are training prevalence, 0.5, exact 2/3 and deterministic crossover. Report precision, confusion counts, voucher count/share and revenue at q = 0.50. Keep 2/3 primary independent of revenue. At 2/3, scenarios q = 0.10, 0.25, 0.50, 1.00 vary only assumed incremental conversion; discount 0.20, assignments and common A units stay fixed.
 
-## Interpretation and limitations
+Freeze the winner and policy, refit on training and obtain one saved test probability vector. Report ROC/AUC/AP and confusion/rates at 2/3; the voucher illustration reuses those predictions. Clone the exact specification and refit all 12,330 rows after the audit; do not score again. Earlier held-out performance remains the reported audit.
 
-In the current execution, Logistic `zeroind` had the highest mean fold AUC (0.761161 ± 0.022013); pooled OOF AUC was 0.760887 and historical test AUC was 0.742293. Mean fold AP was 0.340692 ± 0.034901; pooled OOF AP was 0.335089 and test AP was 0.328956. `log1p` and `zeroind` increased CV AUC relative to raw for each family; these small differences are descriptive and are not significance tests. Logistic interactions and GaussianNB smoothing increased AUC relative to their raw references; five-predictor reduction, Logistic L2 changes and LDA shrinkage did not. See `revision_summary.md` for exact values and the baseline tables. Distinguish predictive discrimination from the voucher simulation. A1–A4 are assumptions; voucher response is unobserved, revenue is not profit, and simulated gains are not actual sales-growth forecasts. Predictor timing, repeated sessions without customer IDs, selection optimism, one-retailer data and prior historical-test viewing remain limitations.
+## Verification limits
+
+Execute notebooks and inspect source, actual results, figures and claims; independently recompute saved metrics/counts/revenue. No new automated code-checking suite; preserve the existing notebook-execution workflow. Final verification distinguishes completed checks from unavailable checks. Original labs/lectures and the professor's workflow file are absent; direct source comparison cannot be claimed. No treatment outcomes, customer identifiers, order values or margins support causal effects, profit or deployment claims.

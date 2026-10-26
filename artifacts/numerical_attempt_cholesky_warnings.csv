@@ -1,0 +1,99 @@
+candidate,fold,warning_type,message
+All17 | Logit,1,UserWarning,Found unknown categories in columns [4] during transform. These unknown categories will be encoded as all zeros
+All17 | Logit,1,retry LinAlgWarning,"The inner solver of NewtonCholeskySolver stumbled upon a singular or very ill-conditioned Hessian matrix at iteration 1. It will now resort to lbfgs instead.
+Further options are to use another solver or to avoid such situation in the first place. Possible remedies are removing collinear features of "
+All17 | Logit,1,retry ConvergenceWarning,"lbfgs failed to converge after 199 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=199).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html"
+All17 | Logit,1,retry UserWarning,Found unknown categories in columns [4] during transform. These unknown categories will be encoded as all zeros
+All17 | Logit,2,UserWarning,Found unknown categories in columns [2] during transform. These unknown categories will be encoded as all zeros
+All17 | Logit,2,retry LinAlgWarning,"The inner solver of NewtonCholeskySolver stumbled upon a singular or very ill-conditioned Hessian matrix at iteration 1. It will now resort to lbfgs instead.
+Further options are to use another solver or to avoid such situation in the first place. Possible remedies are removing collinear features of "
+All17 | Logit,2,retry ConvergenceWarning,"lbfgs failed to converge after 199 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=199).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html"
+All17 | Logit,2,retry UserWarning,Found unknown categories in columns [2] during transform. These unknown categories will be encoded as all zeros
+All17 | Logit,3,retry LinAlgWarning,"The inner solver of NewtonCholeskySolver stumbled upon a singular or very ill-conditioned Hessian matrix at iteration 1. It will now resort to lbfgs instead.
+Further options are to use another solver or to avoid such situation in the first place. Possible remedies are removing collinear features of "
+All17 | Logit,3,retry ConvergenceWarning,"lbfgs failed to converge after 199 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=199).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html"
+All17 | Logit,4,UserWarning,Found unknown categories in columns [4] during transform. These unknown categories will be encoded as all zeros
+All17 | Logit,4,retry LinAlgWarning,"The inner solver of NewtonCholeskySolver stumbled upon a singular or very ill-conditioned Hessian matrix at iteration 1. It will now resort to lbfgs instead.
+Further options are to use another solver or to avoid such situation in the first place. Possible remedies are removing collinear features of "
+All17 | Logit,4,retry ConvergenceWarning,"lbfgs failed to converge after 199 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=199).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html"
+All17 | Logit,4,retry UserWarning,Found unknown categories in columns [4] during transform. These unknown categories will be encoded as all zeros
+All17 | Logit,5,retry LinAlgWarning,"The inner solver of NewtonCholeskySolver stumbled upon a singular or very ill-conditioned Hessian matrix at iteration 1. It will now resort to lbfgs instead.
+Further options are to use another solver or to avoid such situation in the first place. Possible remedies are removing collinear features of "
+All17 | Logit,5,retry ConvergenceWarning,"lbfgs failed to converge after 199 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=199).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html"
+All17 | LDA,1,UserWarning,Found unknown categories in columns [4] during transform. These unknown categories will be encoded as all zeros
+All17 | LDA,2,UserWarning,Found unknown categories in columns [2] during transform. These unknown categories will be encoded as all zeros
+All17 | LDA,4,UserWarning,Found unknown categories in columns [4] during transform. These unknown categories will be encoded as all zeros
+Operational16 | Logit,1,UserWarning,Found unknown categories in columns [4] during transform. These unknown categories will be encoded as all zeros
+Operational16 | Logit,1,retry LinAlgWarning,"The inner solver of NewtonCholeskySolver stumbled upon a singular or very ill-conditioned Hessian matrix at iteration 1. It will now resort to lbfgs instead.
+Further options are to use another solver or to avoid such situation in the first place. Possible remedies are removing collinear features of "
+Operational16 | Logit,1,retry ConvergenceWarning,"lbfgs failed to converge after 199 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=199).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html"
+Operational16 | Logit,1,retry UserWarning,Found unknown categories in columns [4] during transform. These unknown categories will be encoded as all zeros
+Operational16 | Logit,2,UserWarning,Found unknown categories in columns [2] during transform. These unknown categories will be encoded as all zeros
+Operational16 | Logit,2,retry LinAlgWarning,"The inner solver of NewtonCholeskySolver stumbled upon a singular or very ill-conditioned Hessian matrix at iteration 1. It will now resort to lbfgs instead.
+Further options are to use another solver or to avoid such situation in the first place. Possible remedies are removing collinear features of "
+Operational16 | Logit,2,retry ConvergenceWarning,"lbfgs failed to converge after 199 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=199).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html"
+Operational16 | Logit,2,retry UserWarning,Found unknown categories in columns [2] during transform. These unknown categories will be encoded as all zeros
+Operational16 | Logit,3,retry LinAlgWarning,"The inner solver of NewtonCholeskySolver stumbled upon a singular or very ill-conditioned Hessian matrix at iteration 1. It will now resort to lbfgs instead.
+Further options are to use another solver or to avoid such situation in the first place. Possible remedies are removing collinear features of "
+Operational16 | Logit,3,retry ConvergenceWarning,"lbfgs failed to converge after 199 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=199).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html"
+Operational16 | Logit,4,UserWarning,Found unknown categories in columns [4] during transform. These unknown categories will be encoded as all zeros
+Operational16 | Logit,4,retry LinAlgWarning,"The inner solver of NewtonCholeskySolver stumbled upon a singular or very ill-conditioned Hessian matrix at iteration 1. It will now resort to lbfgs instead.
+Further options are to use another solver or to avoid such situation in the first place. Possible remedies are removing collinear features of "
+Operational16 | Logit,4,retry ConvergenceWarning,"lbfgs failed to converge after 199 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=199).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html"
+Operational16 | Logit,4,retry UserWarning,Found unknown categories in columns [4] during transform. These unknown categories will be encoded as all zeros
+Operational16 | Logit,5,retry LinAlgWarning,"The inner solver of NewtonCholeskySolver stumbled upon a singular or very ill-conditioned Hessian matrix at iteration 1. It will now resort to lbfgs instead.
+Further options are to use another solver or to avoid such situation in the first place. Possible remedies are removing collinear features of "
+Operational16 | Logit,5,retry ConvergenceWarning,"lbfgs failed to converge after 199 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=199).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html"
+Operational16 | LDA,1,UserWarning,Found unknown categories in columns [4] during transform. These unknown categories will be encoded as all zeros
+Operational16 | LDA,2,UserWarning,Found unknown categories in columns [2] during transform. These unknown categories will be encoded as all zeros
+Operational16 | LDA,4,UserWarning,Found unknown categories in columns [4] during transform. These unknown categories will be encoded as all zeros

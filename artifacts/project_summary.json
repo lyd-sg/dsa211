@@ -1,0 +1,31 @@
+{
+  "project": "Online Shopper Purchase Prediction",
+  "status": "single-winner audit and exact all-data refit completed",
+  "winner": "Revised | Logit",
+  "primary_threshold": 0.6666666666666666,
+  "cv_mean_fold_auc": 0.7576467609891068,
+  "cv_auc_fold_se": 0.0058211341103521054,
+  "cv_mean_fold_ap": 0.335012099515201,
+  "test_roc_auc": 0.7412095145260322,
+  "test_average_precision": 0.3267904930247765,
+  "test_sensitivity_at_two_thirds": 0.0,
+  "test_specificity_at_two_thirds": 0.9990403071017274,
+  "test_precision_at_two_thirds": 0.0,
+  "test_precision_display": "0.0000",
+  "test_confusion": {
+    "TN": 2082,
+    "FP": 2,
+    "FN": 382,
+    "TP": 0
+  },
+  "test_voucher_count": 2464,
+  "test_voucher_share": 0.9991889699918897,
+  "training_rows": 9864,
+  "test_rows": 2466,
+  "all_data_refit_rows": 12330,
+  "source_csv_sha256": "b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+  "seed": 42,
+  "historical_overlapping_sample_exposure": true,
+  "course_source_files_available": false,
+  "conclusion": "The highest mean five-fold ROC-AUC among seven operational candidates was Revised | Logit (0.758, SE 0.006); its paired descriptive gain over raw operational Logit was +0.008. The single held-out audit gave ROC-AUC 0.741 and AP 0.327. At the fixed 2/3 threshold it predicted 2 buyers and assigned 2,464/2,466 vouchers; training OOF similarly predicted 6 buyers and assigned 9,858/9,864 vouchers. Thus ranking is moderate while the precommitted policy has very little selectivity. Test hypothetical Rq/A spans 472.2\u20131971.2 across assumed q values, a difference of 1499.0; q is unobserved and these are not causal effects, measured growth or profit. No formal calibration assessment was performed. Pure nominal levels leave Logit boundary-MLE uncertainty; NB conditional-independence and Gaussian distribution assumptions remain limitations, while LDA may be strained by mixed and long-tailed features. Duplicate rows do not identify unique visitors, PageValues timing is unverified, prior overlapping-sample exposure limits historical independence, and training-based candidate selection adds optimism. Original course source labs/lectures were unavailable for direct comparison."
+}

@@ -1,0 +1,17 @@
+candidate,fold,warning_type,message
+All17 | Logit,1,UserWarning,Found unknown categories in columns [4] during transform. These unknown categories will be encoded as all zeros
+All17 | Logit,1,IRLS SingularMatrixWarning,The design matrix is rank-deficient. The model parameters are not uniquely determined.
+All17 | Logit,2,UserWarning,Found unknown categories in columns [2] during transform. These unknown categories will be encoded as all zeros
+All17 | Logit,2,IRLS SingularMatrixWarning,The design matrix is rank-deficient. The model parameters are not uniquely determined.
+All17 | Logit,3,IRLS SingularMatrixWarning,The design matrix is rank-deficient. The model parameters are not uniquely determined.
+All17 | Logit,4,UserWarning,Found unknown categories in columns [4] during transform. These unknown categories will be encoded as all zeros
+All17 | Logit,4,IRLS SingularMatrixWarning,The design matrix is rank-deficient. The model parameters are not uniquely determined.
+All17 | Logit,5,IRLS SingularMatrixWarning,The design matrix is rank-deficient. The model parameters are not uniquely determined.
+Operational16 | Logit,1,UserWarning,Found unknown categories in columns [4] during transform. These unknown categories will be encoded as all zeros
+Operational16 | Logit,1,IRLS SingularMatrixWarning,The design matrix is rank-deficient. The model parameters are not uniquely determined.
+Operational16 | Logit,2,UserWarning,Found unknown categories in columns [2] during transform. These unknown categories will be encoded as all zeros
+Operational16 | Logit,2,IRLS SingularMatrixWarning,The design matrix is rank-deficient. The model parameters are not uniquely determined.
+Operational16 | Logit,3,IRLS SingularMatrixWarning,The design matrix is rank-deficient. The model parameters are not uniquely determined.
+Operational16 | Logit,4,UserWarning,Found unknown categories in columns [4] during transform. These unknown categories will be encoded as all zeros
+Operational16 | Logit,4,IRLS SingularMatrixWarning,The design matrix is rank-deficient. The model parameters are not uniquely determined.
+Operational16 | Logit,5,IRLS SingularMatrixWarning,The design matrix is rank-deficient. The model parameters are not uniquely determined.

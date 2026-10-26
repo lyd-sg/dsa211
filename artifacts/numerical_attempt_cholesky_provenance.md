@@ -1,0 +1,5 @@
+# Superseded numerical reference attempt: Newton-Cholesky
+
+This file set preserves the bounded same-specification Newton-Cholesky retry from the first executed task2A attempt. It is **not accepted as a numerical reference**: all ten Logit folds produced `LinAlgWarning`/`ConvergenceWarning` messages, `n_iter=199` at the configured 200 cap, summed training negative log likelihood increased by about 106–124 in the all-17 fold records, and maximum validation probability differences of 0.44–0.90. It therefore does not establish stability relative to the primary Newton-CG fit. The primary baseline OOF vectors and AUC/AP remain separate, scored-but-provisional evidence; pure nominal categories, rank deficiency and very high conditioning still require review. No candidate or feature recipe changed.
+
+`numerical_attempt_cholesky_diagnostics.csv` and `numerical_attempt_cholesky_warnings.csv` are copies of the original fold diagnostics and actual warning records. `work/baseline_progress.jsonl` records solver/tolerance/iteration settings and fit timings. These records are retained for provenance and must not be mistaken for accepted results.

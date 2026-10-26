@@ -1,49 +1,35 @@
-# Revision change log and executed results
+# Completed PRD v1.0 revision
 
-## Changes
+The active main notebook is fully executed. The separate executed supplementary EDA is retained but is not submitted. The approved PRD, dataset, historical archives and existing execution workflow are unchanged. The preceding active notebook was preserved byte-for-byte before replacement.
 
-- Reduced the active notebook to Logistic Regression, Gaussian Naive Bayes and LDA. Removed QDA, Yeo–Johnson and quantile-transform experiments, imports and prose.
-- Archived the prior executed notebook and original full-project notebook byte-for-byte. The only current project notebook at the repository root is `online_shoppers_revised.ipynb`.
-- Compared raw, `log1p` and fold-fitted `zeroind` for all three classifiers. Preserved logistic L2 `C=0.1` and `C=10`, numerical interactions, the predeclared five-predictor logistic model, GaussianNB smoothing and LDA shrinkage. Retained the existing raw mixed NB and numeric-only LDA alternatives.
-- Added a dynamic CV-AUC comparison of retained transformations and variants, generated from the current fold results, and reported 1:4 weighted opportunity cost in training/test summaries.
-- Kept the 75/25 stratified split (seed 42), five stratified training folds, ROC-AUC selection, training OOF revenue threshold selection, historical test comparison and existing workflow.
+The revision replaces the historical 75/25, three-baseline and revenue-optimised 0.80 analysis with the approved stratified 80/20 split, four minimal baselines, three EDA-supported family revisions, five common stratified training folds, fixed 2/3 policy, four threshold references, four conversion assumptions, one winner audit and exact all-data refit. No feature/hyperparameter search or unrelated classifier was added.
 
-The latest user clarification resolved the pasted brief's conflicting 5:1 instruction: retain the latest notebook's 1:4 voucher-revenue objective.
+## Training comparison
 
-## Execution and baselines
-
-All 21 code cells executed from first to last. All 20 candidate designs completed; 9 candidates were eligible and 0 failed. Rare unseen validation categories produced expected one-hot encoder warnings; the fits still completed. The historical test partition had previously been inspected and does not provide fresh independent confirmation.
-
-| First-pass model | Mean five-fold ROC-AUC |
-|---|---:|
-| Logistic Regression, all 17 | 0.894718 |
-| Gaussian Naive Bayes, all 17 | 0.698642 |
-| LDA, all 17 | 0.900502 |
-
-| Operational raw baseline | Mean five-fold ROC-AUC | Fold SD |
+| Operational specification | Mean CV ROC-AUC | Mean fold AP |
 |---|---:|---:|
-| Logistic Regression, 16 predictors | 0.754075 | 0.021676 |
-| Gaussian Naive Bayes, 16 predictors | 0.660601 | 0.051285 |
-| LDA, 16 predictors | 0.742414 | 0.020139 |
+| Raw Logit | 0.750020 | 0.324955 |
+| GaussianNB | 0.692021 | 0.257450 |
+| BernoulliNB | 0.723133 | 0.276353 |
+| Raw LDA | 0.740879 | 0.316488 |
+| Revised Logit | **0.757647** | **0.335012** |
+| Revised LDA | 0.743728 | 0.321003 |
+| Revised mixed NB | 0.731474 | 0.289378 |
 
-The eligible winner was Logistic Regression with `zeroind`, selected by highest mean training-CV ROC-AUC. Its threshold was 0.800000, optimized from training OOF simulated revenue under the retained assumptions.
+Revised Logit is selected solely by mean fold ROC-AUC. Its fold AUC SD is 0.013016 and SE is 0.005821. Its descriptive gain over raw Logit is 0.007627 AUC; neither this gain nor one-SE proximity is a significance test. All three recipes were frozen from actual training EDA before scoring and retained without replacement.
 
-| Metric | Training CV/OOF | Historical test |
-|---|---:|---:|
-| Mean fold ROC-AUC ± sample SD | 0.761161 ± 0.022013 | — |
-| Pooled ROC-AUC | 0.760887 | 0.742293 |
-| Mean fold average precision ± sample SD | 0.340692 ± 0.034901 | — |
-| Pooled average precision | 0.335089 | 0.328956 |
-| Sensitivity / specificity at 0.80 | 0.000 / 1.000 | 0.000 / 1.000 |
-| TP / FP / FN / TN | 0 / 0 / 1,431 / 7,816 | 0 / 0 / 477 / 2,606 |
-| Weighted opportunity cost (`0.80 FP + 0.20 FN`) | 286.2A | 95.4A |
-| No-voucher / model-guided revenue | 1,431.0A / 7,397.6A | 477.0A / 2,466.4A |
-| Simulated difference | +5,966.6A (+416.95%) | +1,989.4A (+417.06%) |
+The four all-17 diagnostic AUCs are 0.889716 (Logit), 0.787947 (GaussianNB), 0.876559 (BernoulliNB) and 0.899652 (LDA). Their better ranking with PageValues does not prove leakage. Operational exclusion is based on possible timing/availability concerns, which also remain relevant to the other session-summary predictors.
 
-The selected rule issues vouchers to every session in both samples. The simulated gains follow from guaranteed conversion under A1; they do not show selective targeting, actual voucher effectiveness, profit or reliable sales growth.
+## Frozen policy and held-out audit
 
-## Retained-variant comparisons
+The official full run completed in 4m52s: all 18 code cells executed sequentially without errors. The one selected-model audit gives **ROC-AUC 0.741210 and AP 0.326790**. At exact **2/3**, TN=2,082, FP=2, FN=382, TP=0. Sensitivity and precision are zero; specificity is 0.999040. The policy assigns **2,464/2,466 vouchers (99.92%)**, so this threshold supplies no buyer detection and little selective targeting in the audit. No threshold or model was revised after these results.
 
-Mean-fold AUC differences below are descriptive, not significance tests. `log1p` and `zeroind` increased mean-fold AUC over their corresponding operational raw baselines for all three classifiers. Logistic raw interactions increased from 0.754075 to 0.757376; five-predictor logistic, L2 `C=0.1` and `C=10` did not improve over raw. GaussianNB smoothing increased from 0.660601 to 0.706078. LDA shrinkage decreased from 0.742414 to 0.737362. The highest mean-fold average precision belonged to Logistic `log1p` (0.341664), while Logistic `zeroind` remained the AUC-selected candidate.
+At those same assignments, q=.10/.25/.50/1.00 produces hypothetical Rq/A of 472.16/722.00/1,138.40/1,971.20 against R0/A=382. q is unobserved; these totals are assumptions, not measured lift, actual revenue or profit.
 
-No automated test suite was added. The notebook was executed fully; its output tables and plots were inspected manually, and the existing end-to-end GitHub execution workflow was preserved.
+The final clone of that exact specification was fitted to all 12,330 observations after the audit. It used 27 iterations, emitted no convergence warning, and was not scored again. The notebook displays the final fitted pipeline; its code recreates the object without requiring a serialized pickle.
+
+## Numerical verification and limits
+
+Raw unpenalised Logit required documented accuracy checks because rare pure levels and rank deficiency prevent finite/unique-MLE certification. Uniform cold Newton-CG tolerance 1e-8 passes all 15 CV same-likelihood IRLS comparisons; the full-training refit also passes. Failed earlier numerical attempts are explicitly labelled. Four teaching baselines, all source treatments and fold containment remain intact.
+
+Independent checks reconstruct saved fold/test metrics, confusion counts, mixed-NB likelihoods, threshold crossover and voucher equations. Only factual Markdown clarifications followed the audit; code and outputs match the official execution. See [verification report](verification_report.md) and review records for individual PRD criteria, actual evidence and unperformed checks. Original teaching files were unavailable; remote CI was not run; historical overlapping-data exposure, calibration/assumption limitations and unknown voucher response remain explicit.
