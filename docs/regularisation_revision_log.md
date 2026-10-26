@@ -23,8 +23,26 @@ The project has already examined test observations in prior versions, including 
 
 The new notebook writes *separate*, training-only revision artifacts and prints all seven mean CV ROC-AUC scores. Any observed winner is a **training-CV winner**, not proof of external deployment superiority.
 
+## Actual execution evidence — 26 October 2026
+
+The [GitHub Actions training notebook run](https://github.com/lyd-sg/dsa211/actions/runs/40255397327) completed successfully with all cells executed on the committed UCI data (Python 3.12). There were no execution-error outputs. All seven candidates used the common 5-fold training CV.
+
+| Candidate | Mean fold ROC-AUC |
+|---|---:|
+| Operational Logit | 0.7500199667 |
+| Operational GaussianNB | 0.6920208110 |
+| Operational BernoulliNB | 0.7231327708 |
+| Operational LDA | 0.7408786515 |
+| **Revised Logit (L2 C=1 + existing activity engineering)** | **0.7580744909** |
+| Revised LDA (auto covariance shrinkage + log activity) | 0.7416984427 |
+| Revised MixedNB (unchanged) | 0.7314741687 |
+
+The winning revised Logit's mean CV AUC is 0.758074 (fold SD 0.012727, SE 0.005692; mean AP 0.335193). Its advantage over the operational unpenalised Logit is about +0.00805, but this comparison changes feature representation and regularisation together, so **the improvement is not attributable solely to L2**.
+
+The prior, unregularised revised Logit had CV AUC 0.757647, a difference of only +0.000428. Moreover, because the new L2 pipeline adds standardisation as well, the two versions do not isolate the penalty effect. This is not evidence that L2 itself improved prediction. Auto-shrinkage revised LDA scored 0.741698 versus operational LDA 0.740879, also a modest difference. Neither model's revised AUC is an independent test score.
+
 ## Implementation status
 
 - Notebook edit: new revised pipelines, in-fold standardisation for L2 Logit, automatic LDA covariance shrinkage, appropriate model-specific numerical gates.
-- Run: GitHub Actions `Validate DSA211 revised notebook` on the review branch; record the exact execution status before merging to `main`.
+- Run: **PASS** — GitHub Actions `Validate DSA211 revised notebook`, run `40255397327`, successful actual-data execution; full executed notebook available as workflow artifact.
 - Numeric results and selected candidate are determined by execution, not inserted by hand.
