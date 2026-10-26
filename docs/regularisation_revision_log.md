@@ -39,7 +39,7 @@ The [GitHub Actions training notebook run](https://github.com/lyd-sg/dsa211/acti
 
 The winning revised Logit's mean CV AUC is 0.758074 (fold SD 0.012727, SE 0.005692; mean AP 0.335193). Its advantage over the operational unpenalised Logit is about +0.00805, but this comparison changes feature representation and regularisation together, so **the improvement is not attributable solely to L2**.
 
-The prior, unregularised revised Logit had CV AUC 0.757647, a difference of only +0.000428. Moreover, because the new L2 pipeline adds standardisation as well, the two versions do not isolate the penalty effect. This is not evidence that L2 itself improved prediction. Auto-shrinkage revised LDA scored 0.741698 versus operational LDA 0.740879, also a modest difference. Neither model's revised AUC is an independent test score.
+The previous **unregularised revised LDA** scored **0.743728**, while the updated covariance-shrinkage revised LDA scores **0.741698** (change **−0.002030**). Thus the shrinkage revision does not beat the former revised LDA, even though it slightly exceeds raw operational LDA. The prior, unregularised revised Logit had CV AUC 0.757647, a difference of only +0.000428. Moreover, because the new L2 pipeline adds standardisation as well, the two versions do not isolate the penalty effect. This is not evidence that L2 itself improved prediction. Auto-shrinkage revised LDA scored 0.741698 versus operational LDA 0.740879, also a modest difference. Neither model's revised AUC is an independent test score.
 
 ## Implementation status
 
