@@ -1,0 +1,39 @@
+{
+  "project": "Online Shopper Purchase Prediction",
+  "status": "revised seven-candidate training CV complete; no new independent holdout audited",
+  "selected_candidate": "Revised | Logit",
+  "model_selection_criterion": "highest mean five-fold training ROC-AUC among seven fixed specifications",
+  "mean_cv_auc": 0.7580744909365278,
+  "cv_auc_sd": 0.012726794939789855,
+  "cv_auc_se": 0.005691595724214091,
+  "mean_cv_average_precision": 0.33519345431235764,
+  "all_seven_cv_auc": {
+    "Operational16 | Logit": 0.7500199666793064,
+    "Operational16 | GaussianNB": 0.6920208109690764,
+    "Operational16 | BernoulliNB": 0.7231327707873715,
+    "Operational16 | LDA": 0.7408786514529002,
+    "Revised | Logit": 0.7580744909365278,
+    "Revised | LDA": 0.7416984426595529,
+    "Revised | MixedNB": 0.7314741686550729
+  },
+  "revision_changes": {
+    "Revised | Logit": "log1p activity + fold-fitted presence + fold-only scaling + fixed L2 penalty C=1",
+    "Revised | LDA": "log1p activity + automatic covariance shrinkage (lsqr solver)",
+    "Revised | MixedNB": "mixed Gaussian/discrete likelihoods + Laplace categorical smoothing alpha=1"
+  },
+  "threshold_policy_training_only": 0.6666666666666666,
+  "training_oof_voucher_count": 9858,
+  "test_auc": null,
+  "test_audit": "Previously evaluated historical test data; no new unbiased test score for these revisions.",
+  "historical_test_metrics_not_comparable": true,
+  "train_rows": 9864,
+  "heldout_rows_unscored_in_new_revision": 2466,
+  "provenance": {
+    "workflow_run_id": 40255397327,
+    "workflow_job_id": 121356041691,
+    "workflow_url": "https://github.com/lyd-sg/dsa211/actions/runs/40255397327",
+    "validation_result": "success",
+    "source": "JSON stdout from executed notebook on GitHub Actions",
+    "note": "Training CV only; historical test not reused."
+  }
+}
