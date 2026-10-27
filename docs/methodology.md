@@ -1,27 +1,20 @@
-# Approved methodology
+# Current methodology — approved PRD v2.0
 
-The unchanged [PRD](PRD.md), [plan](technical_plan.md), [independent plan review](technical_plan_review.md) and [recipe review](recipe_review.md) define requirements and staged evidence gates.
+**Authority:** [PRD v2.0](PRD_v2.md) and [technical implementation plan v2.0](technical_plan.md). [Previous methodology](methodology_v1_archive.md) pertains to PRD v1.0 and is not current.
 
-## Data and preprocessing
+## Data and predictor preparation
+Check UCI source quality, target, types, blank/missing and exact duplicate rows; retain all 12,330 sessions. Reconstruct stratified 80/20 split, `random_state=42`; perform EDA only within 9,864 training sessions. Common five stratified shuffled training folds, seed 42. Each fold's feature encoding, optional scaling, categorical likelihood maps, zero-share feature choice and covariance estimation use only fit rows. Unknown nominal categories are handled deterministically.
 
-Use the committed UCI 468 CSV. Verify 12,330 rows, 17 predictors plus binary target, types/missing markers, duplicates/description and class balance before splitting. Retain repeated rows; identical fields do not identify sessions or unique people. New stratified 80/20 split, seed 42: training 9,864 / test 2,466. Supplementary EDA reconstructs identical row IDs and immediately drops nontraining rows. All predictor EDA and recipe choices remain training-only. This holdout overlaps previous historical exposure and is not pristine.
+## Candidate models
+Four initial all-17 diagnostic models establish effects of PageValues (excluded operationally due to uncertain availability before prediction). Seven operational candidates: four unchanged baselines using 16 sources and three EDA-motivated revised recipes: fixed-L2 log/presence/standardised Logit (`C=1.0`), log-transformed auto-shrinkage LDA, and smoothed mixed-likelihood NB. Exact recipes, data-type treatments and numerical checks are in the technical plan. No QDA, KNN, automated grids or post-hoc feature search.
 
-Materialise five shuffled stratified training folds (seed 42) once. Candidate clones fit categories, mappings and any learned preprocessing only within each fit fold. Retain row/fold assignments, warning and numerical evidence; unknown categories have deterministic documented handling.
+## Evaluation
+All seven candidates use identical training CV folds. Select highest **mean five-fold ROC-AUC**, report mean AP, AUC SD, AUC SE, per-fold details and a single OOF ROC overlay. The selected model is also shown with one OOF PR curve and a purchase-prevalence no-skill line. Mean fold AP differs from pooled OOF AP; label both accurately. ROC-AUC/AP evaluate ranking and do not certify probability calibration.
 
-## Models and comparison
+## Threshold analysis
+On winner training OOF predictions, compare three references: training prevalence, 0.5 and closest sensitivity–specificity crossover. Define positive class Revenue=1 and predict positive for `p>=t`. Show sensitivity, specificity and precision, with undefined precision handled explicitly. The crossover minimises the absolute rate gap over valid empirical thresholds plus endpoints, tie by lower cutoff. No economic objective or price scenario.
 
-Four all-17 diagnostic and four 16-source operational baselines use unpenalised Logit, GaussianNB, BernoulliNB and standard LDA. PageValues is operationally excluded for possible timing leakage. Baselines retain raw numeric magnitudes and numeric SpecialDay; Bernoulli alone uses the required magnitude > 0 indicators. Weekend remains 0/1. Nominal fields use k−1 OHE for Logit/LDA and full k for NB. No optional baseline scaling, logs, penalty, weights or deletion.
+## Refitting and reporting
+Refit frozen CV winner on training to verify numerical validity; final fit of exact same recipe on all 12,330 rows for a finished specification. Do not report in-sample or new independent test scores as generalisation evidence. Include true uncertainty about prediction-time feature availability, class imbalance, CV selection optimism and NB/LDA assumptions.
 
-Inspect Logit convergence, separation, rank and objective/prediction stability. Finite returned coefficients do not establish a finite MLE. Inspect LDA feasibility. Gaussian dummy marginals, dependence, Bernoulli intensity loss and mixed-data Gaussian assumptions are explicit limitations; correlation alone is permitted under LDA.
-
-Supplementary training evidence supports one revision per family. Exact recipes are frozen in the plan addendum and independently reviewed before scoring; no grid/search. Compare seven operational slots. Highest mean fold ROC-AUC selects one, ties by label; report AP, sample SD, SE and per-fold evidence. OOF ROC overlay is illustrative; pooled AUC differs from mean fold AUC. One-SE proximity is descriptive; training-informed candidate selection can be optimistic.
-
-## Policy and final evaluation
-
-Winner OOF histogram and sensitivity/specificity plot inform threshold interpretation. Exactly four OOF references are training prevalence, 0.5, exact 2/3 and deterministic crossover. Report precision, confusion counts, voucher count/share and revenue at q = 0.50. Keep 2/3 primary independent of revenue. At 2/3, scenarios q = 0.10, 0.25, 0.50, 1.00 vary only assumed incremental conversion; discount 0.20, assignments and common A units stay fixed.
-
-Freeze the winner and policy, refit on training and obtain one saved test probability vector. Report ROC/AUC/AP and confusion/rates at 2/3; the voucher illustration reuses those predictions. Clone the exact specification and refit all 12,330 rows after the audit; do not score again. Earlier held-out performance remains the reported audit.
-
-## Verification limits
-
-Execute notebooks and inspect source, actual results, figures and claims; independently recompute saved metrics/counts/revenue. No new automated code-checking suite; preserve the existing notebook-execution workflow. Final verification distinguishes completed checks from unavailable checks. Original labs/lectures and the professor's workflow file are absent; direct source comparison cannot be claimed. No treatment outcomes, customer identifiers, order values or margins support causal effects, profit or deployment claims.
+**Output discipline:** purpose → evidence → interpretation → implication; concise, nonduplicated charts and tables. [Historical v1 reports](verification_report.md) are not evaluations of the current L2 recipe.
