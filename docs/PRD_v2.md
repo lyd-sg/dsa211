@@ -1,8 +1,8 @@
 # DSA211 — Predicting Online Purchases
 ## Product Requirements Document (PRD) v2.0
 
-**Status:** DRAFT FOR OWNER REVIEW — reconstructed 27 October 2026.  
-**Supersedes:** PRD v1.0 **upon explicit approval only**. The previously approved [PRD v1.0](PRD.md) stays unchanged.  
+**Status:** APPROVED by the project owner on 27 October 2026, following sequential review of the final two open items.  
+**Supersedes:** PRD v1.0 as of 27 October 2026. The earlier [PRD v1.0](PRD.md) is preserved unchanged for provenance.  
 **Implementation state:** Requirements document only. The current [main notebook](../online_shoppers_revised.ipynb) still contains the old voucher policy; this PRD does not claim the notebook is updated.  
 **Scope:** One prediction objective. No voucher economics.
 
@@ -39,12 +39,12 @@ These removals apply to **all notebook prose, visuals, tables, conclusions and s
 ## 2. Decision authority and implementation gates
 
 1. Verified mandatory professor/assessment instructions take precedence.
-2. Once approved, **this PRD v2.0** supersedes the conflicting provisions of approved v1.0 and old technical-plan/repository guidance.
+2. **This approved PRD v2.0** supersedes conflicting provisions of v1.0 and older technical-plan/repository guidance.
 3. A revised technical implementation plan must be reviewed and approved independently before notebook implementation; prior plan approvals applied to earlier scope and do not automatically approve new modifications.
 4. The completed implementation must be independently checked against the final approved v2.0, including source code, numerical outputs, figures, statistical claims and provenance.
-5. **Committing this draft does not itself constitute PRD approval, implementation authorisation, or final project acceptance.**
+5. **PRD approval does not mean the implementation or its evaluation has passed acceptance.** The revised technical plan and notebook must still be reviewed and verified.
 
-**Source of decisions:** PRD v1.0 (27 approved earlier project choices); the subsequent seven-model regularisation revision; and the detailed 26 October PRD v2.0 review. In that review, Changes 1–6 were agreed, while the remaining limitations/acceptance/implementation wording (Changes 7–9) had been proposed rather than explicitly approved. Sections 10–12 below conservatively preserve the earlier safeguards and are marked for final holistic review rather than being represented as separately approved amendments.
+**Source of decisions:** PRD v1.0 (27 approved earlier project choices); the subsequent seven-model regularisation revision; and the detailed 26 October PRD v2.0 review. In that review, Changes 1–6 were agreed. On 27 October the owner approved the limitations, acceptance and implementation safeguards (Changes 7–9), subject to a concise submission narrative that reports training CV performance without describing the development history, and approved the unchanged full-data final refit. Sections 10–12 incorporate those approvals.
 
 ## 3. Non-negotiable notebook writing and presentation
 
@@ -80,11 +80,11 @@ Every **substantive** notebook analysis must answer:
 | CV | **Five-fold shuffled stratified** CV on the training partition, seed **42**, identical fold memberships for every candidate |
 | EDA and selection | **Training only**: outcome associations, feature decisions, candidates, transformations and threshold comparisons |
 | Preprocessing | Fit learned encoders, scalers, mappings, presence eligibility and covariance estimates separately within each CV fitting fold |
-| Historical exposure | The project previously inspected overlapping holdout/test observations. **Neither the original 80/20 holdout nor a new reshuffling of the same cases is a genuinely fresh independent test** |
+| Independent test reporting | **No new independent test performance estimate is reported for the selected revised model**; mean training CV performance is the model-comparison evidence |
 
 **Order:** confirm data quality → partition once → train-only EDA → specify and freeze candidate recipes → compare on common CV folds → freeze the winner/operating reference → perform supported final-fit/reproducibility audit, with evaluation limitations disclosed.
 
-**Important revision to the professor's ideal test workflow:** the professor's normal workflow is *choose by training CV → refit on training → score one untouched test once → refit the same recipe on all data*. This dataset's earlier test exposure means that the **current new regularisation revision must not report a newly independent held-out test result**. Previously published scores may be cited only as *historical evidence for their exact older recipe*. Any future honest independent audit would require genuinely fresh external/unseen data, not the already examined partition. The scope of v2.0 includes clearly reporting this limitation, not fabricating another test.
+**Reporting boundary:** the professor's ideal workflow is *choose by training CV → refit on training → evaluate on a truly independent test set once → refit the unchanged specification on all data*. This revision **reports training five-fold CV evidence, not a new independent test estimate**. No test AUC/AP is attributed to the newly selected L2 model. A future independent test would require genuinely new, previously unused evaluation data. In the submitted notebook, state this scope concisely without a development-history narrative or any claim that a holdout was untouched.
 
 ## 5. Analytical workflow and required purposes
 
@@ -101,7 +101,7 @@ Every **substantive** notebook analysis must answer:
 | **A9 — Winner predictions and PR evaluation** | One winner OOF probability distribution; one PR curve with AP; explain prevalence baseline | Interpret score overlap, minority-class detection, ranking versus calibration |
 | **A10 — Threshold sensitivity** | One sensitivity–specificity-versus-threshold curve with crossover; one **three-threshold** table based on training OOF | Compare prevalence, 0.500 and crossover for sensitivity, specificity and precision; adopt crossover as the balanced reference |
 | **A11 — Selected-model fit/stability** | Refit the exact selected recipe on all 9,864 training sessions; finite-parameter/probability and convergence checks | Verify the trained specification is computationally usable; training fit is not independent predictive validation |
-| **A12 — Historical evaluation boundary and all-data refit** | Identify which test evidence belongs to which historical recipe; preserve versioned results; refit exact winner on all 12,330 observations for final recipe | No rescore or new independent holdout claim; no newly tuned specification on full data; no in-sample score used as a substitute for validation |
+| **A12 — Evaluation boundary and all-data refit** | State that current predictive assessment uses five-fold training CV; retain version-specific results in the repository; refit the exact winner on all 12,330 observations for the final recipe | No new independent test claim, no newly tuned specification on full data and no in-sample score presented as validation |
 | **A13 — Conclusion** | Answer research question using actual CV AUC/AP and threshold evidence | Distinguish prediction ranking, cutoff performance, numerical stability, calibration and limitations |
 
 The earlier v1.0 A10–A14 business-economics sequence is **replaced**, not retained under new headings. There is no voucher or revenue analysis block.
@@ -242,7 +242,7 @@ Every claim must distinguish what the observed data support from what they do no
 - **Duplicates:** repeated identical fields are not proof of the same person, but they can affect fitting, prevalence, folds and measured validation performance. Keep the agreed full dataset.
 - **PageValues/prediction time:** association with Revenue does not prove leakage. Exclusion is precautionary due to timing uncertainty, and **other session-end variables are not certified available early in a live session**.
 - **Model-selection optimism:** EDA-informed recipe development and winner selection on training CV may make the selected CV score optimistic.
-- **Historical test exposure:** previous analyses inspected overlapping test observations. The latest seven-model regularised winner **has no new independent test audit**. Never cite the historical test AUC (~0.741210) or historical AP (~0.326790) as scores for the new L2 specification.
+- **Independent performance boundary:** the latest seven-model regularised winner has **no reported independent test estimate**. Assess it using training cross-validation, disclose that independent testing has not been reported, and never attribute metrics from a different fitted recipe to the new L2 model.
 - **External validity:** no identifier proves unique users, and neither changing session behaviour nor deployment generalisation has been established.
 - **No intervention claims:** no voucher response, causal effect, real conversion lift, prices, profit or optimal discount/decision claim remains in this prediction-only project.
 
@@ -253,7 +253,7 @@ Every claim must distinguish what the observed data support from what they do no
 3. Use exactly the approved seven candidate recipes and identical training folds. Learn all fitted preprocessing inside folds; obtain one OOF probability for every training observation and candidate.
 4. Verify fold metrics against saved predictions. Audit any actual numerical warnings; do not silently suppress them. Keep internal traces concise in the submitted notebook.
 5. Freeze the chosen CV winner and threshold rule from training OOF. Show the **one** seven-row table, ROC overlay, PR curve, winner score distribution, sensitivity–specificity curve and three-reference table in a coherent narrative.
-6. Refit the exact selected specification on the **9,864 training records** for a numerical stability check. **Do not score the historical holdout again** to claim independent validation.
+6. Refit the exact selected specification on the **9,864 training records** for a numerical stability check. **Do not report a new independent test estimate** or imply that a training fit provides one.
 7. Retain the professor's **final full-data refit** principle: once the analysis and its evaluation boundary are frozen, fit the **unchanged selected recipe** on all 12,330 sessions, without further feature/hyperparameter selection and **without reporting the all-data training score as validated performance**.
 8. Preserve machine-readable outputs and a revision log linking each displayed result to the specific code/recipe. Reconcile README, technical plan and supporting docs so obsolete economics are not labelled as current.
 9. Verify the notebook top-to-bottom in a clean environment. Independently recompute key AUC/AP, confusion and threshold rates from saved OOF predictions, inspect labels and visual readability, and record checks **actually completed**.
@@ -271,10 +271,11 @@ Every claim must distinguish what the observed data support from what they do no
 - [ ] **Visual discipline:** one useful instance of each required plot/table. No duplication and no large warning/failure/boilerplate tables.
 - [ ] **Interpretation:** purpose → evidence → interpretation → implication for every substantive analysis; actual directions/magnitudes reported and no unsupported significance/causality claims.
 - [ ] **Numerical checks:** actual convergence/warnings, fold prediction integrity, classification-rate identities and reproducibility inspected and documented.
-- [ ] **Historical evidence:** do not retest/exploit the previously viewed holdout; no independent new-model test claim; historical unregularised results never attributed to the latest regularised winner.
+- [ ] **Evidence boundary:** report training CV as the predictive assessment; no new-model independent test claim; do not attribute different-recipe evaluation metrics to the regularised winner.
 - [ ] **Final fit:** selected exact model refitted on training for numerical audit and all 12,330 rows for final recipe, without new validation claims.
 - [ ] **Preservation/traceability:** original v1.0, historical sources, data and Git history intact; all current repository documentation aligned after implementation.
-- [ ] **Approval gates:** v2.0 explicitly accepted by owner, new technical plan approved, notebook implementation separately completed and independently verified.
+- [x] **PRD approval:** v2.0 explicitly accepted by owner on 27 October 2026.
+- [ ] **Remaining gates:** revised technical plan approved, notebook implementation completed and independently verified.
 
 ## 13. Decision ledger — major and minor recovered choices
 
@@ -300,15 +301,15 @@ Every claim must distinguish what the observed data support from what they do no
 | D18 | Common-fold primary ROC-AUC, report fold SD/SE and AP; no post-hoc winner swap | **Approved v1 carry-forward** |
 | D19 | Keep supplementary EDA separate, training-only and not submitted | **Approved v1 carry-forward** |
 | D20 | Use concise bullets/headings; omit redundant plots and warning/failure tables | **Approved/presentation preference** |
-| D21 | Full-data refit remains in workflow; do not use in-sample training score as performance | **Approved 26 Oct** |
-| D22 | Historical holdout exposure must be reported; no new independent test claim | **Approved/verified limitation** |
+| D21 | Full-data refit remains in workflow; do not use in-sample training score as performance | **Reconfirmed and approved 27 Oct** |
+| D22 | Report training CV without a new independent test claim or a development-history narrative | **Approved with reporting clarification 27 Oct** |
 | D23 | No deployment, unique-customer, timing-leakage certainty or commercial-uplift claims | **Inherited statistical safeguard** |
-| D24 | Update limitations, acceptance criteria, and implementation boundary to reflect the new scope | **Changes 7–9: proposed, not separately signed off; conservatively carried forward here** |
+| D24 | Update limitations, acceptance criteria, and implementation boundary to reflect the new scope | **Approved with reporting clarification 27 Oct** |
 
-### Approval and remaining review boundary
+### Approval and remaining implementation boundary
 
-**What has been recovered:** the 26 October approved Changes 1–6, approved PRD v1.0's detailed project safeguards and the validated seven-model regularisation specification. No change to any current model code has been made by this PRD.
+**Approval:** the 26 October Changes 1–6, the 27 October approval of Changes 7–9 and the final-model refit, the carried-forward PRD v1.0 safeguards and the validated seven-model specifications together establish the approved PRD v2.0. No current model code has been modified by this documentation approval.
 
-**What should still be confirmed during owner's holistic v2.0 review:** (i) accept the recast §10 limitations, §12 acceptance checklist and implementation boundary, corresponding to the formerly unapproved Changes 7–9; (ii) confirm the final all-data refit is presented as a recipe only, without independently validated performance for the revised winner. These are labelled as pending review rather than retrospectively marked as approved.
+**Resolved on 27 October:** Sections 10–12 were approved with the reporting qualification that the submitted notebook should state the CV-only performance scope accurately but need not narrate development history. The final all-data refit was approved, with no independent test-performance claim or use of a full-data training score as validation.
 
-**No other substantive methodological decision is knowingly left open.** The revised technical plan will determine code-level execution details and may not reinstate business-economics outputs or change the fixed candidate/evaluation protocol without a recorded new decision.
+**No PRD-level methodological decisions remain open.** Next steps are technical-plan approval, notebook implementation, full execution and independent validation. The technical plan may not reinstate business-economics outputs or change the candidate/evaluation protocol without a newly documented owner decision.
