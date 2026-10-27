@@ -1,127 +1,117 @@
-# Technical implementation plan — v1 — 25 October 2026
+# DSA211 — Technical implementation plan v2.0
+**Date:** 27 October 2026  
+**Governing specification:** [Approved PRD v2.0](PRD_v2.md)  
+**Status:** Implementation plan for PRD v2.0; execution and independent validation required.  
+**Historical reference:** [Archived v1 plan](technical_plan_v1_archive.md), preserved as historical documentation; not current implementation authority.
 
-Status: **APPROVED for staged implementation by independent Sol review** in `technical_plan_review.md`. Initial PASS authorises supplementary training EDA; exact recipe addendum needs its own independent PASS before model implementation. Owner's current attachment authorises that independent gate and automatic implementation after PASS. PRD v1.0 remains unchanged.
+## 1. Scope, inputs and non-goals
 
-## Files and task boundaries
+Implement the approved **prediction-only** PRD v2.0 in `online_shoppers_revised.ipynb`. Preserve the existing, already validated **seven operational candidates**, training-fold assignments, primary mean five-fold ROC-AUC ranking, supporting AP and numerical safeguards. Retain the separate, training-only supplementary EDA notebook.
 
-| File | Change and requirement |
+**Remove completely from the active main notebook:** voucher issuance, prices, discount costs, fixed threshold `2/3`, conversion parameter `q`, voucher-count/share and revenue calculations, policy conclusions and corresponding obsolete plots/artifacts generated during execution. Archived evidence may remain with clear historical status.
+
+New threshold analysis is **purchase classification only**: reference cutoffs (a) exact training prevalence, (b) `0.5`, and (c) training-OOF sensitivity–specificity crossover. **Crossover is the selected balanced operating reference**, not a universally best or cost-optimised threshold. Include one winner PR curve and report average precision explicitly due to imbalance.
+
+### File contract
+| Path | Treatment |
 |---|---|
-| `online_shoppers_revised.ipynb` | Replace active analysis with self-contained executed A1–A14 notebook; PRD §§3–11 |
-| `supplementary/training_eda.ipynb` | Separate executed five-investigation training-only EDA; §§1, 5.1; not submitted |
-| `archive/online-shoppers/online_shoppers_pre_prd_v1.ipynb` | Byte-for-byte preserve pre-revision active notebook; governance/history |
-| `docs/repository_audit.md` | Source conflicts, retained work, original course-material availability and risks |
-| `docs/technical_plan.md`, `docs/technical_plan_review.md` | Approval, recipe evidence addendum and independent review history |
-| `docs/verification_report.md` | Criterion-by-criterion acceptance, actual execution, arithmetic and limitations |
-| `docs/implementation_log.md` | Sol task instructions, Luna implementation/execution and Sol inspection/corrections |
-| `AGENTS.md`, README, `docs/{project_decisions,methodology,phase2_scope,requirements_audit,revision_summary}.md` | Reconcile current entry points, protocol and actual results with approved PRD; remove stale current-result claims |
-| `requirements.txt` | Record reproducible working package versions; retain necessary notebook dependencies |
-| `artifacts/` | Compact audit evidence: split/fold row IDs, CV/fold tables, warnings, frozen decision, single test predictions/metrics, numerical summary and run provenance; no new experiments |
+| `online_shoppers_revised.ipynb` | Update headings, purpose-first interpretations, winner PR plot, 3-threshold OOF table/curve, refit and summary |
+| `docs/technical_plan.md` | Replace historical technical plan with this approved-PRD-aligned plan |
+| `docs/technical_plan_v1_archive.md` | Preserve old plan byte-for-byte; history only |
+| `docs/PRD_v2.md` | Preserve approved requirements unchanged |
+| `docs/PRD.md`, `data/uci_468.csv`, `archive/`, `supplementary/training_eda.ipynb` | Preserve original files; no source or training-EDA rewrites |
+| `README.md` and current guidance | Update active scope; link approved PRD v2.0; label legacy voucher documents historical |
+| `artifacts/` | Emit new version-specific training CV, OOF predictions, threshold, PR and refit evidence; old economic artifacts remain historical, not current |
+| `.github/workflows/validate-notebook.yml` | Preserve existing CI executor; run notebook using actual 12,330 source records on PR |
 
-No edits to `docs/PRD.md`, `data/uci_468.csv`, existing archive files or original workflow. Scratch builders, execution logs and plot previews go in ignored `work/`. Export review copies for delivery outside the repository. A final model object may be written locally during full refit; self-contained notebook code recreates it, so an unsafe/version-sensitive pickle is not required for academic delivery.
+No new model families, hyperparameter sweeps, automated feature elimination, causal claims, calibration experiment, voucher scenario or unapproved decision rule.
 
-## Protocol and data contract (PRD §§4, 6, 7)
+## 2. Data, split and leakage contract
 
-Verify shape 12,330 × 18 and expected names, target boolean/0–1 values, types, missing markers including blank strings, finite numerics, duplicate excess/unique count and class balance **before splitting**. Retain all rows. Reverify duplicate nonbuyer/low-activity description with an explicitly basic quality summary, not a feature-selection analysis. Describe what the activity values actually show rather than defining “low” after viewing test data. Store original CSV row IDs.
+1. Read `data/uci_468.csv`; validate exactly **12,330 sessions, 17 source predictors and binary Revenue**; check missing/blank/nonfinite values, types and duplicate excess **before** split. Retain all records, including **125 excess exact duplicates**, with their statistical limitations.
+2. Reproduce `train_test_split(test_size=.2, stratify=Revenue, random_state=42)` to **9,864 training / 2,466 reserved historical rows** and save source row IDs; train-only EDA and model selection never fit on excluded rows.
+3. Reuse **five identical shuffled stratified training folds** with seed `42` for all baseline, revised and all-17 diagnostic candidates. Each of the 9,864 training rows must be predicted **exactly once OOF per candidate**.
+4. Every fitted transformation/encoder/scaler, category map, presence-column eligibility and covariance estimate must be learned on the specific fold's fitting rows only. A model's validation fold is never used for its fit.
+5. **Evidence boundary:** the current regularised revision reports cross-validation results, not a fresh independent held-out test AUC/AP. Do not score the historical holdout to present the changed winner as independently validated. Existing test artifacts are historical and do not evaluate the new recipe.
+6. At the end, clone the winner's exact frozen specification, check a full **training-only fit** for numerical validity, then refit the same frozen specification on **all 12,330 records**, without new candidate choice or in-sample metric reported as predictive generalisation. The final full-data recipe is not a fresh validation.
 
-Split row IDs once with `train_test_split(test_size=.20, stratify=y, random_state=42)` to 9,864/2,466. The supplementary notebook independently reconstructs that same deterministic split and immediately drops all nontraining rows. Main keeps test inaccessible to all EDA and candidate routines. Five shared `(fit, validation)` positional index arrays from `StratifiedKFold(5, shuffle=True, random_state=42)` are materialised once on training. Persist original row IDs/fold membership for review; each row gets exactly one OOF prediction per specification. No grouped split is possible without visitor identifiers.
+## 3. Predictor and baseline contracts
 
-Define six nominal columns: `Month`, `OperatingSystems`, `Browser`, `Region`, `TrafficType`, `VisitorType`; cast them consistently to strings without imposing numeric ranks. `Weekend` is numeric 0/1. All other predictors are numeric, including `SpecialDay`. Nine numeric predictors remain after removing `PageValues`, plus Weekend and six nominal variables = 16 sources. No fitted categories or scaling constants come from full data. `OneHotEncoder(handle_unknown='ignore', sparse_output=False)` learns fold categories and deterministic sorted order; unseen levels become all-zero blocks. Explain that unknown levels are effectively mapped to a reference under k−1 encoding and lack a dedicated observed effect. Record actual warnings, unseen-level occurrences and encoded dimensions. No imputation silently repairs a failed completeness contract.
+- All-17 models: four training-only diagnostic comparisons with `PageValues`; include the fact that its availability at prediction time is uncertain, so it is excluded from operational models. Correlation with the outcome alone is not proof of leakage.
+- Operational models: all start from the same 16 remaining original sources. Six nominal predictors are `Month`, `OperatingSystems`, `Browser`, `Region`, `TrafficType`, `VisitorType`. `Weekend` is binary. `SpecialDay` remains numeric unless a specified revised model changes representation.
+- Raw Logit: unpenalised `LogisticRegression(C=np.inf, solver='newton-cg', tol=1e-8, max_iter=2000)`; original numeric magnitudes, `SpecialDay`, `Weekend`; k−1 categorical dummies.
+- Gaussian NB: raw numeric plus full-k categorical one-hot indicators, default GaussianNB.
+- Bernoulli NB: numeric `>0` indicators, full-k categorical one-hot, `Weekend` 0/1, `BernoulliNB(binarize=None)`.
+- Standard LDA: original numeric plus k−1 nominal dummies; standard `solver='svd'`.
+- Preserve robust unseen-category treatment, representation checks and common-fold comparison. Logit numerical warnings and pure category levels must be recorded, not hidden; valid finite solver iterates alone do not certify a finite MLE.
 
-## Notebook sequence and evidence map
+## 4. Fixed three EDA-informed revisions
 
-Each row below becomes an explicit purpose before code, followed by concise actual-result interpretation and implication. Setup cells need no ritual analysis headings.
+| Candidate | Frozen specification | Motivation and restrictions |
+|---|---|---|
+| **Revised Logit** | Six activity fields `log1p`; fold-eligible `>0` indicators only where **>=50% fitting-fold zeros**; original other 16-source inputs, k−1 nominal encoding; **fold-fitted StandardScaler**; `LogisticRegression(C=1.0, solver='lbfgs', tol=1e-8, max_iter=3000)` | Long tails, zero mass, correlated predictors and sparse/pure categories; no `C` search. Penalty and feature engineering effects cannot be isolated from baseline difference |
+| **Revised LDA** | Six `log1p` activity fields, otherwise same 16 sources and k−1 nominal encoding; `LinearDiscriminantAnalysis(solver='lsqr', shrinkage='auto')` | Fold-estimated shrinkage may stabilise covariance; correlation itself is permitted and shrinkage may worsen AUC |
+| **Revised Mixed NB** | Gaussian block: six log-activity + `BounceRates`/`ExitRates`; categorical block: six nominals, `Weekend`, `SpecialDay>0`; empirical prior **once**; reserve unknown category, Laplace `alpha=1` | Mixed marginal types; conditional independence remains an approximation; smoothing is not L2 |
 
-| PRD block | Purpose | Python method / expected evidence | Interpretation / decision |
-|---|---|---|---|
-| A1 | Is the dataset usable, and why avoid accuracy alone? | Quality/type/duplicate/missing and balance tables, source hash; split/fold counts | Retain rows, disclose repeated patterns; AUC primary/AP secondary |
-| A2 | Which numeric distributions challenge likelihoods/representations? | Training median, skew, zero shares and selected raw/log-view histograms | Generate limited representation hypotheses; no automatic improvements |
-| A3 | Which categorical groups differ with adequate support? | Month/VisitorType counts and buyer rates, annotate n | Retain nominal encoding; sparse groups are uncertain, not causal |
-| A4 | Which model assumptions are strained? | Selected within-class numeric correlations; representative class QQ plots and binned empirical-logit shape | Dependence/long tails motivate conditional recipes; marginal plots do not prove conditional linearity or certify Gaussian assumptions |
-| A5 | What changes when starting with all predictors? | Four all-17 same-fold baseline results, compared to their four operational equivalents | PageValues association is not proof of leakage; exclude for possible timing/availability |
-| A6 | How do the four taught baselines compare? | Raw operational Logit, GaussianNB, BernoulliNB and LDA means/SD/SE/AP | Common 16 source inputs; input likelihoods differ as explicitly required |
-| A7 | Does an observed issue justify each family revision? | Supplementary evidence table, three frozen recipes and before/after mean CV changes | Record adverse or null changes; no search for a better recipe after scoring |
-| A8 | Which specification ranks sessions most defensibly? | Seven-slot same-fold table, per-fold AUC/AP, overlaid OOF ROC curves | Choose highest mean AUC with deterministic label exact-tie break; report one-SE proximity descriptively without automatic substitution |
-| A9 | Are winner scores extreme/concentrated? | Training OOF histogram stratified by observed outcome | AUC is ranking, not calibration; fixed thresholds may behave oddly |
-| A10 | What trade-offs do four supported thresholds create? | OOF sensitivity/specificity curve and four-row threshold/rates/precision/voucher/revenue table | Keep 2/3 primary regardless of simulated revenue |
-| A11 | How assumption-dependent is voucher revenue? | Exactly q=.10,.25,.50,1, fixed assignments and 2/3, OOF table and same frozen test prediction illustration | q is unidentified; simulation in A units, not measured uplift/profit |
-| A12 | Does the frozen winner generalise under this protocol? | Fit on all training; one test `predict_proba` call, ROC/AUC/AP, labelled confusion matrix and rates at 2/3 | Honest single-winner audit with historical exposure caveat; no post-test revisions |
-| A13 | What final fit uses all observations? | Clone exact chosen pipeline, fit 12,330 rows after audit; report class/feature/dataset size and parameters | No further scoring; earlier audit metrics remain reported |
-| A14 | What does evidence support? | Computed concise summary of winner, baseline/revision deltas, threshold/q findings | Prediction versus policy assumptions; timing, dependence, duplicates, imbalance, selection and history limits |
+All learned category maps and covariance estimates are fold-specific. Do not add interactions, more candidates, extra penalties or QDA/KNN. Preserve preexisting fitting/numerical diagnostics.
 
-## Minimal baselines, solvers and shared CV
+## 5. Required notebook sequence and exact outputs
 
-For all-17 diagnostic versions and 16-source operational baselines use exactly the PRD treatment: original numeric magnitudes and SpecialDay for Logit/GaussianNB/LDA, numeric `>0` indicators for BernoulliNB, Weekend 0/1 throughout; full k one-hot for both NB types and k−1 for Logit/LDA. No scaling, penalties, class weights, optional logs, feature removal or engineering in baselines. BernoulliNB uses `binarize=None` after explicit binary conversion, default alpha=1 and empirical class priors; GaussianNB uses default variance smoothing; LDA uses standard SVD solver.
+| Stage | Required output | Explicit answer/implication |
+|---|---|---|
+| 0 — Protocol | Research question, prediction-only objective and deterministic training-CV boundaries | What is being predicted and how evaluated |
+| 1 — Data quality | Data completeness, duplicate count, class prevalence and split IDs | Why accuracy alone misleads |
+| 2 — Numerical EDA | Median, zero share, skewness; selected training-only activity histograms | Whether zero/presence and log compression are plausible |
+| 3 — Categorical EDA | Category support and selected observed buyer-rate contrasts | Why rare levels need caution |
+| 4 — Assumptions | Selected within-class correlations, Q–Q examples and distribution commentary | Gaussianity, dependence, coefficient stability — without mischaracterising LDA |
+| 5 — All17 | Four full-predictor diagnostics | Why `PageValues` is excluded from the operational comparison |
+| 6 — Operational16 | Four raw baseline results | Unchanged model-family references |
+| 7 — Three revisions | EDA motivation, precise differences and full-recipe limitation | Why these hypotheses were tested |
+| 8 — Selection | **One** seven-row mean CV AUC/SD/SE/AP table; **one** seven-curve OOF ROC comparison | Highest mean five-fold AUC winner, small deltas and limits |
+| 9 — Winner scores | **One** OOF histogram split by true class | Overlap/ranking vs calibration |
+| 10 — Precision–recall | **One** OOF winner PR plot, label axes and AP plus training-prevalence baseline | Minority-class performance; do not confuse AP with precision at any single t |
+| 11 — Thresholds | **One** sensitivity–specificity vs threshold plot, crossover marked; **one** 3-row prevalence/0.5/crossover table of **threshold, sensitivity, specificity, precision** | Crossover balances rates and is not necessarily optimal |
+| 12 — Numerical/refit | Fitted winner on training with checks; final refit on 12,330 records; small provenance summary | Final fitted recipe is not validation evidence |
+| 13 — Conclusion | Actual CV winner, AUC/AP and concise implications, assumptions and boundaries | Direct answer to prediction objective |
 
-Use `LogisticRegression(C=np.inf, solver='newton-cg', tol=1e-8, max_iter=2000)` for unpenalised ML Logit on installed sklearn 1.9.1, intercept fitted. (`penalty=None` is the equivalent older API, not an added penalty.) Newton-CG handles disparate raw feature scales without altering representations. Capture convergence warnings, iteration counts, finite coefficients/probabilities, encoded design rank and conditioning where relevant. Examine each training fold's category-by-outcome support for pure rare levels and report separation risks explicitly: finite returned coefficients/no warning do not prove a finite MLE exists. Where boundary estimates or numerical concerns arise, check training objective and validation-prediction stability under stricter tolerance/more iterations for the identical statistical specification, without using test data or selecting settings by validation AUC. Record stable finite-iterate predictions as such, never a certified finite MLE; escalate if reliable predictions cannot be obtained. A numerical retry may increase iterations or switch to another unpenalised solver without changing the statistical specification, with attempt provenance. Do not declare failed/nonconverged estimates valid. If baseline cannot be estimated reliably after numerical remedies, preserve actual failed row and escalate genuine PRD feasibility issues rather than regularise silently. LDA SVD can accommodate deficient rank but record warnings/encoded rank; do not substitute numeric-only LDA as baseline.
+**No repeated plots or unnecessary warning/failure tables.** Internal saved audit evidence can be more extensive. Every substantive stage has purpose before result and concise actual interpretation after it. Use British English, label tables/curves and keep graphs legible.
 
-CV fits clones inside each training fold and uses positive-class probability matching `classes_==1`. Retain all OOF vectors and fold AUC/AP, means, sample SD (`ddof=1`), SE (`SD/sqrt(5)`). First-pass models are diagnostics only and excluded from winner selection. All seven operational slots have equal eligibility, same folds and primary metric. Preserve warning/failure logs rather than suppressing them. The winner is highest mean AUC; exact ties resolve by label. Discuss any simpler models within one SE, but choosing the highest is precommitted here. No candidate is selected by voucher performance.
+## 6. Exact CV and threshold computation
 
-## Supplementary EDA and conditional revision gate
+### Candidate evaluation
+- Use identical `FOLD_INDICES` and `run_spec` on four raw 16-source baselines plus three predeclared revisions.
+- Fit cloned pipelines within each fold; `predict_proba(...)` yields positive-class OOF probabilities.
+- Record per-fold `roc_auc_score` and `average_precision_score`; select **highest mean of five fold ROC-AUCs**, exact ties deterministically alphabetic. Report `SD(ddof=1)`, `SE=SD/sqrt(5)` and mean AP.
+- AUC/AP numerical checks recompute from stored OOF predictions; distinguish mean fold AUC from pooled OOF AUC. The 7-model OOF ROC overlay is descriptive and need not exactly equal mean-fold ranking.
+- Correctly disclose that higher CV AUC does not establish calibrated `p`, formal significance or external-test performance.
 
-After initial plan PASS, Luna implements and executes **only** training EDA first. This is required because PRD §5.1 intentionally defers exact recipes. Sol inspects the actual evidence; write a recipe addendum and obtain independent PASS on it **before model implementation/scoring**. No new technical approval from the owner is needed. This is a staged implementation gate, not permission for an adaptive search.
+### Precision–recall curve
+- For selected winner use `precision_recall_curve(y_train, WINNER_OOF)`, `average_precision_score(y_train, WINNER_OOF)`.
+- Mark horizontal no-skill precision = **exact training prevalence** `y_train.mean()`. Label x = recall/sensitivity, y = precision. Mean fold AP used in model table and pooled OOF AP on plot are **different quantities**; label them distinctly.
+- Avoid interpreting AP as precision at the crossover or 0.5.
 
-Five investigations: (1) zero versus positive counts/buyer rates and positive-only quantiles/intensity bins for Administrative/Informational measures; (2) VisitorType×Month support and buyer rates; (3) counts/rare-level buyer rates for TrafficType, Browser, Region; (4) SpecialDay value-level support and buyer rates; (5) complete source-predictor availability table, distinguishing observed session summaries from speculative decision-time availability.
+### Three threshold references
+- Use **training OOF** scores only. Crossover candidates are all empirical finite thresholds returned by `roc_curve(y_train, WINNER_OOF, drop_intermediate=False)`, limited to valid [0,1] plus fixed endpoints 0 and 1. For each threshold compute `sensitivity=TP/(TP+FN)` and `specificity=TN/(TN+FP)`. Pick the threshold minimising `abs(sensitivity-specificity)`; resolve equal-gap ties by **lower threshold**. The crossover is an empirical nearest-point rule, not a mathematically guaranteed equality.
+- References exactly: `y_train.mean()`, `0.5`, `CROSSOVER_THRESHOLD`. A repeated numeric cutoff is allowed if references coincide.
+- Compute confusion counts deterministically using `pred = (WINNER_OOF >= t).astype(int)`; precision `TP/(TP+FP)` **may be undefined if no predicted positives**, and must be represented honestly, not silently as zero.
+- Show the compact threshold table columns: **reference, threshold, sensitivity, specificity, precision**. For independent verification, save confusion counts to a detailed artifact but avoid redundant main-table columns.
+- One plot of sensitivity/specificity across the same computed threshold candidates with three reference markers and a crossover marker; do not plot a 2/3 line.
+- Do not vary thresholds using test results, revenue, cost or conversion assumptions. No voucher targeting.
 
-A narrow decision rule determines one revision per family from actual training evidence, without comparing alternatives by AUC:
+## 7. Numerical audit and acceptance
 
-- **Logit:** if activity magnitudes have marked positive-tail skew (absolute skew >2) and empirical-logit evidence makes a simple monotonic compression plausible, a single log1p treatment of the six count/duration activity variables is eligible. Include fixed `>0` indicators only for activity columns with training zero share ≥50% and supported zero/positive evidence; if used, learn the zero-share eligibility inside each CV fold. No interaction sweeps, optional scaling or penalisation. If evidence does not justify this form, record no distinct revision rather than invent one.
-- **NB:** mixed Gaussian-numeric/categorical-nominal likelihood is eligible if continuous skew/zero structure and nominal support show why using Gaussian dummy marginals or discarding all intensity is questionable. Permit log1p on the same activity magnitudes only when distributional evidence supports compression; treat Weekend as Bernoulli or two-level categorical, SpecialDay as numeric unless its evidence warrants a binary presence treatment. Use one prior exactly once. Learn categorical maps on fit fold with reserved unknown support and Laplace smoothing. Explain as conditional-independence extension, not an additional baseline. No alpha or variance-smoothing search.
-- **LDA:** same single activity-log1p treatment is eligible if within-class tails/covariance patterns support a less extreme representation. Keep k−1 nominal dummies and all 16 sources unless evidence explicitly supports a change. No automatic feature deletion, covariance-shrinkage competition or interaction expansion. If no defensible distinct form, explicitly mark the revision slot uninstantiated and explain.
+**For unpenalised Logit**, retain the original same-likelihood IRLS reference gate on fitting folds: mean training negative log likelihood absolute difference <=1e-6 per case and max validation-probability difference <=1e-3, identical design, finite predictions/coefficients, and no suppressed convergence warnings. For L2, do not incorrectly compare to the unpenalised objective; require solver convergence and finite coefficient/prediction checks. Check LDA and NB valid class priors, covariances/variances and predictions.
 
-Global training EDA informing a finite candidate set is allowed, but creates adaptation optimism in training CV; the holdout audits the frozen winner. Transformations with learned thresholds/parameters fit inside folds; log1p and `>0` are fixed formulas. Main notebook reproduces compact decision-relevant evidence directly from training rather than relying on a live supplementary kernel or importing external helpers.
+**Acceptance gates**
+- Notebook executes cleanly top to bottom in existing pinned Python environment and GitHub Actions.
+- No current active markdown or code references **vouchers, discount, simulated revenue, q, cost-based 2/3, or threshold optimisation by profit**.
+- Original 12,330-row source and train/test membership remain unchanged.
+- All seven candidate representations and exact common CV folds unchanged; seven fold/OOF vectors complete and valid.
+- Winner remains determined by mean fold AUC; actual scores/changes printed, no hardcoded fabricated results.
+- Winner OOF **one** ROC overlay, **one** PR curve, **one** OOF histogram, **one** sensitivity/specificity plot and **one** three-reference table.
+- Final training refit and exact full-data refit both finish with finite quantities. Neither train nor full-data score is reported as independent generalisation.
+- No current independent-test result is invented; any historic test evidence stays labelled for old recipes.
+- All purpose/evidence/implication statements are accurate; narrative and generated artifacts align with approved v2.0.
+- Independently inspect source, output, table totals and metric computations after CI; record PASS/FAIL honestly.
 
-## Thresholds and voucher arithmetic (PRD §8)
-
-Policy uses `p >= t` → buyer/no voucher, otherwise voucher. Always use exact `PRIMARY_THRESHOLD=2/3`, discount `.20`, reference q `.50`. Costs are `.20A` for FN and `.40A` for FP, hence cutoff `.40/(.40+.20)`; meaningful probabilities and those assumed opportunity costs are required for that theoretical rationale.
-
-Four OOF references only: exact `y_train.mean()`, `.5`, `2/3`, and sensitivity–specificity crossover. Define crossover reproducibly by all empirical OOF ROC cutoffs (no dropped intermediate points), restricted finite probabilities in [0,1] plus endpoint cutoffs; minimise absolute sensitivity–specificity difference, tie by lower cutoff. The curve can use the same cutoffs. Show sensitivity, specificity, precision (undefined if no predicted buyers, labelled), TP/FP/FN/TN, voucher count/share, R0/A, Rq/A and delta/relative delta at q=.50. Reference rows stay labelled even if numeric thresholds coincide. No revenue-maximising threshold scan or threshold substitution.
-
-For fixed confusion counts, `R0/A=TP+FN`, `Rq/A=TP+.8*FN+.8*q*TN`, `delta/A=.8*q*TN-.2*FN`. Four q scenarios hold every other quantity fixed, at 2/3 only. OOF q results may precede test; test illustration reuses its sole saved predictions. Validate algebra against recipient-level expected revenue without additional model fitting/prediction. q=1 recovers guaranteed conversion as a scenario, not baseline truth.
-
-## Supervision, execution and acceptance sequence
-
-1. Sol completes audit and plan; independent fresh-context Sol reads PRD and records substantive PASS/FAIL. Fix all material findings before implementation.
-2. Luna (requested medium thinking) implements supplementary training EDA; executes it with `.venv`. Sol inspects source/output, checks training IDs, and reviews evidence; reviewer approves recipe addendum.
-3. Luna implements main data/EDA/pipelines and training-only comparisons/thresholds, stopping before test. Sol inspects actual encodings, estimator parameters, numerical diagnostics, common folds, seven slots, formulas and warning records. Correct until PASS.
-4. Freeze model, preprocessing, fold definition, selection rule and 2/3 policy in an audit manifest before test. Luna executes complete notebook through one-winner test audit and final all-data refit once. Preserve executed notebook, test prediction vector, freeze record and machine-readable metrics. Re-execution for reproducibility must not introduce another candidate or alter decisions; prefer independent checks of saved evidence after the audit.
-5. Sol and independent reviewer inspect actual code and outputs, recompute AUC/AP/rates from saved prediction vectors, reconcile confusion totals and verify algebra against a separate direct calculation. Inspect each chart/label and purpose/evidence/implication. No automated code-checking test suite; visible runtime assertions and manual numerical verification are appropriate.
-6. Reconcile supporting docs, verify unchanged PRD/data/archives and prior active copy, and write acceptance table with every §11 criterion, evidence and outstanding limits. Export executed notebooks and HTML review copy. Commit and push completed branch (no force push, no merge); report actual branch/SHA. If access/CI cannot be verified, state exactly what was not performed rather than claiming success.
-
-Only test-independent presentation or reporting fixes are permitted after audit, using preserved predictions. Any genuine post-audit modelling defect must be disclosed explicitly; never silently rerun and relabel an audit as untouched. Successful execution alone does not establish statistical correctness.
-
-## Training-evidence recipe addendum — independently approved
-
-No model has been scored at this gate. The supplementary training analysis uses 9,864 sessions / 1,526 buyers from the deterministic split (training IDs sorted in original CSV order for both notebooks and all CV). Source rows, labels, split membership and seed remain unchanged.
-
-### Evidence and chosen implications
-
-- Administrative, informational and product count/duration skewness is respectively 1.967/5.679, 4.142/7.702 and 4.372/8.009. Informational count/duration are 78.54%/80.47% zeros. Their zero versus positive buyer rates are 13.30% versus 23.43%, and 13.49% versus 23.62%, with 2,117/1,926 positive observations. These are well-supported descriptive contrasts, not causal effects. A limited activity compression plus presence representation is defensible for Logit; improvement is unknown.
-- Positive product-intensity bins show higher purchase rates at greater intensity, with flattening relative to raw magnitude plausible. Tie-safe actual-value bins and marginal empirical logits are supporting shape evidence, not proof of conditional logit linearity. The six count/duration columns are treated as one coherent activity block; Administrative count's skew is just below 2, so a uniform block transform is a simple representation choice rather than a claim that every field has skew above 2.
-- Strong within-class dependence persists: BounceRates–ExitRates correlation is .915 in nonbuyers and .723 in buyers; product count–duration is .839/.896. Compressing tails may help the LDA representation but cannot make mixed features jointly Gaussian or establish equal covariance. NB conditional independence remains imperfect under every recipe.
-- Thirteen of 42 TrafficType/Browser/Region levels have fewer than 50 training observations, including levels with no buyers. Four observed VisitorType×Month cells have fewer than 50 sessions. Do not add an interaction or invent pooling based on these unstable rates. Their pure levels also require explicit Logit separation diagnostics in each fit fold.
-- SpecialDay zero group has 8,850 sessions / 1,466 buyers (16.56%); positive scores have 1,014 / 60 (5.92%). Positive-score rates are nonmonotone (approximately 2.21%–9.15%). This supports a coarse presence likelihood as part of the single mixed-NB revision, without claiming ordinal scores are causally ineffective. Baselines and revised Logit/LDA keep the original numeric score.
-- Every session accumulator, rate and analytics value needs decision-time review; no model is certified usable mid-session. Exclude PageValues operationally for the already-approved availability concern, not for the size of a CV gain.
-
-### Exact three revised specifications
-
-1. **Logit revised — activity log1p plus fold-fitted zero-heavy presence.** Keep all 16 sources. Apply log1p to the six ACTIVITY count/duration columns. Add `1[x>0]` only for activity columns whose fit-fold zero share is at least .50 (anticipated from current training evidence: Informational and Informational_Duration; each fold decides independently). Original BounceRates, ExitRates, SpecialDay, Weekend; k−1 nominal OHE. Unpenalised Newton-CG, C=inf, tol=1e-8, max_iter=2000; no scaling. Same separation/stability checks as raw Logit. No recipe replacement if CV is worse.
-2. **NB revised — mixed Gaussian activity/rates and categorical nominal/presence.** Keep all 16 sources. Gaussian block: six log1p activity columns plus original BounceRates/ExitRates (eight numeric inputs). Categorical block: six nominal fields, original Weekend0/1 and `1[SpecialDay>0]` (eight discrete inputs). Fold-fitted per-field level maps reserve unseen code0, Laplace alpha=1 including that support; categorical likelihood does not impose artificial rank. GaussianNB default variance smoothing, empirical prior; combine blocks with the prior exactly once and normalise via logsumexp. No extra zero-indicator block, scaling, hyperparameter search or correlated-feature deletion. Explain conditional-independence extension and remaining zero mass/dependence limitations.
-3. **LDA revised — activity log1p.** Keep all 16 sources, log1p of the same six activity columns, original BounceRates, ExitRates, SpecialDay and Weekend, k−1 nominal OHE. Standard SVD LDA, no shrinkage, scaling or presence additions. Assess actual feasibility and paired fold changes without claiming Gaussian assumptions are satisfied.
-
-Four baselines plus these three revisions constitute exactly seven operational candidates, all eligible on identical folds. Baseline encodings/treatments remain unchanged. Freeze recipes now; numerical solver checks may improve computational accuracy of an identical model but may not become result-driven model selection. Supplementary negative/counterevidence (sparse groups, nonmonotone score/intensity bins, dependence) stays visible. Original lab-source verification remains unavailable as documented.
-
-### Numerical verification clarification — training stage
-
-The independent recipe review in `recipe_review.md` granted PASS on the preceding addendum snapshot. Before accepting baseline scores, lead and independent Sol agreed computational precision criteria: **absolute difference in direct mean logistic negative log likelihood ≤1e-6 per observation, and maximum validation-probability difference ≤1e-3**, with finite parameters/linear predictors/probabilities, identical fit rows/design/intercept/likelihood and warning provenance. These criteria apply unchanged to all folds of both operational Logits and the all-17 diagnostic Logit. They do not prove a finite/unique MLE or calibrate probabilities.
-
-Actual initial Newton-CG fits were feasible (roughly 5–10 seconds in observed all-17 folds); the stricter cold CG retry was costly near separation. A bounded Newton-Cholesky numerical-reference attempt encountered singular-Hessian fallback and iteration-limit warnings, with grossly worse objective and probabilities; it was rejected, not substituted into candidate scoring. Preserve that failed attempt's evidence.
-
-An independently reviewed same-likelihood reference is authorised: statsmodels GLM Binomial IRLS, explicit intercept and identical encoded fold design, `wls_method='pinv'` (SVD pseudoinverse), warm-started **only** from primary fit-fold coefficients, maxiter=200 and tol=1e-10. Capture actual convergence/iterations, separation/numerical warnings, finite parameters/linear predictors/probabilities and stable `logaddexp` objective. No scaling, penalty, feature deletion or new candidate is introduced. Primary candidate fitting remains Newton-CG as frozen; this is computational verification, not a model or AUC competition. If predictions remain unstable under the fixed criteria, reject/resolve reliability before further modelling. Different coefficients in a rank-deficient likelihood do not justify ignoring unstable validation probabilities.
-
-### Accepted numerical precision remedy
-
-A uniform cold-start Newton-CG tolerance of **1e-8** replaces the initial 1e-7 for every Logit specification, including diagnostics and the revised model. This changes computational accuracy, not the unpenalised likelihood, source variables or representation recipe. It was chosen to resolve a fixed numerical stability failure, without AUC-based solver choice.
-
-The all-17 diagnostic fold 5 contained a TrafficType level with 11 fit observations and no buyers. Its separating coefficient has no finite likelihood optimum. The initial 1e-7 solution agreed closely in mean fit likelihood but differed from the IRLS boundary approximation by 0.00245 on one validation probability. The discrepancy was in an identifiable separating direction, not a validation row outside the fitted design span. Cold-start tolerance 1e-8 reduced that discrepancy below the unchanged 0.001 probability criterion.
-
-All ten baseline Logit folds then passed the same fixed comparison against the explicit fit-fold IRLS/pseudoinverse reference: absolute mean fit-NLL differences approximately 9.85e-9 to 2.18e-8, maximum validation-probability differences 3.25e-6 to 3.21e-4, finite fitted quantities and converged references. Exact gate evidence is recorded in `artifacts/logit_tol1e8_numerical_gate.csv`. Pure levels, rank deficiency and reference SingularMatrixWarnings remain disclosed; stable finite-iterate predictions do not certify finite or unique coefficients. Apply the identical precision/gate to the revised Logit before test access. Retain rejected numerical attempts separately; do not present their scores as current accepted fits.
+**Version control and completion:** Changes on a separate `analysis/*` branch with a reviewable pull request; never force-push or merge automatically. Update README/current repo guidance, preserving historic plans/reports for traceability. No claim of submission readiness until clean notebook execution and independent review pass.
