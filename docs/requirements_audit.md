@@ -1,25 +1,23 @@
-# Approved PRD traceability
+# PRD v2.0 implementation traceability
 
-The unchanged approved [PRD](PRD.md) governs the revision. The autonomous owner instruction delegates the separate technical-plan gate to independent Sol; see [plan review](technical_plan_review.md) and [recipe review](recipe_review.md). This replaces older current-scope summaries; historical notebook outputs remain archived.
+**Controlling document:** [Approved PRD v2.0](PRD_v2.md). Precise implementation contract: [Technical plan v2.0](technical_plan.md). [Earlier requirements audit](requirements_audit_v1_archive.md) applies to v1.0 only.
 
-| Requirement | Implementation / evidence location |
-|---|---|
-| A1 quality before split, imbalance, retained duplicates | Main data-quality block; supplementary provenance; source hash and split ID artifacts |
-| New stratified 80/20, seed 42; five common stratified folds | Both notebook provenance blocks; `artifacts/*row_ids.csv` |
-| A2–A4 numerical/categorical/assumption evidence, training only | Focused main EDA and separate supplementary five investigations |
-| Supplementary extends main and is not submitted | `supplementary/training_eda.ipynb`; compact decision-relevant findings in main |
-| A5 four all-17 diagnostics and PageValues comparison | Same-fold all-17 versus operational baseline evidence; availability rationale |
-| A6 four prescribed minimal baselines | Logit, GaussianNB, BernoulliNB, LDA; all 16 remaining sources and required encodings |
-| A7 one justified revision per family | Technical-plan evidence addendum and independent recipe review; no search |
-| A8 seven-slot same-fold CV, AUC/SD/SE/AP and OOF ROC | Main training selection block; fold/OOF artifacts |
-| A9 winner OOF probability histogram | Main probability/threshold section; calibration caveat |
-| A10 four OOF thresholds, fixed 2/3 primary | Prevalence, 0.5, 2/3, rate crossover; rates/precision/voucher/revenue evidence |
-| A11 four q scenarios at constant recipients | q = 0.10, 0.25, 0.50, 1.00; discount 0.20 and threshold 2/3 fixed |
-| A12 one winner, one frozen holdout audit | Training decision manifest, one saved test probability vector; ROC/confusion at 2/3 |
-| A13 exact all-data refit after audit | Final fit on 12,330 rows, no further score |
-| A14 actual conclusion and limits | Main conclusion plus final verification report |
-| Purpose → evidence → implication throughout | Manual source/output review; substantive blocks labelled A1–A14 |
-| Numerical validity and reproducibility | Warning, convergence/separation/stability evidence; official notebook execution and independent reconstruction |
-| Preserve data, archives, history, original workflow and approved PRD | Protected-file hashes; separate branch and preserved pre-revision active copy |
+| Acceptance area | Implementation location | Verification requirement |
+|---|---|---|
+| Prediction only, correct scope | Main notebook title, objective, conclusion | No discount, business-cost or conversion analysis |
+| Data readiness, class balance, preserved duplicates | Notebook sections 1–2 | 12,330 source records; types/missing/duplicates verified |
+| Fixed split and common CV folds | Setup/data block and saved row-ID artifacts | 9,864 train, 2,466 reserved; seed 42; identical folds |
+| Training-only EDA | Notebook numerical/categorical/assumption blocks; supplementary EDA | No held-out target information used to choose features |
+| Four all-17 diagnostics and PageValues | Initial comparison | Timing uncertainty distinguished from proven leakage |
+| Four baseline classifiers | Operational16 comparison | Exact raw model-specific feature handling |
+| Three current revisions | Revised model section and recipe audit | L2 Logit, shrinkage LDA and Mixed NB match frozen recipes |
+| Seven-model selection | Seven CV rows, fold/OOF evidence, OOF ROC overlay | Highest mean CV ROC-AUC; AP and SD/SE supported |
+| Positive-class performance | Winner OOF PR plot | Correct AP baseline and distinction between pooled and mean AP |
+| Probability-score interpretation | Winner OOF histogram | Ranking is not probability calibration |
+| Three threshold references | Sensitivity–specificity plot and one 3-row table | Prevalence, 0.5 and crossover; sensitivity, specificity, precision |
+| Final refits | Train-fit numerical audit and full-data fit | Stable, finite and unchanged specification; no in-sample validation claim |
+| Presentation and claims | Every substantive markdown/code pair | Purpose-first, accurate actual results, no duplicate graphs |
+| Reproducibility | GitHub Actions executed notebook; saved artifacts | Clean full execution and independent numeric review |
+| Version control | Active implementation branch and PR | Historical files intact; no accidental merge |
 
-The [verification report](verification_report.md) records completed acceptance checks and unperformed checks. This mapping alone does not claim that unexecuted or unreviewed sections have passed.
+**Status:** Traceability criteria only. Do not mark the implementation PASS until the actual execution output and independent numerical/visual review have been verified.

@@ -1,15 +1,18 @@
-# Current project decisions
+# Current project decisions — approved PRD v2.0 (27 October 2026)
 
-Approved [PRD v1.0](PRD.md) is authoritative and unchanged. The owner's autonomous instruction delegates separate technical-plan approval to independent Sol; the [plan review](technical_plan_review.md) and [recipe review](recipe_review.md) record the staged approvals. Previous 75/25, three-baseline, scaled/penalised and revenue-optimised 0.80 rules are superseded historical work.
+See [PRD v2.0](PRD_v2.md) for the governing requirements and complete 24-decision ledger, and [technical plan v2.0](technical_plan.md) for precise implementation. [Historical decisions](project_decisions_v1_archive.md) describe the superseded economics scope.
 
-Predict session-level Revenue; prediction is primary and hypothetical voucher arithmetic secondary. Quality checks precede a new stratified 80/20 split, seed 42 (9,864/2,466); retain all 12,330 rows. Five common shuffled stratified training folds use seed 42. Predictor EDA, recipes and threshold references use training only; previous overlapping-data exposure is disclosed.
+- **Research:** prediction of session-level `Revenue=1`, not inference or treatment effects.
+- **Source:** UCI 12,330 rows including 125 excess duplicate full rows, 17 source predictors; retain all original observations.
+- **Protocol:** stratified 80/20 seed 42, five common stratified training CV folds seed 42; train-only EDA, fold-contained fitted preprocessing.
+- **Four all-17 diagnostic models:** Logit, Gaussian NB, Bernoulli NB, LDA. Operational model inputs use the same remaining 16 sources without PageValues due to prediction-time availability uncertainty.
+- **Four baselines:** raw, unpenalised Logit; Gaussian NB; Bernoulli NB; standard LDA.
+- **Three revisions:** activity log/presence L2 Logit `C=1` with fold scaling; activity log and automatic covariance-shrinkage LDA; mixed Gaussian/discrete NB with Laplace smoothing.
+- **Winner:** highest mean five-fold training ROC-AUC, with mean AP, fold SD and SE reported. Seven candidates use identical folds. Revised L2 Logit is the observed 26 October CV winner (0.758074 mean AUC; 0.335193 mean AP).
+- **Thresholds:** exactly training prevalence, 0.5 and sensitivity–specificity crossover; report sensitivity, specificity and precision using winner OOF scores. Crossover is a balanced reference, not an optimal decision claim.
+- **Display:** one CV table, one 7-model ROC overlay, one winner PR curve, one winner OOF score histogram, one sensitivity–specificity plot and a single three-threshold table. No redundant warnings/diagnostics in the main output.
+- **Final fit:** numerical refit on all 9,864 training observations, then unchanged recipe fit on all 12,330 rows. Training-CV selection evidence only; no new independent test performance claim.
+- **Submission:** concise lab-style notebook with a statistical purpose, evidence, interpretation and implication for each substantive analysis. Separate supplementary EDA is not submitted.
+- **Removed:** economic discount, voucher policy, fixed 2/3, conversion scenarios, monetary cost/profit interpretation and causal uplift.
 
-Four all-17 diagnostic fits and four operational baselines use unpenalised raw Logit, GaussianNB, BernoulliNB and standard LDA. All operational baselines use 16 sources without PageValues, excluded for timing uncertainty rather than predictive association alone. Six nominal inputs are unranked indicators; SpecialDay remains numeric and Weekend remains 0/1. Model-required encodings follow PRD §6.2; no optional baseline scaling, transforms, weights or penalty.
-
-At most one EDA-supported revision per family is frozen after independent evidence review before scoring. All seven operational slots share folds and eligibility. Highest mean CV ROC-AUC wins, exact ties by label; AP and fold SD/SE support interpretation. One-SE proximity is descriptive, not a test of equivalence.
-
-Buyer if `p >= 2/3` → no voucher; otherwise voucher. Labels remain unchanged. Discount 0.20 and assumed q_ref = 0.50 give C_FN = 0.20A, C_FP = 0.40A and threshold 2/3, conditional on meaningful probabilities. Four training references are exact prevalence, 0.5, 2/3 and rate crossover. Never substitute the most revenue-favourable threshold.
-
-`R0/A = TP + FN`; `Rq/A = TP + 0.8 FN + 0.8 q TN`; `delta/A = 0.8 q TN - 0.2 FN`. At fixed 2/3 recipients, vary only q = 0.10, 0.25, 0.50, 1.00. A is a common normalisation; q is unobserved, not measured voucher response. This is neither profit nor actual lift.
-
-Freeze the winner, specification and policy before one test prediction vector. Report ROC/AUC/AP and confusion/rates at 2/3 without alternative test models or thresholds. Refit the exact winner on all data after the audit, with no further score. Saved audit predictions support numerical and presentation verification. Historical exposure, timing uncertainty, duplicates, selection optimism and distributional/probability limitations remain disclosed.
+Historical technical verification results may be preserved without applying them to the currently revised estimator.
