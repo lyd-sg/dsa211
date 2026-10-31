@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "cv_candidates_verified": 24,
+  "individual_fold_scores_verified": 120,
+  "sequential_decisions_verified": 16,
+  "threshold_rows_verified": 4,
+  "winner": "L1 | Logit",
+  "test_data_used_in_verification": false
+}

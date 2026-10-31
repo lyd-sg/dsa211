@@ -37,20 +37,35 @@
   "train_fit_audit": {
     "description": "Frozen training fit",
     "finite_parameters": true,
-    "probability_min": 1.08466011952402e-10,
-    "probability_max": 0.7482950638213298,
+    "encoded_columns": 67,
+    "sample_design_rank": 56,
+    "max_absolute_coefficient": 27.36232695526567,
+    "probability_min": 1.0173428504658068e-10,
+    "probability_max": 0.7482950644596421,
     "chosen_inner_CV_params": {}
   },
   "final_fit_audit": {
     "description": "Final all-data refit",
     "finite_parameters": true,
-    "probability_min": 7.088060868925515e-10,
-    "probability_max": 0.6928182805879625,
+    "encoded_columns": 67,
+    "sample_design_rank": 55,
+    "max_absolute_coefficient": 25.258704807863865,
+    "probability_min": 7.112503501856984e-10,
+    "probability_max": 0.6928182827265542,
     "chosen_inner_CV_params": {}
   },
   "train_warnings": [],
   "final_warnings": [],
   "historically_pristine_holdout": false,
+  "training_evidence_audit": {
+    "status": "PASS",
+    "cv_candidates_verified": 24,
+    "individual_fold_scores_verified": 120,
+    "sequential_decisions_verified": 16,
+    "threshold_rows_verified": 4,
+    "winner": "L1 | Logit",
+    "test_data_used_in_verification": false
+  },
   "versions": {
     "python": "3.12.15",
     "pandas": "3.0.6",
