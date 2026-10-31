@@ -20,6 +20,17 @@ def original(i):
         c["outputs"]=[]
     if i in (24,26):
         c.source=c.source.replace("ARTIFACTS/'prd_v2_", "V3_ART/'")
+    if i==23:
+        c.source=c.source.replace("ARTIFACTS/'training_winner_oof_probability_histogram.png'",
+                                  "V3_ART/'winner_oof_probability_histogram.png'")
+    if i==4:
+        c.source += "\nprint(f'Interpretation: training prevalence is {y_train.mean():.2%}, so accuracy alone can reward predicting no purchase. Preserve 125 identical rows, but note dependence risk across folds.')\n"
+    if i==6:
+        c.source += "\nprint(f'Interpretation: Informational has {num_summary.loc[\"Informational\",\"zero share\"]:.1%} zeros, Informational_Duration {num_summary.loc[\"Informational_Duration\",\"zero share\"]:.1%} zeros, and ProductRelated_Duration skew={num_summary.loc[\"ProductRelated_Duration\",\"skew\"]:.2f}. These motivate, but do not validate, presence and log1p trials.')\n"
+    if i==8:
+        c.source += "\nprint(f'Interpretation: {int((Xtr.Browser.value_counts()<50).sum())} Browser and {int((Xtr.TrafficType.value_counts()<50).sum())} TrafficType levels have fewer than 50 training rows. Fold-fitted pooling is a hypothesis, not a guaranteed gain; all six categories remain nominal.')\n"
+    if i==17:
+        c.source += "\nprint(f'Interpretation: operational Logit starts at CV mean AUC {OP16.loc[\"Operational16 | Logit\",\"mean ROC-AUC\"]:.4f}, versus {ALL17.loc[\"All17 | Logit\",\"mean ROC-AUC\"]:.4f} with PageValues. Exclusion is a timing precaution, not proof of leakage.')\n"
     if i==26:
         c.source=c.source.replace('SEVEN_CV.loc[SEVEN_CV.candidate.eq(WINNER_LABEL),"mean_fold_ap"].iloc[0]',
                                   'FINALISTS.loc[FINALISTS.candidate.eq(WINNER_LABEL),"mean_ap"].iloc[0]')
@@ -318,6 +329,9 @@ ATTEMPTS_DF.to_csv(V3_ART/'all_attempts_ledger.csv',index=False)
 pd.DataFrame([{'pathway':f,'finalist':PATH_FINALISTS[f],'configuration':json.dumps(PATH_FINAL_CONFIGS[f])}
               for f in FAMILY_ORDER]).to_csv(V3_ART/'retained_pathways.csv',index=False)
 print('Retained finalists:',PATH_FINALISTS)
+print('Interpretation: retained revisions',ATTEMPTS_DF.loc[ATTEMPTS_DF.accepted & ATTEMPTS_DF.step.str[-1].ne('0'),'step'].tolist(),
+      '; reverted revisions',ATTEMPTS_DF.loc[~ATTEMPTS_DF.accepted,'step'].tolist(),
+      '. Retentions reflect the local one-SE comparison, not significance tests.')
 '''),
 md("""
 ## 8. Four finalists and winner selection
@@ -373,6 +387,7 @@ ax.grid(alpha=.2);fig.tight_layout()
 fig.savefig(V3_ART/'four_finalists_roc.png',dpi=160,bbox_inches='tight')
 display(fig);plt.close(fig)
 print(f'Winner: {WINNER_LABEL} | five-fold mean AUC {float(FINALISTS.iloc[0]["mean_auc"]):.5f}')
+print(f'Interpretation: winner AUC exceeds the runner-up by {float(FINALISTS.iloc[0].mean_auc-FINALISTS.iloc[1].mean_auc):.4f}; this descriptive gap does not establish significance or calibrated probabilities.')
 '''),
 md("""
 ## 9. Winner's training OOF scores and precision–recall behaviour
@@ -391,6 +406,9 @@ reliability=reliability.groupby('bucket',observed=True).agg(
     n=('actual','size'),observed_purchase_rate=('actual','mean'),mean_predicted_probability=('predicted','mean')).reset_index()
 display(reliability.round(4))
 reliability.to_csv(V3_ART/'winner_oof_reliability.csv',index=False)
+near=reliability.loc[reliability['mean_predicted_probability'].between(.1,.3)]
+print('Interpretation: OOF observed purchase frequency should be compared to mean predicted score around 0.20; upper score buckets are sparse, so probability quality is not established by AUC alone.')
+display(near[['bucket','n','observed_purchase_rate','mean_predicted_probability']].round(4))
 '''),
 md("""
 ## 10. Four threshold references
@@ -438,6 +456,7 @@ ax.grid(alpha=.2);ax.legend(fontsize=8);fig.tight_layout()
 fig.savefig(V3_ART/'sensitivity_specificity.png',dpi=160,bbox_inches='tight')
 display(fig);plt.close(fig)
 print('Financial threshold 0.20 is fixed independently of observed confusion matrices.')
+print(f'Interpretation: at 0.20, {int(THRESHOLD_TABLE.iloc[3].TP):,} buyers would be contacted and {int(THRESHOLD_TABLE.iloc[3].FP):,} nonbuyers contacted in training OOF predictions; this is a hypothetical cost trade-off, not observed upsell value.')
 '''),
 md("""
 ## 11. Cost-assumption sensitivity (no revenue simulation)
@@ -466,6 +485,59 @@ md("""
 **Qualification.** The reserved observations have been used in historical project versions, so this check is held out *for this v3 protocol*, not a pristine lifetime-independent validation.
 """),
 code(r'''
+
+# Independent recomputation of *every* attempted CV fold from the saved OOF vectors.
+# This checks correctness, not a second feature search, and uses no reserved outcomes.
+def independently_audit_training_results():
+    audits=[]
+    known_labels=list(RESULTS)
+    assert len(known_labels)==24, f'Expected four all-17 diagnostics and 20 operational trials, found {len(known_labels)}'
+    assert set(ATTEMPTS_DF.candidate)==set(known_labels)-set(f'All17 | {f}' for f in FAMILY_ORDER)
+    for name,res in RESULTS.items():
+        p=np.asarray(res['oof'],dtype=float)
+        assert p.shape==(len(ytr),) and np.isfinite(p).all()
+        fold_aucs=[];fold_aps=[]
+        for (fit_idx,val_idx),record in zip(FOLD_INDICES,res['folds']):
+            assert record['fit_status']=='OK'
+            yy=ytr.iloc[val_idx].to_numpy()
+            auc=float(roc_auc_score(yy,p[val_idx]))
+            ap=float(average_precision_score(yy,p[val_idx]))
+            assert np.isclose(auc,record['roc_auc'],atol=1e-12,rtol=0)
+            assert np.isclose(ap,record['average_precision'],atol=1e-12,rtol=0)
+            fold_aucs.append(auc);fold_aps.append(ap)
+        avg=float(np.mean(fold_aucs))
+        sd=float(np.std(fold_aucs,ddof=1))
+        se=float(sd/np.sqrt(K))
+        assert np.isclose(avg,res['mean_fold_auc'],atol=1e-12,rtol=0)
+        assert np.isclose(sd,res['fold_auc_sd'],atol=1e-12,rtol=0)
+        assert np.isclose(se,res['fold_auc_se'],atol=1e-12,rtol=0)
+        assert np.isclose(np.mean(fold_aps),res['mean_fold_ap'],atol=1e-12,rtol=0)
+        audits.append({'candidate':name,'folds_verified':len(fold_aucs),'mean_auc':avg,'auc_sd':sd,'auc_se':se})
+    for _,trial in ATTEMPTS_DF.iterrows():
+        if trial.step.endswith('0'):
+            continue
+        challenger=RESULTS[trial.candidate]
+        parent=RESULTS[trial.parent]
+        delta=challenger['mean_fold_auc']-parent['mean_fold_auc']
+        assert np.isclose(delta,trial.delta_auc,atol=1e-12,rtol=0)
+        assert bool(delta>challenger['fold_auc_se'])==bool(trial.accepted)
+    for _,row in THRESHOLD_TABLE.iterrows():
+        counted=threshold_measures(ytr,WINNER_OOF,float(row.threshold))
+        for key in ('TP','FP','TN','FN'):
+            assert counted[key]==int(row[key])
+        assert sum(counted[k] for k in ('TP','FP','TN','FN'))==len(ytr)
+        for key in ('sensitivity','specificity','precision'):
+            assert np.isclose(counted[key],row[key],atol=1e-12,rtol=0)
+    assert len(FINALISTS)==4 and FINALISTS.mean_auc.iloc[0]==FINALISTS.mean_auc.max()
+    return {'status':'PASS','cv_candidates_verified':len(audits),
+            'individual_fold_scores_verified':sum(q['folds_verified'] for q in audits),
+            'sequential_decisions_verified':16,'threshold_rows_verified':len(THRESHOLD_TABLE),
+            'winner':WINNER_LABEL,'test_data_used_in_verification':False}
+TRAINING_AUDIT=independently_audit_training_results()
+with (V3_ART/'independent_training_audit.json').open('w') as f:
+    json.dump(TRAINING_AUDIT,f,indent=2,allow_nan=False)
+print('Independent training evidence audit:',TRAINING_AUDIT)
+
 def validate_fitted_model(model,X,description):
     actual=model.best_estimator_ if isinstance(model,GridSearchCV) else model
     estimator=actual.named_steps['clf']
@@ -477,7 +549,13 @@ def validate_fitted_model(model,X,description):
     sample=model.predict_proba(X)[:,1]
     if not np.isfinite(sample).all() or ((sample<0)|(sample>1)).any():
         raise RuntimeError(f'{description}: invalid probability output')
+    design=actual.named_steps['pre'].transform(X)
+    n_cols=int(design.shape[1])
+    rank=int(np.linalg.matrix_rank(design[:min(3000,len(design))]))
+    max_coef=(float(np.max(np.abs(estimator.coef_))) if hasattr(estimator,'coef_') else None)
     return {'description':description,'finite_parameters':True,
+            'encoded_columns':n_cols,'sample_design_rank':rank,
+            'max_absolute_coefficient':max_coef,
             'probability_min':float(sample.min()),'probability_max':float(sample.max()),
             'chosen_inner_CV_params':model.best_params_ if isinstance(model,GridSearchCV) else {}}
 
@@ -533,18 +611,19 @@ RUN_METADATA={'prd':'v3.0','data_sha256':source_hash,
  'train_warnings':[str(w.message) for w in train_warnings],
  'final_warnings':[str(w.message) for w in final_warnings],
  'historically_pristine_holdout':False,
+ 'training_evidence_audit':TRAINING_AUDIT,
  'versions':{'python':platform.python_version(),'pandas':pd.__version__,
             'numpy':np.__version__,'scipy':scipy.__version__,'sklearn':sklearn.__version__}}
 with (V3_ART/'run_metadata.json').open('w') as f:
     json.dump(RUN_METADATA,f,indent=2,allow_nan=False,default=str)
-pd.DataFrame(FOLD_ROWS).drop(columns=['inner_cv_best_params'],errors='ignore').to_csv(
-   V3_ART/'all_attempt_fold_scores.csv',index=False)
+pd.DataFrame(FOLD_ROWS).to_csv(V3_ART/'all_attempt_fold_scores.csv',index=False)
 pd.DataFrame(WARNING_ROWS).to_csv(V3_ART/'fit_warnings.csv',index=False)
 pd.DataFrame({'row_id':Xtr.index,'observed':ytr.to_numpy(),
               'winner_oof_probability':WINNER_OOF}).to_csv(V3_ART/'winner_oof.csv',index=False)
 pd.DataFrame({'row_id':test_ids,'observed':y_test.to_numpy(),
               'test_probability':test_prob}).to_csv(V3_ART/'frozen_holdout_scores.csv',index=False)
 print('Final all-data fit verified for:',WINNER_LABEL)
+print('Interpretation: reserved-set ROC-AUC is a version-specific check, not independent of earlier project exploration; no specifications were revised after seeing this result.')
 '''),
 md("""
 ## 13. Findings, interpretation and limitations
