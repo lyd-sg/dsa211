@@ -18,6 +18,11 @@ def original(i):
     if c.cell_type=="code":
         c["execution_count"]=None
         c["outputs"]=[]
+    if i in (24,26):
+        c.source=c.source.replace("ARTIFACTS/'prd_v2_", "V3_ART/'")
+    if i==26:
+        c.source=c.source.replace('SEVEN_CV.loc[SEVEN_CV.candidate.eq(WINNER_LABEL),"mean_fold_ap"].iloc[0]',
+                                  'FINALISTS.loc[FINALISTS.candidate.eq(WINNER_LABEL),"mean_ap"].iloc[0]')
     return c
 
 cells = [
