@@ -1,0 +1,5 @@
+pathway,finalist,configuration
+Logit,L1 | Logit,"{""log_activity"": true}"
+LDA,Operational16 | LDA,{}
+GaussianNB,Operational16 | GaussianNB,{}
+BernoulliNB,B3 | BernoulliNB,"{""median_cols"": [""ProductRelated"", ""ExitRates""]}"

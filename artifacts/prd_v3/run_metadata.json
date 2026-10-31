@@ -1,0 +1,61 @@
+{
+  "prd": "v3.0",
+  "data_sha256": "b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+  "random_state": 42,
+  "training_rows": 9864,
+  "test_rows": 2466,
+  "final_rows": 12330,
+  "cv_folds": 5,
+  "inner_folds": 3,
+  "selected_model": "L1 | Logit",
+  "selected_family": "Logit",
+  "selected_recipe": {
+    "log_activity": true
+  },
+  "four_finalists": {
+    "Logit": "L1 | Logit",
+    "LDA": "Operational16 | LDA",
+    "GaussianNB": "Operational16 | GaussianNB",
+    "BernoulliNB": "B3 | BernoulliNB"
+  },
+  "test_check": {
+    "n_test": 2466,
+    "roc_auc": 0.7405425028388821,
+    "average_precision": 0.32719855953352933,
+    "cost_threshold_0_20": {
+      "threshold": 0.2,
+      "TP": 237,
+      "FP": 569,
+      "TN": 1515,
+      "FN": 145,
+      "sensitivity": 0.6204188481675392,
+      "specificity": 0.7269673704414588,
+      "precision": 0.29404466501240695,
+      "hypothetical_relative_loss_SGD": 3447
+    }
+  },
+  "train_fit_audit": {
+    "description": "Frozen training fit",
+    "finite_parameters": true,
+    "probability_min": 1.08466011952402e-10,
+    "probability_max": 0.7482950638213298,
+    "chosen_inner_CV_params": {}
+  },
+  "final_fit_audit": {
+    "description": "Final all-data refit",
+    "finite_parameters": true,
+    "probability_min": 7.088060868925515e-10,
+    "probability_max": 0.6928182805879625,
+    "chosen_inner_CV_params": {}
+  },
+  "train_warnings": [],
+  "final_warnings": [],
+  "historically_pristine_holdout": false,
+  "versions": {
+    "python": "3.12.15",
+    "pandas": "3.0.6",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "sklearn": "1.9.1"
+  }
+}
