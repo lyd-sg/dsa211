@@ -53,9 +53,15 @@ jobs:
           assert all((base/p).exists() for p in [
             'all_attempts_ledger.csv','four_finalists.csv','four_threshold_references.csv',
             'finalist_fold_scores.csv','winner_oof.csv','frozen_holdout_scores.csv',
-            'run_metadata.json'])
+            'run_metadata.json','independent_training_audit.json'])
           run=json.loads((base/'run_metadata.json').read_text())
           assert run['prd']=='v3.0' and run['test_rows']==2466
+          audit=json.loads((base/'independent_training_audit.json').read_text())
+          assert audit['status']=='PASS'
+          assert audit['cv_candidates_verified']==24
+          assert audit['individual_fold_scores_verified']==120
+          assert audit['sequential_decisions_verified']==16
+          assert audit['threshold_rows_verified']==4
           print('EXECUTED PRD v3:',run['selected_model'],
                 'holdout ROC-AUC:',run['test_check']['roc_auc'],
                 '20 attempts and 4 finalists audited')
@@ -66,7 +72,9 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add online_shoppers_prd_v3.ipynb artifacts/prd_v3/
           git diff --cached --quiet || git commit -m "results: execute PRD v3 notebook and save audit evidence [skip ci]"
-          git push
+          git fetch origin "$GITHUB_REF_NAME"
+          git rebase "origin/$GITHUB_REF_NAME"
+          git push origin HEAD:"$GITHUB_REF_NAME"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
