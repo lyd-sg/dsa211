@@ -1,0 +1,88 @@
+name: Build and execute PRD v3 notebook
+
+on:
+  push:
+    branches:
+      - analysis/prd-v3-notebook
+    paths:
+      - 'scripts/build_prd_v3.py'
+      - '.github/workflows/build-prd-v3.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  execute:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    env:
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Python and notebook dependencies
+        run: |
+          python -m pip install -r requirements.txt
+          python -m pip install 'nbformat>=5' 'nbconvert>=7' 'nbclient>=0.10'
+      - name: Build notebook reusing v2 cells
+        run: python scripts/build_prd_v3.py
+      - name: Execute on actual UCI source
+        run: |
+          jupyter nbconvert --to notebook --execute online_shoppers_prd_v3.ipynb \
+            --ExecutePreprocessor.timeout=3000 \
+            --output online_shoppers_prd_v3_executed.ipynb
+          mv online_shoppers_prd_v3_executed.ipynb online_shoppers_prd_v3.ipynb
+      - name: Verify executed notebook and outputs
+        run: |
+          python - <<'PY'
+          import json, pathlib, nbformat
+          path=pathlib.Path('online_shoppers_prd_v3.ipynb')
+          n=nbformat.read(path,as_version=4)
+          nbformat.validate(n)
+          codes=[c for c in n.cells if c.cell_type=='code']
+          assert codes and all(c.execution_count is not None for c in codes)
+          assert all(not any(o.output_type=='error' for o in c.get('outputs',[])) for c in codes)
+          base=pathlib.Path('artifacts/prd_v3')
+          assert all((base/p).exists() for p in [
+            'all_attempts_ledger.csv','four_finalists.csv','four_threshold_references.csv',
+            'finalist_fold_scores.csv','winner_oof.csv','frozen_holdout_scores.csv',
+            'run_metadata.json','independent_training_audit.json'])
+          run=json.loads((base/'run_metadata.json').read_text())
+          assert run['prd']=='v3.0' and run['test_rows']==2466
+          audit=json.loads((base/'independent_training_audit.json').read_text())
+          assert audit['status']=='PASS'
+          assert audit['cv_candidates_verified']==24
+          assert audit['individual_fold_scores_verified']==120
+          assert audit['sequential_decisions_verified']==16
+          assert audit['threshold_rows_verified']==4
+          print('EXECUTED PRD v3:',run['selected_model'],
+                'holdout ROC-AUC:',run['test_check']['roc_auc'],
+                '20 attempts and 4 finalists audited')
+          PY
+      - name: Commit executed notebook and audit evidence
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add online_shoppers_prd_v3.ipynb artifacts/prd_v3/
+          git diff --cached --quiet || git commit -m "results: execute PRD v3 notebook and save audit evidence [skip ci]"
+          # The reused v2 cells regenerate some tracked historical outputs in the runner.
+          # Preserve only staged v3 outputs in the commit; set aside unstaged generated files.
+          git stash push --include-untracked -m "runner-only generated non-v3 outputs"
+          git fetch origin "$GITHUB_REF_NAME"
+          git rebase "origin/$GITHUB_REF_NAME"
+          git push origin HEAD:"$GITHUB_REF_NAME"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dsa211-prd-v3-executed
+          path: |
+            online_shoppers_prd_v3.ipynb
+            artifacts/prd_v3/
+          retention-days: 30

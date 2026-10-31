@@ -1,22 +1,17 @@
-# DSA211 repository implementation instructions — PRD v2.0
+# DSA211 repository implementation instructions — PRD v3.0
 
-**Authoritative requirements:** [Approved PRD v2.0](docs/PRD_v2.md) → [current technical plan](docs/technical_plan.md) → implementation notes. The previous [AGENTS rules](docs/AGENTS_v1_archive.md), [PRD v1.0](docs/PRD.md) and older technical/review documents are historical.
+**Authority:** [Approved PRD 3.0](docs/PRD_v3.md) → [v3 technical plan](docs/technical_plan_v3.md) → [executed v3 notebook](online_shoppers_prd_v3.ipynb). The v2 notebook, PRD, technical plan and [v2 agent instructions](docs/AGENTS_v2_archive.md) are historical and must be preserved.
 
-## Non-negotiable current scope
+## Scope
+- Prediction of session Revenue only, not inference, causal intervention effects or real sales gains. Four pathways across three taught families: Logit, LDA, Gaussian NB, Bernoulli NB; no Mixed NB in active v3.
+- Preserve UCI source data (12,330 sessions and retained duplicate rows), established 80/20 seed-42 split, five shared training CV folds, training-only EDA and strict fold-contained preprocessing. Four all-17 diagnostics are noncompeting; operational models use 16 original sources excluding PageValues as a timing precaution.
+- Run L0–L4, D0–D4, G0–G4, B0–B4 as predeclared sequential, individually EDA-justified modifications. Every challenger compares to its *current accepted incumbent*, with the one-SE simplicity decision. Show all 20 operational attempts and their recorded fold evidence, including rejections.
+- Nested inner training CV tunes C for L4 and shrinkage for D4. Preserve encoders, fold-fitted medians and rare-level category pooling inside the fitting pipeline.
+- Rank four family finalists by mean five-fold ROC-AUC, with AP and SD/SE supporting context. Winner OOF ROC/PR curves and reliability checks are descriptive, not proof of calibration.
+- Illustrative upsell assumptions S$3 cost, 30% success among buyers, S$50 incremental gross margin: C_FP=3, C_FN=12, cutoff 0.20. Compare training prevalence, 0.50, crossover and 0.20; q sensitivity at 20/30/40%. Never claim actual sales uplift.
+- After freezing the family recipe, evaluate the v3 reserved set without further tuning and refit the unchanged model on all data. Disclose historical previous use of this held-out partition.
 
-- **Prediction only:** classify session `Revenue`; no voucher, business pricing, conversion probability, revenue/profit scenarios or cost-based threshold.
-- Preserve the 12,330-row UCI dataset including duplicates. Data quality before split; stratified 80/20 seed 42 (9,864 / 2,466). Training-only EDA, five common shuffled stratified training folds seed 42 and fold-contained fitted preprocessing.
-- Four original all-17 diagnostic fits. Operational models omit `PageValues` for uncertainty over availability at prediction time and use **16 original source predictors**.
-- Four minimal baselines: unpenalised raw Logit, Gaussian NB, Bernoulli NB and standard LDA. Three exact EDA-informed revised candidates: L2 `C=1` log/presence-engineered Logit with fold standardisation; covariance-shrinkage `solver='lsqr', shrinkage='auto'` LDA; Gaussian/discrete Mixed NB with Laplace `alpha=1`.
-- Seven operational candidates use identical folds. Winner = **highest mean five-fold ROC-AUC**; report mean AP, AUC fold SD and SE, one OOF ROC overlay, one selected-winner PR curve and one winner-score histogram. Small differences are descriptive, not superiority tests.
-- Thresholds are **exactly three training OOF references:** prevalence, 0.5 and closest sensitivity–specificity crossover. One curve and one table showing threshold, sensitivity, specificity, precision. Crossover is balanced, not globally optimal.
-- Refit the exact winner on training for numerical validity and all 12,330 rows for final recipe, without an independent held-out performance claim. Current notebook does not reuse historical test outcomes to claim new-version validation.
-- Every substantive notebook section has **purpose → method/results → interpretation/implication**, with concrete figures and concise, nonduplicated presentation. Avoid large displayed warning or failure tables; keep detailed numerical records as artifacts.
-
-## Verification and governance
-
-Run the complete notebook with the actual UCI CSV; recompute fold AUC/AP and threshold confusion/rates from OOF evidence; check all source, saved artifacts, figures and printed claims. Preserve the source dataset, archived evidence, original PRD and existing Git history.
-
-Record numerical warnings, category separation risks, convergence, parameter/probability validity and fold reproducibility without silently changing the modelling objective. No extra models or hyperparameter sweeps. All outputs for current scope must be free of legacy business-economics claims.
-
-Work on a separate branch, open a reviewable pull request, never force-push or automatically merge. A successful run is necessary but not sufficient for declaring independent review or academic submission acceptance.
+## Verification and delivery
+- The executed notebook is [online_shoppers_prd_v3.ipynb](online_shoppers_prd_v3.ipynb), built by [scripts/build_prd_v3.py](scripts/build_prd_v3.py) and executed by [.github/workflows/build-prd-v3.yml](.github/workflows/build-prd-v3.yml).
+- Save generated outputs in artifacts/prd_v3. Audit all 24 CV candidate fold metrics and mean/SD/SE, four finalists, local one-SE decisions, threshold confusion counts and finite probabilities, plus warnings and provenance.
+- Keep interpretation concise, numerical, and grounded in saved results. Preserve the v2 history and source files. Work in a separate branch and request review; do not automatically merge or claim lecturer approval.
