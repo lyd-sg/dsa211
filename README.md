@@ -1,6 +1,6 @@
 # DSA211 — Predicting Online Purchases
 
-**Current project authority:** [approved PRD v2.0](docs/PRD_v2.md) and [technical implementation plan v2.0](docs/technical_plan.md).
+**Current PRD v3 implementation:** [Executed notebook](online_shoppers_prd_v3.ipynb) | [Approved PRD 3.0](docs/PRD_v3.md) | [Execution evidence](artifacts/prd_v3/) | [Build script](scripts/build_prd_v3.py). The v2 analysis described below is retained as historical reference only. The v3 notebook uses four sequential modelling pathways and an illustrative cost-sensitive threshold; it does not estimate intervention uplift.\n\n**Current project authority:** [approved PRD v2.0](docs/PRD_v2.md) and [technical implementation plan v2.0](docs/technical_plan.md).
 
 **Research question:** How well can variables describing a browsing session predict whether it results in a purchase (`Revenue=1`), and which DSA211 classification model ranks buyers and non-buyers most effectively? The project is **prediction-only**, not coefficient inference, causal inference or a commercial-discount study.
 
