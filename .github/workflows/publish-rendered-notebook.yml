@@ -1,0 +1,61 @@
+name: Publish rendered DSA211 notebook and graphs
+
+on:
+  push:
+    branches:
+      - analysis/publish-prd-v2-figures
+    paths:
+      - 'online_shoppers_revised.ipynb'
+      - 'data/uci_468.csv'
+      - 'requirements.txt'
+      - 'scripts/publish_notebook_outputs.py'
+      - '.github/workflows/publish-rendered-notebook.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install the verified notebook dependencies
+        run: |
+          python -m pip install -r requirements.txt
+      - name: Execute notebook against committed data
+        run: |
+          mkdir -p results
+          python -m jupyter nbconvert --to notebook --execute online_shoppers_revised.ipynb \
+            --ExecutePreprocessor.timeout=1200 \
+            --output online_shoppers_revised_executed.ipynb --output-dir results
+      - name: Extract all actual inline PNG plots
+        run: |
+          python scripts/publish_notebook_outputs.py results/online_shoppers_revised_executed.ipynb
+      - name: Preserve an additional downloadable execution artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dsa211-prd-v2-executed-notebook
+          path: results/
+          retention-days: 30
+      - name: Commit published results to this dedicated review branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f results/README.md results/online_shoppers_revised_executed.ipynb results/figures/
+          if git diff --cached --quiet; then
+            echo "Notebook and figures unchanged; nothing to commit"
+          else
+            git commit -m "Publish GitHub-executed PRD v2.0 notebook and plots"
+            git push origin HEAD:analysis/publish-prd-v2-figures
+          fi
