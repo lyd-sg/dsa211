@@ -187,7 +187,7 @@ def main():
             assert abs(float(se) - float(raw["auc_se"])) < 0.000011
             assert abs(float(ap) - float(raw["mean_ap"])) < 0.000011
             assert abs(float(auc) - pa) < 0.000011
-            if step.endswith("0"):
+            if step in ("L0", "D0", "G0", "B0"):
                 assert verdict.startswith("Baseline")
             elif raw["accepted"] == "True":
                 assert verdict.startswith(("Accepted", "Qualified"))
