@@ -1,6 +1,6 @@
 # DSA211 PRD v3 — Implemented technical plan
 
-**Authority:** [PRD v3](PRD_v3.md). **Current executed deliverable:** [online_shoppers_prd_v3.ipynb](../online_shoppers_prd_v3.ipynb). **Rebuild:** [builder](../scripts/build_prd_v3.py). The [v2 plan](technical_plan.md) is historical.
+**Historical v3.0 requirements:** [archived PRD v3.0](../archive/PRD_v3.md). **Current requirements:** [PRD v3.1](../PRD_v3.1.md) (classification-tree extension not yet implemented). **Current executed deliverable:** [online_shoppers_prd_v3.ipynb](../online_shoppers_prd_v3.ipynb). **Rebuild:** [builder](../scripts/build_prd_v3.py). The [v2 plan](technical_plan.md) is historical.
 
 ## Preserved work
 Reuse the original notebook's imports, data quality checks, training/holdout split, numerical and categorical EDA, assumption checks, four all-17 diagnostic models, and four operational baselines. Retain the original v2 notebook.
