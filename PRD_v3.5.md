@@ -1,7 +1,7 @@
 # DSA211 — Predicting Online Purchases
 ## PRD v3.5 — Approved EDA-complete, streamlined notebook presentation
 
-**Current revision:** 3 November 2026. **Review branch:** `analysis/prd-v3-5-presentation`.  
+**Current revision:** 3 November 2026. **Active branch:** `main` (merged from `analysis/prd-v3-5-presentation` via PR #15).  
 **Current notebook:** [online_shoppers_prd_v3_5.ipynb](online_shoppers_prd_v3_5.ipynb).  
 **Frozen modelling origin:** [archived executed v3.4](archive/versions/v3.4/online_shoppers_prd_v3_4.ipynb) · [verified v3.4 evidence](artifacts/prd_v3_4/) · [source supplementary EDA](supplementary/training_eda.ipynb).  
 **Nature of revision:** Reformatting and inclusion of previously executed EDA only; **no new modelling, new AUC claims or threshold optimisation**.
@@ -119,10 +119,10 @@ The result should read **EDA → modelling hypothesis → numerical comparison �
 - **Preserved archive:** no rewriting archived v3.0–v3.4 notebooks/PRDs or the original `artifacts/prd_v3_4/` evidence.
 - **Presentation integrity:** the newly embedded supplementary EDA outputs and three supplementary PNGs match the original `supplementary/training_eda.ipynb`; the seven original notebook figures remain.
 - **Notebook correctness:** all original computational model and statistical audit code remains; no error outputs; every code cell passes syntax compilation. A **presentation-only audit** verifies these properties without refitting any model.
-- **Branch:** `analysis/prd-v3-5-presentation`; do not merge without review.
+- **Branch:** `main`; merge approved by user and completed in PR #15.
 
 ## 6. Hand-off and verification
 
-The notebook is the active submission candidate on the review branch. The Python verification script `scripts/verify_prd_v3_5_presentation.py` and [GitHub Actions workflow](.github/workflows/verify-prd-v3-5.yml) must report **PASS** against the archived original, the complete v3.4 ledger and original supplementary EDA. The suite performs **no model training**.
+The notebook is the active v3.5 submission candidate on `main`. The Python verification script `scripts/verify_prd_v3_5_presentation.py` and [GitHub Actions workflow](.github/workflows/verify-prd-v3-5.yml) must report **PASS** against the archived original, the complete v3.4 ledger and original supplementary EDA. The suite performs **no model training**.
 
 The inclusion of earlier executed EDA does not make its descriptive relationships causal, nor does the reuse of historical CV folds or reserved observations create new independent validation.

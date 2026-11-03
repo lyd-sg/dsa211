@@ -1,6 +1,6 @@
 # Current DSA211 implementation handoff — PRD v3.5
 
-**Active deliverable:** [PRD v3.5](PRD_v3.5.md) and [executed presentation notebook v3.5](online_shoppers_prd_v3_5.ipynb), on branch `analysis/prd-v3-5-presentation`. Do not merge without user review.
+**Active deliverable:** [PRD v3.5](PRD_v3.5.md) and [executed presentation notebook v3.5](online_shoppers_prd_v3_5.ipynb), **merged into `main` via [PR #15](https://github.com/lyd-sg/dsa211/pull/15)**. The review branch is preserved for history.
 
 **Retired versions:** v3.0–v3.4 notebooks and PRDs moved byte-for-byte to [archive/versions/](archive/versions/). The previous `online_shoppers_revised.ipynb` is in [archive/legacy/](archive/legacy/). Old CI definitions are parked under `archive/workflows/` and are **not active**. The original v3.0 build script is in `archive/versions/v3.0/`. Current README is authoritative; archived documents may preserve now-retired historical paths as part of their original records.
 

@@ -4,7 +4,7 @@
 
 **Open the current project:** [PRD v3.5](PRD_v3.5.md) · [executed presentation notebook](online_shoppers_prd_v3_5.ipynb) · [presentation audit — PASS](artifacts/prd_v3_5/presentation_audit.json).
 
-**Status (3 November 2026):** v3.5 is an editorial, EDA-grounded presentation of the successfully executed and independently verified v3.4 modelling results. **No new model was trained for v3.5.** Work is isolated on `analysis/prd-v3-5-presentation`; review before merging to the default branch.
+**Status (3 November 2026):** v3.5 is an editorial, EDA-grounded presentation of the successfully executed and independently verified v3.4 modelling results. **No new model was trained for v3.5.** **Merged into `main` via [PR #15](https://github.com/lyd-sg/dsa211/pull/15)**; the original review branch remains for provenance.
 
 ### What the notebook shows
 
