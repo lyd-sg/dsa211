@@ -6,6 +6,13 @@ PRD v3.1 extends the executed v3.0 notebook with two full-grown all-17 tree diag
 
 **Research question:** How effectively do session characteristics predict `Revenue=1`, and which taught model specification achieves the strongest mean five-fold training ROC-AUC? Prediction only; no causal upsell or deployment claim.
 
+## Verified v3.1 findings
+
+**Execution:** [GitHub Actions run 41595364066](https://github.com/lyd-sg/dsa211/actions/runs/41595364066) — PASS. Structural syntax, 37-cell notebook execution, numerical audit and versioned evidence checks passed. The notebook selects **L1 Logistic Regression**, mean five-fold CV ROC-AUC **0.757467**, mean AP **0.336226**. Its reserved-set check reports ROC-AUC **0.740543** and AP **0.327199**, with the pre-existing historical-use qualification.
+
+**Tree finalists:** selected Gini `ccp_alpha=0.00100764`, 8 leaves, depth 4, CV AUC **0.733055** (full-grown **0.576629**); selected Entropy `ccp_alpha=0.00128706`, 14 leaves, depth 6, CV AUC **0.744143** (full-grown **0.579729**). Both enter the same direct six-way comparison; Entropy ranks second and Gini fifth. Every one of **722** tree alpha candidates was assessed on five common folds (**3,610** tree-alpha fold scores). Two tree baselines, two tree finalists, and the original four modelling paths are separately recorded.
+
+**Reproducibility:** the independent training audit passed 30 CV specifications, 150 specification-fold evaluations, 16 sequential decisions, two one-SE alpha selections and four winner-dependent threshold references. Warnings from unseen nominal levels within folds are logged; the frozen training and final all-data fits reported no warnings. Results reside in [v3.1 evidence](artifacts/prd_v3_1/).
 ## Reproduce v3.1
 
 From repository root, with Python 3.12 and the pinned requirements:
