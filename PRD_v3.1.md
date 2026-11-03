@@ -213,7 +213,7 @@ AUC_cutoff = mean_CV_AUC(alpha_best) - SE_best
 Eligible = { alpha : mean_CV_AUC(alpha) >= AUC_cutoff }
 ```
 
-Among eligible candidates, select the **smallest tree** (fewest terminal leaves when the corresponding alpha is refitted on the complete training partition). If several eligible alpha values yield the same leaf count, take the **largest alpha**; record the deterministic tie rule. This implements the agreed 1-SE preference for simplicity rather than blindly taking `alpha_best`.
+Among eligible candidates, select the **smallest tree** (fewest terminal leaves when the corresponding alpha is refitted on the complete training partition). If several candidates yield exactly the same smallest tree size, document the tie and resolve it through a predeclared implementation tie-break rather than adjusting the rule after examining the results. This implements the agreed 1-SE preference for simplicity rather than blindly taking `alpha_best`.
 
 **Cost-complexity objective:** `R_alpha(T) = R(T) + alpha * |T|`, where `R(T)` is the leaf-weighted training impurity (scikit-learn's scaled impurity measure), `|T|` is the number of terminal leaves and `alpha` controls the complexity penalty. Higher penalties generally produce smaller trees. Gini and Entropy impurity scales differ; their selected alpha values are **not comparable numerically**.
 
