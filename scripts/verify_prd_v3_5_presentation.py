@@ -12,7 +12,7 @@ import nbformat
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE_NB = ROOT / "online_shoppers_prd_v3_4.ipynb"
+SOURCE_NB = ROOT / "archive/versions/v3.4/online_shoppers_prd_v3_4.ipynb"
 PRESENT_NB = ROOT / "online_shoppers_prd_v3_5.ipynb"
 LEDGER = ROOT / "artifacts/prd_v3_4/all_attempts_ledger.csv"
 FOLD_SCORES = ROOT / "artifacts/prd_v3_4/all_attempt_fold_scores.csv"

@@ -1,29 +1,13 @@
-# Active DSA211 guidance — PRD v3.5 presentation
+# Current DSA211 implementation handoff — PRD v3.5
 
-**Current specification:** [PRD v3.5](PRD_v3.5.md).  
-**Current review notebook:** [online_shoppers_prd_v3_5.ipynb](online_shoppers_prd_v3_5.ipynb).  
-**Isolated branch:** `analysis/prd-v3-5-presentation`; do not merge without user review.
+**Active deliverable:** [PRD v3.5](PRD_v3.5.md) and [executed presentation notebook v3.5](online_shoppers_prd_v3_5.ipynb), on branch `analysis/prd-v3-5-presentation`. Do not merge without user review.
 
-This phase is **presentation-only curation** of the successfully executed, independently verified v3.4 notebook; it is not a new modelling search. All earlier v3.0–v3.4 PRDs, notebooks, statistical results, original trial ledger and audits must remain unchanged.
+**Retired versions:** v3.0–v3.4 notebooks and PRDs moved byte-for-byte to [archive/versions/](archive/versions/). The previous `online_shoppers_revised.ipynb` is in [archive/legacy/](archive/legacy/). Old CI definitions are parked under `archive/workflows/` and are **not active**. The original v3.0 build script is in `archive/versions/v3.0/`. Current README is authoritative; archived documents may preserve now-retired historical paths as part of their original records.
 
-## Visible original-family modelling shortlist
+**Presentation contract:** Curated family displays are Logit **L0,L1,L4,L7,L8,L13,L14**; LDA **D0,D1,D4,D9,D10,D11,D15**; GaussianNB **G0,G1,G2,G3,G6,G7,G8**; BernoulliNB **B0–B4**. Report exactly **7/7/7/5** rows with the actual historical parent, EDA rationale, CV AUC/SE/AP and acceptance outcome. D0's rationale is exactly **Baseline**. G6 and G7 qualified against G0; G7 remains the finalist. Show a four-row tree full/pruned comparison and a truthful Lectures 8/9 method coverage matrix.
 
-- **Logit (7):** L0, L1, L4, L7, L8, L13, L14. Retained model **L1**.
-- **LDA (7):** D0, D1, D4, D9, D10, D11, D15. Retained model **D0**; its reason must be **"Baseline"**, not an EDA explanation.
-- **GaussianNB (7):** G0, G1, G2, G3, G6, G7, G8. Retained model **G7**. G6 **also qualified** independently vs G0.
-- **BernoulliNB (5):** B0–B4. Retained model **B3**, after B1 was accepted.
-- **Trees:** four rows, full/pruned for Gini and Entropy; preserve their full paths in the original evidence.
+**Frozen evidence:** `artifacts/prd_v3_4/` is authoritative and remains in place; 41 original-family trials, 51 scored designs, 255 fold scores, 37 decisions, complete D15 16→1 paths and 722 tree alphas. Independent original audit: `artifacts/prd_v3_4/independent_training_audit.json` PASS. Original executed notebook: `archive/versions/v3.4/online_shoppers_prd_v3_4.ipynb`. Current validation: `python scripts/verify_prd_v3_5_presentation.py`, PASS expected, with workflow `.github/workflows/verify-prd-v3-5.yml`; does **not** fit models.
 
-Each visible family row must have the actual historical comparison parent, change tested, **EDA rationale (or baseline purpose)**, mean five-fold CV AUC, SE/AP and truthful historical acceptance outcome. The one-SE external selection rule and all previous anchor comparisons remain unchanged. No rejected trial becomes accepted simply because its AUC looks higher.
+**Statistical invariants:** original 12,330 observations; seed-42 train/reserved 9,864/2,466, same five training CV folds, all 16 operational sources with PageValues omitted on timing grounds; the retained winner is L1 Logit (training CV AUC ~0.75747, reused reserved AUC ~0.74054). Improvement > challenger's own 5-fold SE is a heuristic, not a hypothesis test. Previously consulted reserved labels prevent a pristine generalisation claim. Prediction-only, no causal claims.
 
-Keep a separate DSA211 methods-considered matrix including Lectures 8/9, distinguishing applied classification adaptations (backward selection, L2, LASSO, Elastic Net) from considered-but-not-fitted methods (e.g. best subset, forward stepwise, PCR/PLS overview). The classification target does not justify indiscriminate regression-only model fits.
-
-## Frozen source/evidence
-
-- **Original execution:** [v3.4 notebook](online_shoppers_prd_v3_4.ipynb).
-- **Unmodified source ledger:** [41 trial rows](artifacts/prd_v3_4/all_attempts_ledger.csv); 51 scored designs; 255 five-fold results; 37 historical decisions.
-- **Independent original audit:** [v3.4 PASS](artifacts/prd_v3_4/independent_training_audit.json).
-- **Presentation audit:** [v3.5 PASS](artifacts/prd_v3_5/presentation_audit.json); validated 26 visible family rows, four tree rows, 25 compilable code cells, seven original figures and unchanged computational definitions, **without fitting any new model**.
-- **Verification:** `python scripts/verify_prd_v3_5_presentation.py` (nbformat installed); GitHub workflow `.github/workflows/verify-prd-v3-5.yml`.
-
-The v3.5 notebook embeds previously verified v3.4 numerical outputs for immediate inspection. Any *voluntary future* full notebook execution writes only to `artifacts/prd_v3_5/`, never to `artifacts/prd_v3_4/`. Do not automatically rerun models for presentation-only changes. Reserved observations have been repeatedly consulted in prior versions; do **not** describe them as pristine or make causal claims about the hypothetical upsell threshold.
+**Change discipline:** preserve historical model code and results; do not treat moving files as authorisation to refit or change test thresholds. A voluntary run of the current notebook writes to `artifacts/prd_v3_5/` only. Historic PRDs/notebooks are retained byte-for-byte under the archive, and versioned evidence paths are not relocated. Do not reinstate deprecated workflows in `.github/workflows/` without explicit approval.

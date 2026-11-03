@@ -1,6 +1,6 @@
 # PRD v3.3 — implementation and verification plan
 
-**Frozen design:** [PRD v3.3](../PRD_v3.3.md). **Notebook:** [v3.3](../online_shoppers_prd_v3_3.ipynb). **Branch:** `analysis/prd-v3-3-notebook`.
+**Frozen design:** [PRD v3.3](../archive/versions/v3.3/PRD_v3.3.md). **Notebook:** [v3.3](../archive/versions/v3.3/online_shoppers_prd_v3_3.ipynb). **Branch:** `analysis/prd-v3-3-notebook`.
 
 ## Historical-source contract
 

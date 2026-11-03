@@ -1,8 +1,8 @@
 # PRD v3.4 implementation and verification contract
 
-**Source of truth:** [PRD v3.4](../PRD_v3.4.md).  
-**Notebook:** [online_shoppers_prd_v3_4.ipynb](../online_shoppers_prd_v3_4.ipynb).  
-**Workflow:** [build-prd-v3-4.yml](../.github/workflows/build-prd-v3-4.yml).
+**Source of truth:** [PRD v3.4](../archive/versions/v3.4/PRD_v3.4.md).  
+**Notebook:** [online_shoppers_prd_v3_4.ipynb](../archive/versions/v3.4/online_shoppers_prd_v3_4.ipynb).  
+**Workflow:** [build-prd-v3-4.yml](../archive/workflows/build-prd-v3-4.yml).
 
 ## Incremental extension
 

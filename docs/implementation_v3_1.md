@@ -1,6 +1,6 @@
 # PRD v3.1 — implemented notebook protocol
 
-**Requirements:** [PRD v3.1](../PRD_v3.1.md) and its [requirements alignment audit](PRD_v3.1_alignment_audit.md). **Notebook:** [v3.1](../online_shoppers_prd_v3_1.ipynb). **Historical reference:** [executed v3.0](../online_shoppers_prd_v3.ipynb).
+**Requirements:** [PRD v3.1](../archive/versions/v3.1/PRD_v3.1.md) and its [requirements alignment audit](PRD_v3.1_alignment_audit.md). **Notebook:** [v3.1](../archive/versions/v3.1/online_shoppers_prd_v3_1.ipynb). **Historical reference:** [executed v3.0](../archive/versions/v3.0/online_shoppers_prd_v3.ipynb).
 
 ## Minimal-change boundary
 
@@ -18,7 +18,7 @@ The new notebook directly copies the executed v3.0 cells, preserving the establi
 
 ## Finalisation and verification
 
-The selected winner determines the saved OOF score display, ROC/PR analyses, cost-based confusion counts, frozen training refit and one v3.1 reserved-set check. The same unchanged model recipe is then fitted on all 12,330 rows. The holdout is explicitly *not pristine across previous project versions*. The single workflow [build-prd-v3-1.yml](../.github/workflows/build-prd-v3-1.yml) executes the notebook and checks source integrity, fold and alpha ledgers, all six finalists, one-SE decisions, threshold counts, saved figures, fit evidence and version separation.
+The selected winner determines the saved OOF score display, ROC/PR analyses, cost-based confusion counts, frozen training refit and one v3.1 reserved-set check. The same unchanged model recipe is then fitted on all 12,330 rows. The holdout is explicitly *not pristine across previous project versions*. The single workflow [build-prd-v3-1.yml](../archive/workflows/build-prd-v3-1.yml) executes the notebook and checks source integrity, fold and alpha ledgers, all six finalists, one-SE decisions, threshold counts, saved figures, fit evidence and version separation.
 
 **Evidence directory:** `artifacts/prd_v3_1/`. [The complete GitHub Actions execution](https://github.com/lyd-sg/dsa211/actions/runs/41595364066) passed notebook execution, independent numerical audit, provenance, version preservation and evidence checks. Actual results come from the saved v3.1 evidence, not from historical v3.0 metrics.
 

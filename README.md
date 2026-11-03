@@ -1,46 +1,50 @@
-# DSA211 — Predicting Online Purchases (PRD v3.4)
+# DSA211 — Predicting Online Purchases
 
-**Current scope:** [PRD v3.4](PRD_v3.4.md) · **New notebook:** [online_shoppers_prd_v3_4.ipynb](online_shoppers_prd_v3_4.ipynb) · **Execution and independent audit:** [build-prd-v3-4.yml](.github/workflows/build-prd-v3-4.yml) · [implementation and evaluation notes](docs/implementation_v3_4.md).
+## Current version: PRD v3.5
 
-**Status:** The new v3.4 source is implemented on a separate branch; **v3.4 performance claims require a fully executed notebook, independent audit PASS and versioned saved evidence**.
+**Open the current project:** [PRD v3.5](PRD_v3.5.md) · [executed presentation notebook](online_shoppers_prd_v3_5.ipynb) · [presentation audit — PASS](artifacts/prd_v3_5/presentation_audit.json).
 
-## This is an extension, not a replacement
+**Status (3 November 2026):** v3.5 is an editorial, EDA-grounded presentation of the successfully executed and independently verified v3.4 modelling results. **No new model was trained for v3.5.** Work is isolated on `analysis/prd-v3-5-presentation`; review before merging to the default branch.
 
-v3.4 inherits the entire executed v3.3 notebook and the existing EDA, source data, split, CV folds, preprocessing, model diagnostics, six-way comparison, independent tree pruning, threshold illustrations, and full refit. All older notebooks, PRDs and artifact folders remain unchanged.
+### What the notebook shows
 
-### Model-family-grouped development, as requested
+- **Logistic Regression:** 7 selected experiments (L0, L1, L4, L7, L8, L13, L14). Retained L1.
+- **LDA:** 7 (D0, D1, D4, D9, D10, D11, D15). Retained D0; its reason is simply **Baseline**.
+- **Gaussian NB:** 7 (G0, G1, G2, G3, G6, G7, G8). Retained G7; G6 also qualified independently.
+- **Bernoulli NB:** all 5 (B0–B4). Retained B3.
+- **Classification trees:** full versus pruned Gini and Entropy comparisons.
+- **Methods considered:** a course-scope matrix, including Lectures 8–9, clearly distinguishing fitted classification adaptations from methods considered but not fitted.
 
-The new notebook renders one **full chronological historical table per classifier**, rather than a single mixed table:
+These are **26 displayed original-family trials**, not a fresh 26-model search. All 41 original-family trials, 51 scored designs, 255 fold scores, 37 decisions, nested stepwise paths and complete tree pruning evidence remain in the frozen [v3.4 artifacts](artifacts/prd_v3_4/).
 
-| Section | Original and new trials | Retained v3.3 model |
-|---|---|---|
-| **7.1 Logistic Regression** | L0–L10, **L13** LASSO, **L14** Elastic Net | L1 |
-| **7.2 LDA** | D0–D11, **D15** backward source selection | D0 |
-| **7.3 GaussianNB** | G0–G9, no v3.4 modifications | G7 |
-| **7.4 BernoulliNB** | B0–B4, no v3.4 modifications | B3 |
-| **7B Classification trees** | Independently selected Gini and Entropy pruning paths, unchanged | Earlier two selected trees |
+### Verified model and statistical limitations
 
-All **41** original-family attempts are tracked, including rejected proposals. New probes are labelled separately from the historical v3.1 sequential development and the independent anchored v3.2/v3.3 probes. Unused candidate IDs are intentionally skipped.
+The retained winner is **L1 Logistic Regression**, mean five-fold training ROC-AUC **0.75747** and mean AP **0.33623**. The historically reused reserved-set ROC-AUC is **0.74054**, AP **0.32720**. The reserved observations were inspected in earlier versions; this is **not** a pristine holdout. The original improvement > challenger-SE rule is a conservative heuristic, not a significance test. The hypothetical contact-cost threshold does not establish upsell causality or deployment-ready profitability.
 
-### Three exactly scoped new tests
+### Reproducibility
 
-**L13**: L1 logistic with six existing log1p activity transformations, fold-safe standardisation, L1 LASSO penalty, six-value `C` grid, nested three-fold penalty tuning.
+The current notebook includes all original figures and v3.4-computed numeric outputs. A presentation-only audit checks every visible curated trial against the frozen full trial ledger, the four tree rows, all original embedded figures and unchanged modelling code **without rerunning models**:
 
-**L14**: Elastic Net logistic with fixed `l1_ratio=0.5`, the same fold-safe transformation and penalty grid. Compare sequentially to the latest accepted Logistic Regression, L1 or L13, **replacing** rather than stacking the penalty.
+```bash
+python -m pip install nbformat==5.10.4
+python scripts/verify_prd_v3_5_presentation.py
+```
 
-**D15**: Backward LDA selection, deleting one of the 16 original source predictor groups at a time (categorical groups kept intact), using inner three-fold ROC-AUC to construct the source deletion path and the syllabus's within-one-SE simplicity rule to choose subset size. Test the full selection procedure only in the five outer validation folds.
+The automated audit runs in [the active v3.5 workflow](.github/workflows/verify-prd-v3-5.yml). The frozen computation is archived byte-for-byte at [v3.4 notebook](archive/versions/v3.4/online_shoppers_prd_v3_4.ipynb), with [independent training PASS](artifacts/prd_v3_4/independent_training_audit.json).
 
-Every v3.4 candidate is accepted **only if its mean outer CV AUC gain exceeds its own outer AUC SE**, the original project's conservative heuristic. No accepted new candidate is required for completion.
+### Repository organisation
 
-### Execution acceptance
+| Location | Purpose |
+|---|---|
+| [PRD_v3.5.md](PRD_v3.5.md) | Current requirements |
+| [online_shoppers_prd_v3_5.ipynb](online_shoppers_prd_v3_5.ipynb) | Current readable notebook, with saved outputs |
+| [artifacts/prd_v3_5/](artifacts/prd_v3_5/) | Non-training presentation verification |
+| [artifacts/prd_v3_4/](artifacts/prd_v3_4/) | **Frozen authoritative** modelling evidence |
+| [archive/versions/](archive/versions/) | Retired v3.0–v3.4 notebooks and PRDs, indexed by version |
+| [archive/workflows/](archive/workflows/) | Disabled historical CI definitions; not active GitHub Actions workflows |
+| [archive/legacy/](archive/legacy/) | Early superseded working notebook |
+| [docs/](docs/) | Prior technical notes and reviews (historical; see its index) |
+| [data/uci_468.csv](data/uci_468.csv) | Original source dataset |
 
-The current workflow must verify the full executed notebook with no errors, **41 family-trial records, 51 scored model specifications, 255 fold results, 37 original-family decisions,** the selected regularisation grids and nonzero coefficients, five 16-to-1 backward-selection paths, both tree pruning paths, four threshold references and one historically reused holdout check. New evidence goes under **`artifacts/prd_v3_4/`** only.
+**Preservation policy:** Older notebooks, PRDs, scripts and workflows are relocated, not deleted from repository history or rewritten to change their conclusions. Versioned evidence folders remain under `artifacts/` because the frozen audit and current notebook reference those exact paths. For historical material, use the [archive index](archive/README.md), not legacy root paths.
 
-Our training folds and the already-examined reserved set have been reused across multiple explorations. Comparisons remain exploratory and are not newly independent test evidence. The project is prediction-focused, not causal inference or validated upsell economics.
-
-### Historical files, preserved
-
-- [v3.3 PRD](PRD_v3.3.md), [executed v3.3 notebook](online_shoppers_prd_v3_3.ipynb), [verified v3.3 results](docs/results_v3_3.md)
-- [v3.2 PRD](PRD_v3.2.md), [executed v3.2 notebook](online_shoppers_prd_v3_2.ipynb)
-- [v3.1 PRD](PRD_v3.1.md), [v3.1 notebook](online_shoppers_prd_v3_1.ipynb)
-- [v3.0 notebook](online_shoppers_prd_v3.ipynb)

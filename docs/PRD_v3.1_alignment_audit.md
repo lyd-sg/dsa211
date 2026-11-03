@@ -1,7 +1,7 @@
 # PRD v3.1 — requirements alignment and housekeeping audit
 
 **Date:** 3 November 2026  
-**Active requirements:** [PRD v3.1](../PRD_v3.1.md)  
+**Active requirements:** [PRD v3.1](../archive/versions/v3.1/PRD_v3.1.md)  
 **Archived v3.0 requirements:** [PRD v3.0](../archive/PRD_v3.md)  
 **Scope:** Requirements and repository housekeeping only. **No v3.1 classification-tree code has been implemented, run or validated by this update.** The executed notebook and supporting v3.0 output are not labelled as v3.1 findings.
 

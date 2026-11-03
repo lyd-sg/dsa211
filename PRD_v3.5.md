@@ -2,7 +2,7 @@
 ## Product Requirements Document (PRD) v3.5: concise, EDA-grounded final presentation
 
 **Frozen presentation specification:** 3 November 2026.  
-**Source of truth:** [PRD v3.4](PRD_v3.4.md), [fully executed v3.4 notebook](online_shoppers_prd_v3_4.ipynb) and the [v3.4 all-trials ledger](artifacts/prd_v3_4/all_attempts_ledger.csv).  
+**Source of truth:** [PRD v3.4](archive/versions/v3.4/PRD_v3.4.md), [fully executed v3.4 notebook](archive/versions/v3.4/online_shoppers_prd_v3_4.ipynb) and the [v3.4 all-trials ledger](artifacts/prd_v3_4/all_attempts_ledger.csv).  
 **Isolated development branch:** `analysis/prd-v3-5-presentation`, based on successful executed v3.4 branch `analysis/prd-v3-4-notebook`.  
 **Work authorised now:** **PRD only.** Do **not** edit, recreate, execute, commit or regenerate any notebook, numeric result, plot, audit, modelling recipe or data artefact during this phase.
 

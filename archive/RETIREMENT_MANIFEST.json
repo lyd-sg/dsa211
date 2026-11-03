@@ -1,0 +1,129 @@
+{
+  "version": "v3.5 housekeeping",
+  "date": "2026-11-03",
+  "branch": "analysis/prd-v3-5-presentation",
+  "purpose": "Retire superseded notebooks, PRDs, script and workflows from repository root / active CI directories; preserve exact original Git blobs.",
+  "moved_files": [
+    {
+      "from": "archive/PRD_v3.md",
+      "to": "archive/versions/v3.0/PRD_v3.md",
+      "git_blob_sha": "87c45b8b16bcaeb2a391e06022e5b0bb84ff778e",
+      "bytes": 35900
+    },
+    {
+      "from": "online_shoppers_prd_v3.ipynb",
+      "to": "archive/versions/v3.0/online_shoppers_prd_v3.ipynb",
+      "git_blob_sha": "a28eda9fa415fcbd3c93f40dd47e4f91a0133c94",
+      "bytes": 454199
+    },
+    {
+      "from": "scripts/build_prd_v3.py",
+      "to": "archive/versions/v3.0/build_prd_v3.py",
+      "git_blob_sha": "2bd2b3029213040d4f6ed426d58f543accdb3d61",
+      "bytes": 40009
+    },
+    {
+      "from": "PRD_v3.1.md",
+      "to": "archive/versions/v3.1/PRD_v3.1.md",
+      "git_blob_sha": "034dd11c8cd2b2e072480b64e2a67207a0dc28ef",
+      "bytes": 51576
+    },
+    {
+      "from": "online_shoppers_prd_v3_1.ipynb",
+      "to": "archive/versions/v3.1/online_shoppers_prd_v3_1.ipynb",
+      "git_blob_sha": "303ced47145fe6b7ae1654036403c466a9fdbed9",
+      "bytes": 633437
+    },
+    {
+      "from": "PRD_v3.2.md",
+      "to": "archive/versions/v3.2/PRD_v3.2.md",
+      "git_blob_sha": "cf769826cc1b6887d26cb54507ab925ce70f5819",
+      "bytes": 15216
+    },
+    {
+      "from": "online_shoppers_prd_v3_2.ipynb",
+      "to": "archive/versions/v3.2/online_shoppers_prd_v3_2.ipynb",
+      "git_blob_sha": "e7fa818704b1d4f9468d1225ef1f9fd2b278b7b1",
+      "bytes": 649300
+    },
+    {
+      "from": "PRD_v3.3.md",
+      "to": "archive/versions/v3.3/PRD_v3.3.md",
+      "git_blob_sha": "9e1c8b67c6afce55ae7aa5b5939141592237f4e9",
+      "bytes": 10345
+    },
+    {
+      "from": "online_shoppers_prd_v3_3.ipynb",
+      "to": "archive/versions/v3.3/online_shoppers_prd_v3_3.ipynb",
+      "git_blob_sha": "8b0a574e2d0a68590e268b8d3905b21c6d80d23a",
+      "bytes": 663062
+    },
+    {
+      "from": "PRD_v3.4.md",
+      "to": "archive/versions/v3.4/PRD_v3.4.md",
+      "git_blob_sha": "6c4e1351a4648c9c140dd66c645ad30c9e829d78",
+      "bytes": 11935
+    },
+    {
+      "from": "online_shoppers_prd_v3_4.ipynb",
+      "to": "archive/versions/v3.4/online_shoppers_prd_v3_4.ipynb",
+      "git_blob_sha": "b6ce5a1e89d98fe351db973ac553e6082a73f0bc",
+      "bytes": 695326
+    },
+    {
+      "from": "online_shoppers_revised.ipynb",
+      "to": "archive/legacy/online_shoppers_revised.ipynb",
+      "git_blob_sha": "db95e0d9eef8902d578f57a057e0471766565f72",
+      "bytes": 456839
+    },
+    {
+      "from": ".github/workflows/build-prd-v3.yml",
+      "to": "archive/workflows/build-prd-v3.yml",
+      "git_blob_sha": "62133165ab71c2a08c38d875558c4737c13eb030",
+      "bytes": 3772
+    },
+    {
+      "from": ".github/workflows/build-prd-v3-1.yml",
+      "to": "archive/workflows/build-prd-v3-1.yml",
+      "git_blob_sha": "2afbfdcf03a82bb83782fe3e79a8435d293f1ed9",
+      "bytes": 6723
+    },
+    {
+      "from": ".github/workflows/build-prd-v3-2.yml",
+      "to": "archive/workflows/build-prd-v3-2.yml",
+      "git_blob_sha": "2382d85b8f9068c8ad7a31670e99f37cf30fa773",
+      "bytes": 8702
+    },
+    {
+      "from": ".github/workflows/build-prd-v3-3.yml",
+      "to": "archive/workflows/build-prd-v3-3.yml",
+      "git_blob_sha": "47b91c3d5542309a4033b080815bd2ebef7c7c6c",
+      "bytes": 9081
+    },
+    {
+      "from": ".github/workflows/build-prd-v3-4.yml",
+      "to": "archive/workflows/build-prd-v3-4.yml",
+      "git_blob_sha": "879cef6d8ab82478d4177b79b6939ccf11a93d7c",
+      "bytes": 11642
+    },
+    {
+      "from": ".github/workflows/validate-notebook.yml",
+      "to": "archive/workflows/validate-notebook.yml",
+      "git_blob_sha": "145cee0b8c2e06b8060fff347a079479950818e9",
+      "bytes": 1953
+    }
+  ],
+  "preserved_evidence_directories": [
+    "artifacts/prd_v3/",
+    "artifacts/prd_v3_1/",
+    "artifacts/prd_v3_2/",
+    "artifacts/prd_v3_3/",
+    "artifacts/prd_v3_4/"
+  ],
+  "active_prd": "PRD_v3.5.md",
+  "active_notebook": "online_shoppers_prd_v3_5.ipynb",
+  "active_workflow": ".github/workflows/verify-prd-v3-5.yml",
+  "removed_from_repository_history": false,
+  "old_workflows_active": false,
+  "model_rerun": false
+}

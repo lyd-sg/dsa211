@@ -1,7 +1,7 @@
 # PRD v3.2 implementation and evidence contract
 
 **Source branch:** `analysis/prd-v3-2-notebook`. **Date:** 3 November 2026.  
-**Authority:** [PRD v3.2](../PRD_v3.2.md) · [source notebook](../online_shoppers_prd_v3_2.ipynb) · [automated acceptance workflow](../.github/workflows/build-prd-v3-2.yml).
+**Authority:** [PRD v3.2](../archive/versions/v3.2/PRD_v3.2.md) · [source notebook](../archive/versions/v3.2/online_shoppers_prd_v3_2.ipynb) · [automated acceptance workflow](../archive/workflows/build-prd-v3-2.yml).
 
 ## Immutable history and new work
 

@@ -1,7 +1,7 @@
 # DSA211 PRD v3.3 — verified execution and interpretation
 
 **Execution:** [GitHub Actions 41622824180](https://github.com/lyd-sg/dsa211/actions/runs/41622824180) — **SUCCESS**.  
-**Verified source:** [executed v3.3 notebook](../online_shoppers_prd_v3_3.ipynb).  
+**Verified source:** [executed v3.3 notebook](../archive/versions/v3.3/online_shoppers_prd_v3_3.ipynb).  
 **Evidence:** [v3.3 trial ledger](../artifacts/prd_v3_3/all_attempts_ledger.csv), [fold scores](../artifacts/prd_v3_3/all_attempt_fold_scores.csv), [independent audit](../artifacts/prd_v3_3/independent_training_audit.json), [six finalists](../artifacts/prd_v3_3/six_finalists.csv), [run metadata](../artifacts/prd_v3_3/run_metadata.json).
 
 ## 1. Validation status
