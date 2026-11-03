@@ -1,0 +1,156 @@
+name: Execute and audit PRD v3.2 notebook
+
+on:
+  push:
+    branches:
+      - analysis/prd-v3-2-notebook
+    paths:
+      - 'online_shoppers_prd_v3_2.ipynb'
+      - '.github/workflows/build-prd-v3-2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  execute:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned project dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Frozen source preflight
+        run: |
+          python - <<'PY'
+          import nbformat
+          n=nbformat.read('online_shoppers_prd_v3_2.ipynb',as_version=4)
+          nbformat.validate(n)
+          for i,c in enumerate(n.cells):
+              if c.cell_type=='code':
+                  compile(c.source,f'cell_{i}','exec')
+          assert len(n.cells)==37
+          assert len([c for c in n.cells if c.cell_type=='code'])==20
+          whole='\n'.join(c.source for c in n.cells)
+          assert 'EXTRA_PATHS' in whole and 'V31_PATH_FINALISTS' in whole
+          assert "ATTEMPTS_DF)==31" in whole and 'len(known_labels)==41' in whole
+          print('PASS: 37 cells, 20 compilable Python cells, 11 predeclared anchored proposals')
+          PY
+      - name: Execute complete v3.2 notebook
+        run: |
+          jupyter nbconvert --to notebook --execute online_shoppers_prd_v3_2.ipynb \
+            --ExecutePreprocessor.timeout=7200 --output online_shoppers_prd_v3_2_executed.ipynb
+          mv online_shoppers_prd_v3_2_executed.ipynb online_shoppers_prd_v3_2.ipynb
+      - name: Consolidated v3.2 independent evidence verification
+        run: |
+          python - <<'PY'
+          import json, pathlib, nbformat, pandas as pd, numpy as np
+          n=nbformat.read('online_shoppers_prd_v3_2.ipynb',as_version=4)
+          nbformat.validate(n)
+          codes=[c for c in n.cells if c.cell_type=='code']
+          assert codes and all(c.execution_count is not None for c in codes)
+          assert not [(i,o) for i,c in enumerate(codes)
+                      for o in c.get('outputs',[]) if o.output_type=='error']
+          a=pathlib.Path('artifacts/prd_v3_2')
+          required=[
+            'six_all17_diagnostics.csv','six_operational_baselines.csv',
+            'all17_vs_operational16.csv','all17_vs_operational16_folds.csv',
+            'all_attempts_ledger.csv','all_attempt_fold_scores.csv',
+            'retained_pathways.csv','tree_alpha_paths.csv','tree_alpha_fold_scores.csv',
+            'tree_selection.json','tree_full_vs_selected.csv','six_finalists.csv',
+            'six_finalists_roc.png','selected_tree_top_levels.png',
+            'finalist_fold_scores.csv','finalist_oof_scores.csv','winner_oof.csv',
+            'four_threshold_references.csv','threshold_curves.csv',
+            'upsell_sensitivity.csv','frozen_holdout_scores.csv',
+            'final_specification.json','run_metadata.json',
+            'independent_training_audit.json','fit_warnings.csv',
+            'train_row_ids.csv','test_row_ids.csv','cv_fold_row_ids.csv']
+          assert all((a/f).exists() and (a/f).stat().st_size>0 for f in required)
+          m=json.loads((a/'run_metadata.json').read_text())
+          audit=json.loads((a/'independent_training_audit.json').read_text())
+          trees=json.loads((a/'tree_selection.json').read_text())
+          trials=pd.read_csv(a/'all_attempts_ledger.csv')
+          fold_scores=pd.read_csv(a/'all_attempt_fold_scores.csv')
+          finalist=pd.read_csv(a/'six_finalists.csv')
+          all17=pd.read_csv(a/'six_all17_diagnostics.csv')
+          ops=pd.read_csv(a/'six_operational_baselines.csv')
+          path=pd.read_csv(a/'tree_alpha_paths.csv')
+          tree_folds=pd.read_csv(a/'tree_alpha_fold_scores.csv')
+          thresholds=pd.read_csv(a/'four_threshold_references.csv')
+          assert m['prd']=='v3.2'
+          assert m['training_rows']==9864 and m['test_rows']==2466
+          assert m['final_rows']==12330 and m['random_state']==42 and m['cv_folds']==5
+          assert m['historically_pristine_holdout'] is False
+          assert len(all17)==6 and len(ops)==6 and len(finalist)==6
+          assert set(finalist.pathway)=={'Logit','LDA','GaussianNB','BernoulliNB','GiniTree','EntropyTree'}
+          assert m['selected_model']==finalist.sort_values(['mean_auc','candidate'],ascending=[False,True]).iloc[0].candidate
+          assert len(trials)==31 and len(fold_scores)==205
+          old=trials.loc[trials.trial_version.eq('v3.1')]
+          new=trials.loc[trials.trial_version.eq('v3.2')]
+          assert len(old)==20 and len(new)==11
+          assert set(new.step)=={'L5','L6','L7','D5','D6','D7','G5','G6','G7','G8','G9'}
+          assert audit['status']=='PASS' and audit['cv_candidates_verified']==41
+          assert audit['individual_fold_scores_verified']==205
+          assert audit['sequential_decisions_verified']==27
+          assert audit['legacy_decisions_verified']==16 and audit['new_anchored_probes_verified']==11
+          assert audit['threshold_rows_verified']==4
+          old_anchors=m['four_original_path_finalists']
+          new_finalists=m['updated_v32_path_finalists']
+          selected=m['v32_anchored_probe_selection']
+          assert all(old_anchors[f]==selected[f]['anchor'] for f in selected)
+          assert all(new_finalists[f]==selected[f]['selected'] for f in selected)
+          for f,g in new.groupby('pathway'):
+              assert set(g.parent)=={old_anchors[f]}
+              for row in g.itertuples():
+                  assert bool(row.accepted)==(row.delta_auc>row.auc_se)
+              q=g[g.accepted]
+              expected=(q.sort_values(['mean_auc','step'],ascending=[False,True]).iloc[0].candidate
+                        if len(q) else old_anchors[f])
+              assert expected==new_finalists[f]
+          assert set(trees)=={'GiniTree','EntropyTree'}
+          for family in trees:
+              candidates=path[path.family.eq(family)]
+              assert len(candidates)==trees[family]['total_candidates']
+              assert candidates.selected.sum()==1 and candidates.eligible.sum()>=1
+              assert candidates[candidates.selected].iloc[0].leaves==candidates[candidates.eligible].leaves.min()
+              assert len(tree_folds[tree_folds.family.eq(family)])==5*len(candidates)
+          assert len(thresholds)==4
+          assert np.isclose(thresholds.loc[thresholds.reference.eq('Cost-based (hypothetical)'),'threshold'].iloc[0],.2)
+          assert (thresholds[['TP','FP','TN','FN']].sum(axis=1)==9864).all()
+          assert len(pd.read_csv(a/'frozen_holdout_scores.csv'))==2466
+          for p in ['online_shoppers_prd_v3.ipynb','online_shoppers_prd_v3_1.ipynb',
+                    'PRD_v3.1.md','PRD_v3.2.md','scripts/build_prd_v3.py',
+                    'artifacts/prd_v3/run_metadata.json','artifacts/prd_v3_1/run_metadata.json']:
+              assert pathlib.Path(p).exists(),p
+          print('PASS: v3.2 31-trial ledger (20 historical + 11 new); 41 CV designs, 205 folds')
+          print('PASS: unchanged strict 1-SE rule, 11 anchored probes, 27 decisions')
+          print('PASS: both tree pruning paths, six finalists, thresholds, reserved check')
+          print('PASS: all previous notebook versions and evidence preserved')
+          print('Winner:',m['selected_model'],'CV AUC:',float(finalist.mean_auc.max()),
+                'reserved ROC-AUC:',m['test_check']['roc_auc'])
+          PY
+      - name: Commit only executed v3.2 notebook and isolated evidence
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add online_shoppers_prd_v3_2.ipynb artifacts/prd_v3_2/
+          git diff --cached --quiet || git commit -m "results: execute and verify PRD v3.2 notebook [skip ci]"
+          git stash push --include-untracked -m "runner-only historical outputs"
+          git fetch origin "$GITHUB_REF_NAME"
+          git rebase "origin/$GITHUB_REF_NAME"
+          git push origin HEAD:"$GITHUB_REF_NAME"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dsa211-prd-v3-2-evidence
+          path: |
+            online_shoppers_prd_v3_2.ipynb
+            artifacts/prd_v3_2/
+          retention-days: 30
