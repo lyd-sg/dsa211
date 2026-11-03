@@ -96,7 +96,7 @@ jobs:
           assert len(trials)==41 and len(scores)==255
           old=trials.loc[trials.trial_version.eq('v3.1')]
           previous=trials.loc[trials.trial_version.eq('v3.2')]
-          added=trials.loc[trials.trial_version.eq('v3.4')]
+          added=trials.loc[trials.trial_version.eq('v3.3')]
           assert len(old)==20 and len(previous)==11 and len(added)==7
           new34=trials.loc[trials.trial_version.eq('v3.4')]
           assert len(new34)==3 and set(new34.step)=={'L13','L14','D15'}
