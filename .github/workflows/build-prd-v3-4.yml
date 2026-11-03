@@ -1,0 +1,208 @@
+name: Execute and audit PRD v3.4 notebook
+
+on:
+  push:
+    branches:
+      - analysis/prd-v3-4-notebook
+    paths:
+      - 'online_shoppers_prd_v3_4.ipynb'
+      - '.github/workflows/build-prd-v3-4.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  execute:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned project dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Frozen v3.4 structural and syntax preflight
+        run: |
+          python - <<'PY'
+          import nbformat
+          n=nbformat.read('online_shoppers_prd_v3_4.ipynb',as_version=4)
+          nbformat.validate(n)
+          for i,c in enumerate(n.cells):
+              if c.cell_type=='code':
+                  compile(c.source,f'cell_{i}','exec')
+          assert len(n.cells)==47
+          assert len([c for c in n.cells if c.cell_type=='code'])==25
+          code='\n'.join(c.source for c in n.cells)
+          assert all(t in code for t in ['V33_EXTRAS','V34_EXTRAS','V33_PATH_FINALISTS','BackwardSelectedLDA'])
+          assert 'ATTEMPTS_DF)==41' in code and 'len(known_labels)==51' in code
+          assert 'winsor_cutoffs_' in code and 'bounce_piecewise' in code
+          print('PASS: 47 cells, 25 compilable code cells, three frozen v3.4 candidates and four family sections')
+          PY
+      - name: Execute complete v3.4 notebook
+        run: |
+          jupyter nbconvert --to notebook --execute online_shoppers_prd_v3_4.ipynb \
+            --ExecutePreprocessor.timeout=7200 --output online_shoppers_prd_v3_4_executed.ipynb
+          mv online_shoppers_prd_v3_4_executed.ipynb online_shoppers_prd_v3_4.ipynb
+      - name: Consolidated v3.4 independent evidence verification
+        run: |
+          python - <<'PY'
+          import json, pathlib, nbformat, pandas as pd, numpy as np
+          n=nbformat.read('online_shoppers_prd_v3_4.ipynb',as_version=4)
+          nbformat.validate(n)
+          codes=[c for c in n.cells if c.cell_type=='code']
+          assert len(codes)==25 and all(c.execution_count is not None for c in codes)
+          assert not [(i,o) for i,c in enumerate(codes)
+                      for o in c.get('outputs',[]) if o.output_type=='error']
+          a=pathlib.Path('artifacts/prd_v3_4')
+          required=[
+            'six_all17_diagnostics.csv','six_operational_baselines.csv',
+            'all17_vs_operational16.csv','all17_vs_operational16_folds.csv',
+            'all_attempts_ledger.csv','all_attempt_fold_scores.csv',
+            'retained_pathways.csv','backward_lda_selection_paths.csv',
+            'backward_lda_outer_folds.csv','tree_alpha_paths.csv','tree_alpha_fold_scores.csv',
+            'tree_selection.json','tree_full_vs_selected.csv','six_finalists.csv',
+            'six_finalists_roc.png','selected_tree_top_levels.png',
+            'finalist_fold_scores.csv','finalist_oof_scores.csv','winner_oof.csv',
+            'four_threshold_references.csv','threshold_curves.csv',
+            'upsell_sensitivity.csv','frozen_holdout_scores.csv',
+            'final_specification.json','run_metadata.json',
+            'independent_training_audit.json','fit_warnings.csv',
+            'train_row_ids.csv','test_row_ids.csv','cv_fold_row_ids.csv']
+          assert all((a/f).exists() and (a/f).stat().st_size>0 for f in required)
+          m=json.loads((a/'run_metadata.json').read_text())
+          audit=json.loads((a/'independent_training_audit.json').read_text())
+          trees=json.loads((a/'tree_selection.json').read_text())
+          trials=pd.read_csv(a/'all_attempts_ledger.csv')
+          scores=pd.read_csv(a/'all_attempt_fold_scores.csv')
+          finalists=pd.read_csv(a/'six_finalists.csv')
+          all17=pd.read_csv(a/'six_all17_diagnostics.csv')
+          ops=pd.read_csv(a/'six_operational_baselines.csv')
+          alphas=pd.read_csv(a/'tree_alpha_paths.csv')
+          alpha_folds=pd.read_csv(a/'tree_alpha_fold_scores.csv')
+          thresholds=pd.read_csv(a/'four_threshold_references.csv')
+          assert m['prd']=='v3.4'
+          assert m['training_rows']==9864 and m['test_rows']==2466
+          assert m['final_rows']==12330 and m['random_state']==42 and m['cv_folds']==5
+          assert m['historically_pristine_holdout'] is False
+          assert len(all17)==6 and len(ops)==6 and len(finalists)==6
+          assert set(finalists.pathway)=={'Logit','LDA','GaussianNB','BernoulliNB','GiniTree','EntropyTree'}
+          assert m['selected_model']==finalists.sort_values(['mean_auc','candidate'],ascending=[False,True]).iloc[0].candidate
+          assert len(trials)==41 and len(scores)==255
+          old=trials.loc[trials.trial_version.eq('v3.1')]
+          previous=trials.loc[trials.trial_version.eq('v3.2')]
+          added=trials.loc[trials.trial_version.eq('v3.4')]
+          assert len(old)==20 and len(previous)==11 and len(added)==7
+          new34=trials.loc[trials.trial_version.eq('v3.4')]
+          assert len(new34)==3 and set(new34.step)=={'L13','L14','D15'}
+          assert set(added.step)=={'L8','L9','L10','D8','D9','D10','D11'}
+          assert audit['status']=='PASS' and audit['cv_candidates_verified']==51
+          assert audit['individual_fold_scores_verified']==255
+          assert audit['sequential_decisions_verified']==37
+          assert audit['legacy_decisions_verified']==16
+          assert audit['new_anchored_probes_verified']==11 and audit['v33_anchored_probes_verified']==7
+          assert audit['v34_sequential_probes_verified']==3
+          assert audit['backward_lda_path_entries_verified']==80
+          assert audit['threshold_rows_verified']==4
+          prior=m['four_original_path_finalists']
+          v32=m['updated_v32_path_finalists']
+          v33=m['updated_v33_path_finalists']
+          prior_s=m['v32_anchored_probe_selection']
+          current_s=m['v33_anchored_probe_selection']
+          assert all(prior[f]==prior_s[f]['anchor'] for f in prior_s)
+          assert all(v32[f]==prior_s[f]['selected'] for f in prior_s)
+          assert all(v32[f]==current_s[f]['anchor'] for f in current_s)
+          assert all(v33[f]==current_s[f]['selected'] for f in current_s)
+          for family,group in added.groupby('pathway'):
+              anchor=v32[family]
+              assert set(group.parent)=={anchor}
+              for t in group.itertuples():
+                  assert bool(t.accepted)==(t.delta_auc>t.auc_se)
+              passing=group.loc[group.accepted]
+              expected=(passing.sort_values(['mean_auc','step'],ascending=[False,True]).iloc[0].candidate
+                        if len(passing) else anchor)
+              assert v33[family]==expected
+          v34=m['updated_v34_path_finalists']
+          v34s=m['v34_sequential_probe_selection']
+          assert all(v34[f]==v34s[f]['selected'] for f in v34s)
+          for fam,part in new34.groupby('pathway'):
+              incumbent=v33[fam]
+              for rec in part.itertuples():
+                  assert rec.parent==incumbent
+                  assert bool(rec.accepted)==bool(rec.delta_auc>rec.auc_se)
+                  if rec.accepted:
+                      incumbent=rec.candidate
+              assert v34[fam]==incumbent
+          assert new34.loc[new34.step.eq('L13')].new_change.iloc[0].find("lasso")>=0
+          assert new34.loc[new34.step.eq('L14')].new_change.iloc[0].find("elasticnet")>=0
+          lda_paths=pd.read_csv(a/'backward_lda_selection_paths.csv')
+          lda_fold=pd.read_csv(a/'backward_lda_outer_folds.csv')
+          assert len(lda_paths)==80 and len(lda_fold)==5
+          for f in range(1,6):
+              p=lda_paths.loc[lda_paths.outer_fold.eq(f)]
+              assert set(p.source_count)==set(range(1,17))
+              assert p.is_selected.sum()==1
+              chosen=p.loc[p.is_selected].iloc[0]
+              best=p.sort_values('inner_mean_auc',ascending=False).iloc[0]
+              cutoff=best.inner_mean_auc-best.inner_auc_se
+              eligible=p.loc[p.inner_mean_auc.ge(cutoff-1e-14)]
+              assert int(chosen.source_count)==int(eligible.source_count.min())
+          for candidate in ['L13 | Logit','L14 | Logit']:
+              f=scores.loc[scores.candidate.eq(candidate)]
+              assert len(f)==5
+              assert f['inner_cv_best_params'].str.contains('clf__C').all()
+              assert f.nonzero_coefficients.notna().all()
+          family_titles=[c.source for c in n.cells if c.cell_type=='markdown']
+          headings=' '.join(family_titles)
+          for k in ['7.1 Logistic Regression','7.2 Linear Discriminant Analysis',
+                    '7.3 Gaussian Naive Bayes','7.4 Bernoulli Naive Bayes']:
+              assert k in headings
+          assert set(trees)=={'GiniTree','EntropyTree'}
+          for family in trees:
+              path=alphas.loc[alphas.family.eq(family)]
+              assert len(path)==trees[family]['total_candidates']
+              assert path.selected.sum()==1 and path.eligible.sum()>=1
+              assert path.loc[path.selected].iloc[0].leaves==path.loc[path.eligible].leaves.min()
+              assert len(alpha_folds.loc[alpha_folds.family.eq(family)])==5*len(path)
+          assert len(thresholds)==4
+          assert np.isclose(thresholds.loc[thresholds.reference.eq('Cost-based (hypothetical)'),'threshold'].iloc[0],.2)
+          assert (thresholds[['TP','FP','TN','FN']].sum(axis=1)==9864).all()
+          assert len(pd.read_csv(a/'frozen_holdout_scores.csv'))==2466
+          for p in ['online_shoppers_prd_v3.ipynb','online_shoppers_prd_v3_1.ipynb',
+                    'online_shoppers_prd_v3_2.ipynb','online_shoppers_prd_v3_3.ipynb',
+                    'PRD_v3.1.md','PRD_v3.2.md',
+                    'PRD_v3.3.md','PRD_v3.4.md','scripts/build_prd_v3.py',
+                    'artifacts/prd_v3/run_metadata.json','artifacts/prd_v3_1/run_metadata.json',
+                    'artifacts/prd_v3_2/run_metadata.json',
+                    'artifacts/prd_v3_3/run_metadata.json']:
+              assert pathlib.Path(p).exists(),p
+          print('PASS: 41 trials (20 + 11 + 7 + 3), 51 scored designs, 255 folds')
+          print('PASS: 37 strict external decisions, 3 nested v3.4 sequential tests and complete D15 paths')
+          print('PASS: two complete tree alpha paths and six-way finalist comparison')
+          print('PASS: four threshold references, reserved check, historical preservation')
+          print('Winner:',m['selected_model'],'CV AUC:',float(finalists.mean_auc.max()),
+                'reserved ROC-AUC:',m['test_check']['roc_auc'])
+          PY
+      - name: Commit only executed v3.4 notebook and isolated evidence
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add online_shoppers_prd_v3_4.ipynb artifacts/prd_v3_4/
+          git diff --cached --quiet || git commit -m "results: execute and verify PRD v3.4 notebook [skip ci]"
+          git stash push --include-untracked -m "runner-only historical outputs"
+          git fetch origin "$GITHUB_REF_NAME"
+          git rebase "origin/$GITHUB_REF_NAME"
+          git push origin HEAD:"$GITHUB_REF_NAME"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dsa211-prd-v3-4-evidence
+          path: |
+            online_shoppers_prd_v3_4.ipynb
+            artifacts/prd_v3_4/
+          retention-days: 30
