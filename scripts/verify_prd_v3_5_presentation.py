@@ -150,7 +150,7 @@ def main():
     assert Counter(current_png) == Counter(original_png + original_supp_png)
 
     # No modelling or evaluation algorithms are changed.
-    allowed = {5, 9, 10, 11, 12, 13, 15, 17, 24}
+    allowed = {5, 9, 10, 11, 12, 13, 15, 16, 17, 24}
     modified = {i for i, (a, b) in enumerate(zip(src_codes, old_like))
                 if source(a) != source(b)}
     assert modified == allowed, (modified, allowed)
@@ -174,7 +174,10 @@ def main():
     stem, sep, suffix = original_tree.partition("display(TREE_BASELINE_SELECTED.round(5))")
     assert sep and tree_code.startswith(stem) and tree_code.endswith(suffix)
     assert "assert len(tree_display)==4" in tree_code
-    illustration = source(old_like[17])
+    # The original final-comparison cell (index 16) is deliberately moved after
+    # the original Entropy illustration cell (index 17), so these two switch order.
+    assert source(old_like[17]) == source(src_codes[16])
+    illustration = source(old_like[16])
     assert "illustrated_family='EntropyTree'" in illustration
     assert "WINNER_FAMILY" not in illustration
     assert "plot_tree(" in illustration and "selected_tree_top_levels.png" in illustration
