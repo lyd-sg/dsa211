@@ -2,7 +2,7 @@
 
 **Current requirements:** [PRD v3.1](PRD_v3.1.md). **Current executed implementation:** [v3.0 notebook](online_shoppers_prd_v3.ipynb) and [v3.0 technical plan](docs/technical_plan_v3.md). **Archived requirements:** [PRD v3.0](archive/PRD_v3.md).
 
-**Version boundary:** v3.1 is a **requirements-only extension**, not an implemented or validated model update. It adds full Gini/Entropy tree baselines, independent cost-complexity pruning with five-fold CV ROC-AUC and the 1-SE rule, and a direct **six-specification comparison** (four existing finalists plus both selected trees). Trees are exempt from the original 3–5 sequential modification process; existing paths and thresholds are preserved.
+**Version boundary:** v3.1 is a **requirements-only extension**, not an implemented or validated model update. It adds two **all-17 tree diagnostics** (Gini/Entropy), two full-grown **16-source** tree baselines, independent cost-complexity pruning with five-fold CV ROC-AUC and the **1-SE simplicity-first rule**, and a direct **six-specification comparison** (four existing finalists plus both selected trees). Equal-leaf qualifying trees are resolved by higher mean CV ROC-AUC. Trees are exempt from the original 3–5 sequential modification process; existing paths and thresholds are preserved.
 
 **Research question:** How effectively can session characteristics predict `Revenue=1`, and which of the taught classification specifications produces the highest mean five-fold training ROC-AUC? This remains a **prediction** project, not coefficient inference, causal uplift analysis or a deployment claim.
 
