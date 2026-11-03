@@ -1,0 +1,6 @@
+candidate,outer_fold,selected_source_count,selected_source_groups,outer_auc
+D15 | LDA,1,7,"[""ProductRelated_Duration"", ""BounceRates"", ""ExitRates"", ""Month"", ""OperatingSystems"", ""TrafficType"", ""VisitorType""]",0.7552521916892716
+D15 | LDA,2,4,"[""ProductRelated_Duration"", ""ExitRates"", ""Month"", ""VisitorType""]",0.7133565278924402
+D15 | LDA,3,5,"[""ProductRelated_Duration"", ""BounceRates"", ""ExitRates"", ""Month"", ""TrafficType""]",0.7320143884892086
+D15 | LDA,4,5,"[""BounceRates"", ""ExitRates"", ""Month"", ""OperatingSystems"", ""TrafficType""]",0.743512081897346
+D15 | LDA,5,7,"[""ProductRelated_Duration"", ""BounceRates"", ""ExitRates"", ""SpecialDay"", ""Month"", ""OperatingSystems"", ""TrafficType""]",0.7264193063026739
