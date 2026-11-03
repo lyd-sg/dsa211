@@ -2,6 +2,12 @@
 
 **Active requirements:** [PRD v3.3](PRD_v3.3.md) · **Notebook:** [online_shoppers_prd_v3_3.ipynb](online_shoppers_prd_v3_3.ipynb) · **Execution verification:** [.github/workflows/build-prd-v3-3.yml](.github/workflows/build-prd-v3-3.yml).
 
+## Verified v3.3 execution — PASS
+
+The complete notebook was executed and independently audited in [GitHub Actions run 41622824180](https://github.com/lyd-sg/dsa211/actions/runs/41622824180). All **seven** new candidates were evaluated. The executed [notebook](online_shoppers_prd_v3_3.ipynb) has all 20 code cells executed and saved output; the [independent training audit](artifacts/prd_v3_3/independent_training_audit.json) reports `status=PASS`.
+
+**Result:** None of L8–L10 or D8–D11 passed the unchanged strict one-SE retention threshold. Six increased point-estimated mean CV AUC slightly; D11 decreased it. LDA still has **zero accepted transformations across eleven trials**. The six-way winner remains **L1 Logit**, mean 5-fold CV ROC-AUC **0.757467**; historically reused reserved-set AUC **0.740543**. The full numbers and interpretation are in [v3.3 results and analysis](docs/results_v3_3.md). Both older notebooks and all previously executed evidence remain preserved.
+
 ## Experiment scope
 
 **All seven newly proposed EDA-motivated specifications are included**, not only the four initially prioritised:
