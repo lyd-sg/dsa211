@@ -1,48 +1,47 @@
-# DSA211 — Predicting Online Purchases (PRD v3.2 experimental extension)
+# DSA211 — Predicting Online Purchases (PRD v3.3 exploratory extension)
 
-**Active v3.2 specification:** [PRD v3.2](PRD_v3.2.md) · **New v3.2 notebook:** [online_shoppers_prd_v3_2.ipynb](online_shoppers_prd_v3_2.ipynb) · **Execution + acceptance workflow:** [build-prd-v3-2.yml](.github/workflows/build-prd-v3-2.yml) · **Implementation notes:** [implementation_v3_2.md](docs/implementation_v3_2.md).
+**Active requirements:** [PRD v3.3](PRD_v3.3.md) · **Notebook:** [online_shoppers_prd_v3_3.ipynb](online_shoppers_prd_v3_3.ipynb) · **Execution verification:** [.github/workflows/build-prd-v3-3.yml](.github/workflows/build-prd-v3-3.yml).
 
-**Status:** v3.2 source implemented; **new quantitative results are not accepted until the complete v3.2 execution and its independent audit pass**. The new notebook initially contains no execution outputs. Prior v3.1 results are historical only. This branch is separate from `main`; do not merge without reviewing the new evidence.
+## Verified v3.3 execution — PASS
 
-## What v3.2 adds
+The complete notebook was executed and independently audited in [GitHub Actions run 41622824180](https://github.com/lyd-sg/dsa211/actions/runs/41622824180). All **seven** new candidates were evaluated. The executed [notebook](online_shoppers_prd_v3_3.ipynb) has all 20 code cells executed and saved output; the [independent training audit](artifacts/prd_v3_3/independent_training_audit.json) reports `status=PASS`.
 
-v3.2 retains the 20 original baseline/step attempts across four original pathways, **including every rejected trial**, and adds exactly **eleven** new EDA-driven candidates:
+**Result:** None of L8–L10 or D8–D11 passed the unchanged strict one-SE retention threshold. Six increased point-estimated mean CV AUC slightly; D11 decreased it. LDA still has **zero accepted transformations across eleven trials**. The six-way winner remains **L1 Logit**, mean 5-fold CV ROC-AUC **0.757467**; historically reused reserved-set AUC **0.740543**. The full numbers and interpretation are in [v3.3 results and analysis](docs/results_v3_3.md). Both older notebooks and all previously executed evidence remain preserved.
 
-| Path | Added trials |
+## Experiment scope
+
+**All seven newly proposed EDA-motivated specifications are included**, not only the four initially prioritised:
+
+| Family | New tests |
 |---|---|
-| Logistic Regression | L5 squared BounceRates; L6 Administrative positive indicator; L7 ProductRelated_Duration positive indicator |
-| LDA | D5 `log1p(ProductRelated_Duration)`; D6 `log1p(Administrative_Duration)`; D7 categorical SpecialDay |
-| Gaussian NB | G5 drop ExitRates; G6 drop ProductRelated_Duration; G7 `log1p(ProductRelated_Duration)`; G8 `log1p(Administrative_Duration)`; G9 remove six nominal sources |
-| Bernoulli NB | No new trial; preserve B0–B4 and B3 as the pre-v3.2 finalist |
-| Classification Trees | No new specifications; independently grow/prune both Gini and Entropy under unchanged v3.1 protocol |
+| Logistic Regression | **L8** fixed 0.01-knot piecewise BounceRates; **L9** categorical SpecialDay; **L10** product-page average duration ratio |
+| LDA | **D8** log1p ProductRelated; **D9** fold-training-p99 winsorised ProductRelated_Duration; **D10** Informational positive indicator; **D11** 3-category BounceRates |
+| Gaussian NB, Bernoulli NB | Existing v3.2 retained finalists, no new tests |
+| Gini and Entropy trees | Existing independent full pruning paths, no new changes |
 
-New probes are **independent one-change alternatives applied to each frozen v3.1 family finalist**, not cumulative steps. This makes all eleven tests meaningful even where a proposed deletion conflicts with a proposed transformation. Each new challenger qualifies only if `mean CV AUC improvement > its own 5-fold AUC SE`. If several qualify within a family, the highest-scoring qualified one-change alternative becomes that family's v3.2 finalist. If none qualifies, the unchanged v3.1 incumbent remains.
+All seven are **independent one-change probes** against the frozen **v3.2** family finalist (L1 Logit or D0 LDA). Their motivation comes from training-only main/supplementary EDA; they are empirical hypotheses, not promises of improved AUC or assumption satisfaction. The fixed one-SE qualification rule and six-way overall mean five-fold training ROC-AUC selection remain unchanged.
 
-Inventory: **31 original-family attempts** (20 historical + 11 new), plus six diagnostics / six operational baselines and two independently selected pruned trees. Expected audited model specifications: **41**, with **205** candidate/fold AUC/AP records; tree alpha paths are audited separately.
+Historical evidence is preserved: 20 v3.1 original pathway records, 11 v3.2 anchored experiments, and seven v3.3 trials, for **38 original-family attempt rows**. The independent audit expects **48 evaluated specification results and 240 fold scores**, **34 decisions**, two independently pruned trees and six finalists. New outputs are saved under `artifacts/prd_v3_3/` only.
 
-## Statistical question and validation protocol
+## Execution and acceptance
 
-Predict `Revenue=1` from browsing-session characteristics, choose the best of six taught finalist specifications by **mean five-fold training CV ROC-AUC** (AP as minority-class context), then evaluate the frozen winner's score distributions, ROC/PR, four threshold references and the hypothetical S$3/S$12 cost scenario. Preserve the same 12,330-row source dataset, original 80/20 seed-42 split, five shared stratified training folds, fold-contained preprocessing, PageValues exclusion from all operational contenders, Gini/Entropy pruning and 1-SE simplicity rule.
+The CI workflow must execute and verify the notebook **before** any new v3.3 metrics or final selection are claimed. Results should be reported only after an actual passing run, an executed notebook with cell outputs and a `status=PASS` independent training audit.
 
-**Exploratory caveat:** v3.2 changes were proposed after examining v3.1's training CV results. The historical 20% reserved partition has already been accessed by earlier project versions, so no v3.2 held-out result can be described as newly pristine. Repeated CV selection also risks optimistic training estimates. Neither AUC nor the cost-cutoff illustration establishes causal upsell effects or deployability.
-
-## Execute and verify
-
-Use Python 3.12 and `requirements.txt`. The GitHub Actions [v3.2 workflow](.github/workflows/build-prd-v3-2.yml) is the standard consolidated validation:
+Reproduce on Python 3.12 using pinned dependencies:
 
 ```bash
 python -m pip install -r requirements.txt
 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
-  jupyter nbconvert --to notebook --execute online_shoppers_prd_v3_2.ipynb \
-  --ExecutePreprocessor.timeout=7200 --output online_shoppers_prd_v3_2_executed.ipynb
+  jupyter nbconvert --to notebook --execute online_shoppers_prd_v3_3.ipynb \
+  --ExecutePreprocessor.timeout=7200 --output online_shoppers_prd_v3_3_executed.ipynb
 ```
 
-When the workflow passes, it commits the executed v3.2 notebook and isolated `artifacts/prd_v3_2/` evidence. A clean run must verify all 11 predeclared proposals, 31-entry ledger, 41 CV specifications, 205 fold-level scores, 27 one-SE decisions (16 original + 11 added), both independent pruning paths, six direct finalists, threshold confusion counts, finite model results, one version-specific held-out check, and historical-file preservation.
+The workflow commits the executed notebook and isolated v3.3 evidence after passing all audits; do not confuse historical saved results with new outputs.
 
-## Preserved v3.1 and earlier results
+## Scope, interpretation and historical preservation
 
-The original [v3.1 notebook](online_shoppers_prd_v3_1.ipynb), [v3.1 requirements](PRD_v3.1.md), [v3.1 implementation notes](docs/implementation_v3_1.md) and [v3.1 evidence](artifacts/prd_v3_1/) remain untouched. Their verified run [41595364066](https://github.com/lyd-sg/dsa211/actions/runs/41595364066) selected **L1 Logistic Regression** (mean five-fold ROC-AUC 0.757467; AP 0.336226); the version-specific previously used reserved-set check reported ROC-AUC 0.740543 and AP 0.327199. Gini and Entropy selected tree AUCs were 0.733055 and 0.744143, respectively. **These are v3.1 values, not v3.2 findings.**
+Predict `Revenue=1` only; do not interpret probabilities as causal upsell effects or validated profit. The dataset has 12,330 sessions, including 125 excess duplicate rows. Six operational classifiers use 16 sources, excluding PageValues as a timing precaution (not proven leakage), on the original seed-42 80/20 split and shared five stratified training CV folds. All transformation statistics are fitted inside each training fold. The original 20% reserved set has been examined in previous project versions; v3.3 is exploratory and cannot provide newly pristine independent testing.
 
-Original [v3.0 notebook](online_shoppers_prd_v3.ipynb), [v3.0 artefacts](artifacts/prd_v3/), [v3.0 technical plan](docs/technical_plan_v3.md), historical notebooks and `data/uci_468.csv` remain available for reproducibility.
+The six-way competition includes four selected original families plus both independently cost-complexity-pruned trees, ranked by mean CV ROC-AUC. AP, OOF/ROC/PR, threshold curves, the fixed hypothetical S$3/S$12 decision-cost cutoff and cost sensitivity remain supporting analyses.
 
-Slides for the 20-minute class presentation remain a separate deliverable.
+**Historical sources, unchanged:** [v3.2 PRD](PRD_v3.2.md), [executed v3.2 notebook](online_shoppers_prd_v3_2.ipynb), [v3.2 evidence](artifacts/prd_v3_2/), [supplementary training EDA](supplementary/training_eda.ipynb), [v3.1 PRD](PRD_v3.1.md), [v3.1 notebook](online_shoppers_prd_v3_1.ipynb) and [v3.0 notebook](online_shoppers_prd_v3.ipynb). Current verified v3.2 winner: L1 Logit mean training CV AUC approximately 0.75747. This is **historical v3.2 evidence**, not v3.3 outcome evidence.
