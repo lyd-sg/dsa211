@@ -1,6 +1,6 @@
 # PRD 3.0 — notebook requirements verification
 
-**Source of truth:** [PRD v3](PRD_v3.md). **Deliverable:** [executed notebook](../online_shoppers_prd_v3.ipynb). **Evidence:** [versioned artifacts](../artifacts/prd_v3/). The previous PRDs, v2 notebook, data and archives are preserved. This is a technical compliance audit, not academic examiner certification.
+**Source for this historical v3.0 audit:** [archived PRD v3.0](../archive/PRD_v3.md). **Current requirements:** [PRD v3.1](../PRD_v3.1.md), not yet implemented. **Deliverable:** [executed notebook](../online_shoppers_prd_v3.ipynb). **Evidence:** [versioned artifacts](../artifacts/prd_v3/). The previous PRDs, v2 notebook, data and archives are preserved. This is a technical compliance audit, not academic examiner certification.
 
 | PRD requirement | Implementation and evidence |
 |---|---|
