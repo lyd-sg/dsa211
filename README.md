@@ -13,7 +13,9 @@
 - **Gaussian NB:** 7 (G0, G1, G2, G3, G6, G7, G8). Retained G7; G6 also qualified independently.
 - **Bernoulli NB:** all 5 (B0–B4). Retained B3.
 - **Classification trees:** full versus pruned Gini and Entropy comparisons.
-- **Methods considered:** a course-scope matrix, including Lectures 8–9, clearly distinguishing fitted classification adaptations from methods considered but not fitted.
+- **Lecture 8/9 techniques:** explained alongside the relevant iterations (D15; L4/L13/L14), not in a separate methods matrix.
+
+**All used supplementary EDA is now integrated into the main EDA sections:** zero/positive activity and intensity, VisitorType×Month support, rare categories, SpecialDay, predictor availability, correlations, marginal empirical logits and long-tail plots. The six EDA investigations' original saved outputs are retained, alongside the original figures. Each family table reports only numerical results; individual modification rationales and outcomes appear underneath. The selected pruned Entropy tree plot now sits in the tree section, before final winner selection.
 
 These are **26 displayed original-family trials**, not a fresh 26-model search. All 41 original-family trials, 51 scored designs, 255 fold scores, 37 decisions, nested stepwise paths and complete tree pruning evidence remain in the frozen [v3.4 artifacts](artifacts/prd_v3_4/).
 
@@ -23,7 +25,7 @@ The retained winner is **L1 Logistic Regression**, mean five-fold training ROC-A
 
 ### Reproducibility
 
-The current notebook includes all original figures and v3.4-computed numeric outputs. A presentation-only audit checks every visible curated trial against the frozen full trial ledger, the four tree rows, all original embedded figures and unchanged modelling code **without rerunning models**:
+The current notebook includes **all seven original figures and three original supplementary EDA figures**, with v3.4-computed model results and previously executed training-only supplementary EDA outputs. A presentation-only audit checks every visible curated trial against the frozen full trial ledger, the four tree rows, all original embedded figures and unchanged modelling code **without rerunning models**:
 
 ```bash
 python -m pip install nbformat==5.10.4

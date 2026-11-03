@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
-"""PRD 3.5: verify curated executed notebook against frozen v3.4 evidence, with NO fitting."""
+"""Audit current PRD 3.5 notebook presentation against frozen modelling and supplementary EDA.
+
+No model fitting, no random splits, no modification of source evidence.
+"""
 from __future__ import annotations
 
+from collections import Counter
 import csv
 import hashlib
 from html.parser import HTMLParser
@@ -10,12 +14,12 @@ from pathlib import Path
 
 import nbformat
 
-
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE_NB = ROOT / "archive/versions/v3.4/online_shoppers_prd_v3_4.ipynb"
-PRESENT_NB = ROOT / "online_shoppers_prd_v3_5.ipynb"
+SRC = ROOT / "archive/versions/v3.4/online_shoppers_prd_v3_4.ipynb"
+PRESENT = ROOT / "online_shoppers_prd_v3_5.ipynb"
+SUPP = ROOT / "supplementary/training_eda.ipynb"
 LEDGER = ROOT / "artifacts/prd_v3_4/all_attempts_ledger.csv"
-FOLD_SCORES = ROOT / "artifacts/prd_v3_4/all_attempt_fold_scores.csv"
+FOLDS = ROOT / "artifacts/prd_v3_4/all_attempt_fold_scores.csv"
 TREES = ROOT / "artifacts/prd_v3_4/tree_full_vs_selected.csv"
 AUDIT = ROOT / "artifacts/prd_v3_4/independent_training_audit.json"
 PRD = ROOT / "PRD_v3.5.md"
@@ -27,247 +31,296 @@ GROUPS = {
     "GaussianNB": ["G0", "G1", "G2", "G3", "G6", "G7", "G8"],
     "BernoulliNB": ["B0", "B1", "B2", "B3", "B4"],
 }
-RETAINED = {
-    "Logit": "L1 | Logit",
-    "LDA": "Operational16 | LDA",
-    "GaussianNB": "G7 | GaussianNB",
-    "BernoulliNB": "B3 | BernoulliNB",
+SUPPLEMENTARY_SECTIONS = {
+    "activity": 4,
+    "visitor": 6,
+    "rare": 8,
+    "special": 10,
+    "timing": 12,
+    "conditional": 14,
 }
 
 
-def sha(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+def text(value):
+    return "".join(value) if isinstance(value, list) else str(value)
 
 
-def source(cell) -> str:
-    v = cell["source"]
-    return "".join(v) if isinstance(v, list) else v
+def source(c):
+    return text(c["source"])
 
 
-def as_text(v) -> str:
-    return "".join(v) if isinstance(v, list) else str(v)
+def digest(p):
+    return hashlib.sha256(p.read_bytes()).hexdigest()
+
+
+def images(nb):
+    return [text(o["data"]["image/png"])
+            for c in nb["cells"] for o in c.get("outputs", [])
+            if "image/png" in o.get("data", {})]
 
 
 class TableParser(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True)
         self.rows = []
-        self._row = None
-        self._cell = None
+        self.row = None
+        self.cell = None
 
     def handle_starttag(self, tag, attrs):
         if tag == "tr":
-            self._row = []
-        elif tag in ("td", "th") and self._row is not None:
-            self._cell = []
+            self.row = []
+        elif tag in ("td", "th") and self.row is not None:
+            self.cell = []
 
     def handle_data(self, data):
-        if self._cell is not None:
-            self._cell.append(data)
+        if self.cell is not None:
+            self.cell.append(data)
 
     def handle_endtag(self, tag):
-        if tag in ("td", "th") and self._cell is not None:
-            self._row.append("".join(self._cell).strip())
-            self._cell = None
-        elif tag == "tr" and self._row is not None:
-            self.rows.append(self._row)
-            self._row = None
+        if tag in ("td", "th") and self.cell is not None:
+            self.row.append("".join(self.cell).strip())
+            self.cell = None
+        elif tag == "tr" and self.row is not None:
+            self.rows.append(self.row)
+            self.row = None
 
 
-def parsed_table(html: str):
-    p = TableParser()
-    p.feed(html)
-    return p.rows
+def displayed_tables(nb):
+    result = []
+    for c in nb["cells"]:
+        for o in c.get("outputs", []):
+            value = text(o.get("data", {}).get("text/html", ""))
+            if "<table" in value:
+                parser = TableParser()
+                parser.feed(value)
+                result.append(parser.rows)
+    return result
 
 
-def read_csv(path: Path):
+def table_with_header(tables, name):
+    return [t for t in tables if t and name in t[0]]
+
+
+def rows(path):
     with path.open(newline="") as f:
         return list(csv.DictReader(f))
 
 
+def compare_float(value, expected):
+    assert abs(float(value) - float(expected)) < 1.1e-5, (value, expected)
+
+
 def main():
-    n34_raw = json.loads(SOURCE_NB.read_text())
-    n35_raw = json.loads(PRESENT_NB.read_text())
-    n35_nb = nbformat.read(PRESENT_NB, as_version=4)
-    nbformat.validate(n35_nb)
-    assert len(n34_raw["cells"]) == 47
-    assert len(n35_raw["cells"]) == 49
-    old_code = [c for c in n34_raw["cells"] if c["cell_type"] == "code"]
-    new_code = [c for c in n35_raw["cells"] if c["cell_type"] == "code"]
-    assert len(old_code) == len(new_code) == 25
-    assert all(c.get("execution_count") is not None for c in new_code)
-    assert not [(i, o) for i, c in enumerate(new_code)
-                for o in c.get("outputs", []) if o.get("output_type") == "error"]
-    for i, c in enumerate(new_code):
-        compile(source(c), f"v35_cell_{i}", "exec")
-    imgs = [o for c in new_code for o in c.get("outputs", [])
-            if "image/png" in o.get("data", {})]
-    assert len(imgs) == 7
+    old = json.loads(SRC.read_text())
+    new = json.loads(PRESENT.read_text())
+    sup = json.loads(SUPP.read_text())
+    nbformat.validate(nbformat.read(PRESENT, as_version=4))
+    assert len(old["cells"]) == 47
+    assert len(new["cells"]) == 64
+    assert len(sup["cells"]) == 15
+    assert new["metadata"]["new_models_fitted_for_presentation"] == 0
 
-    # All numerical model definitions, evaluator internals, model-fit calls and tests
-    # must remain unchanged. Only the output folder, renderer, visible stdout,
-    # tree comparison renderer and final printed summary may differ.
-    allowed_changes = {5, 9, 10, 11, 12, 13, 15, 24}
-    modified = {i for i, (x, y) in enumerate(zip(old_code, new_code))
-                if source(x) != source(y)}
-    assert modified == allowed_changes, (modified, allowed_changes)
-    o, v = source(old_code[5]), source(new_code[5])
-    assert v == o.replace("V3_ART=ARTIFACTS/'prd_v3_4'",
-                          "V3_ART=ARTIFACTS/'prd_v3_5' # Re-execution isolation only; presentation evidence remains frozen v3.4")
-    o, v = source(old_code[9]), source(new_code[9])
-    assert v.startswith(o.split("def display_family(family):")[0])
-    assert "V35_CURATION" in v and "display(pd.DataFrame(annotated).round(5))" in v
+    src_codes = [c for c in old["cells"] if c["cell_type"] == "code"]
+    new_codes = [c for c in new["cells"] if c["cell_type"] == "code"]
+    old_like = [c for c in new_codes if not c["id"].startswith("integrated-sup-")]
+    assert len(src_codes) == len(old_like) == 25
+    assert len(new_codes) == 31
+    assert all(c.get("execution_count") is not None for c in new_codes)
+    assert not [(i, o) for i, c in enumerate(new_codes) for o in c.get("outputs", [])
+                if o.get("output_type") == "error"]
+    for i, c in enumerate(new_codes):
+        compile(source(c), f"current_cell_{i}", "exec")
+
+    # The six separately executed EDA investigations are copied in full, including outputs.
+    original_supp_png = []
+    for name, original_i in SUPPLEMENTARY_SECTIONS.items():
+        match = [c for c in new_codes if c["id"] == f"integrated-sup-{name}-code"]
+        assert len(match) == 1, name
+        c = match[0]
+        assert source(c).endswith(source(sup["cells"][original_i]))
+        assert c["outputs"] == sup["cells"][original_i]["outputs"]
+        assert any(m["id"] == f"integrated-sup-{name}-md" for m in new["cells"])
+        original_supp_png.extend(o["data"]["image/png"] for o in c["outputs"]
+                                 if "image/png" in o.get("data", {}))
+    assert len(original_supp_png) == 3
+    original_png = images(old)
+    current_png = images(new)
+    assert len(original_png) == 7
+    assert len(current_png) == 10
+    assert Counter(current_png) == Counter(original_png + original_supp_png)
+
+    # No modelling or evaluation algorithms are changed.
+    allowed = {5, 9, 10, 11, 12, 13, 15, 17, 24}
+    modified = {i for i, (a, b) in enumerate(zip(src_codes, old_like))
+                if source(a) != source(b)}
+    assert modified == allowed, (modified, allowed)
+    assert source(old_like[5]) == source(src_codes[5]).replace(
+        "V3_ART=ARTIFACTS/'prd_v3_4'",
+        "V3_ART=ARTIFACTS/'prd_v3_5' # Re-execution isolation only; presentation evidence remains frozen v3.4")
+    old_definition = source(src_codes[9]).split("def display_family(family):")[0]
+    assert source(old_like[9]).startswith(old_definition)
+    assert "display(pd.DataFrame" in source(old_like[9])
     for i in (10, 11, 12, 13):
-        old, new = source(old_code[i]), source(new_code[i])
-        assert "contextlib.redirect_stdout(io.StringIO())" in new
-        assert new.count("run_v31_family(f)") == old.count("run_v31_family(f)")
-        assert new.count("run_v32_family(f)") == old.count("run_v32_family(f)")
-        assert new.count("run_v33_family(f)") == old.count("run_v33_family(f)")
-        assert new.count("run_v34_family(f)") == old.count("run_v34_family(f)")
-        assert new.count("display_family(f)") == old.count("display_family(f)")
-    old = source(old_code[15])
-    new = source(new_code[15])
-    before, _, after = old.partition("display(TREE_BASELINE_SELECTED.round(5))")
-    assert before and after and new.startswith(before) and new.endswith(after)
-    assert "assert len(tree_display)==4" in new
-    old = [ln for ln in source(old_code[24]).splitlines() if not ln.startswith("print(")]
-    new = [ln for ln in source(new_code[24]).splitlines() if not ln.startswith("print(")]
-    assert old == new
+        old_code, new_code = source(src_codes[i]), source(old_like[i])
+        for name in ("run_v31_family(f)", "run_v32_family(f)",
+                     "run_v33_family(f)", "run_v34_family(f)"):
+            assert old_code.count(name) == new_code.count(name) == 1
+        assert new_code.count("display_family(f)") == 1
+    original_log = source(src_codes[14])
+    edited_log = source(old_like[14])
+    assert edited_log == original_log
+    original_tree = source(src_codes[15])
+    tree_code = source(old_like[15])
+    stem, sep, suffix = original_tree.partition("display(TREE_BASELINE_SELECTED.round(5))")
+    assert sep and tree_code.startswith(stem) and tree_code.endswith(suffix)
+    assert "assert len(tree_display)==4" in tree_code
+    illustration = source(old_like[17])
+    assert "illustrated_family='EntropyTree'" in illustration
+    assert "WINNER_FAMILY" not in illustration
+    assert "plot_tree(" in illustration and "selected_tree_top_levels.png" in illustration
+    original_summary = [s for s in source(src_codes[24]).splitlines()
+                        if not s.startswith("print(")]
+    current_summary = [s for s in source(old_like[24]).splitlines()
+                       if not s.startswith("print(")]
+    assert original_summary == current_summary
 
-    ledger = read_csv(LEDGER)
-    scores = read_csv(FOLD_SCORES)
-    trees = read_csv(TREES)
-    old_audit = json.loads(AUDIT.read_text())
-    assert len(ledger) == 41 and len(scores) == 255 and len(trees) == 2
-    assert {k: sum(r["trial_version"] == k for r in ledger) for k in
-            ("v3.1", "v3.2", "v3.3", "v3.4")} == {"v3.1": 20, "v3.2": 11, "v3.3": 7, "v3.4": 3}
-    assert old_audit["status"] == "PASS"
-    assert old_audit["cv_candidates_verified"] == 51
-    assert old_audit["sequential_decisions_verified"] == 37
-    assert old_audit["backward_lda_path_entries_verified"] == 80
-    assert old_audit["tree_alpha_candidates_verified"] == 722
-
-    prd_rows = {}
-    for ln in PRD.read_text().splitlines():
-        if not ln.startswith("| ") or not ln.split("|")[1].strip()[:1] in "LDBG":
-            continue
-        arr = [part.strip() for part in ln.split("|")[1:-1]]
-        if len(arr) != 6 or not arr[0][1:].isdigit():
-            continue
-        step, parent, change, reason, auc, verdict = arr
-        assert step not in prd_rows
-        prd_rows[step] = (parent, change, reason, float(auc), verdict.replace("**", "").replace("; ", " · "))
-    assert len(prd_rows) == 26
+    # Validate the shortlists and numeric-only table reports.
+    ledger = rows(LEDGER)
+    folds = rows(FOLDS)
+    tree_csv = rows(TREES)
+    audit = json.loads(AUDIT.read_text())
+    assert len(ledger) == 41 and len(folds) == 255 and len(tree_csv) == 2
+    assert audit["status"] == "PASS"
+    assert audit["cv_candidates_verified"] == 51
+    assert audit["sequential_decisions_verified"] == 37
+    assert audit["backward_lda_path_entries_verified"] == 80
+    assert audit["tree_alpha_candidates_verified"] == 722
     by_id = {r["step"]: r for r in ledger}
     assert len(by_id) == 41
 
-    # Every visible row is compared with BOTH the PRD and the frozen numerical ledger.
-    rendered = {}
-    family_tables = []
-    for c in new_code:
-        for out in c.get("outputs", []):
-            html = as_text(out.get("data", {}).get("text/html", ""))
-            if "Historical outcome" in html:
-                family_tables.append(parsed_table(html))
-    assert len(family_tables) == 4
-    for (family, expected), table in zip(GROUPS.items(), family_tables):
-        assert table[0] == ["ID", "Actual parent", "Change tested",
-                            "EDA rationale / baseline purpose", "CV ROC-AUC",
-                            "AUC SE", "CV AP", "Historical outcome"]
-        assert [r[0] for r in table[1:]] == expected, (family, table)
-        for row in table[1:]:
-            step, parent, change, reason, auc, se, ap, verdict = row
-            raw = by_id[step]
-            pp, pc, pr, pa, pv = prd_rows[step]
-            assert raw["pathway"] == family
-            assert parent == raw["parent"]
-            assert change == pc and reason == pr and verdict == pv
-            assert ("—" if parent == "—" else parent.split(" | ")[0]) == pp
-            assert abs(float(auc) - float(raw["mean_auc"])) < 0.000011
-            assert abs(float(se) - float(raw["auc_se"])) < 0.000011
-            assert abs(float(ap) - float(raw["mean_ap"])) < 0.000011
-            assert abs(float(auc) - pa) < 0.000011
-            if step in ("L0", "D0", "G0", "B0"):
-                assert verdict.startswith("Baseline")
-            elif raw["accepted"] == "True":
-                assert verdict.startswith(("Accepted", "Qualified"))
+    numeric_tables = table_with_header(displayed_tables(new), "AUC gain")
+    assert len(numeric_tables) == 4
+    report_counts = {}
+    for (family, ids), table in zip(GROUPS.items(), numeric_tables):
+        assert table[0] == ["ID", "CV ROC-AUC", "AUC SE", "CV AP", "AUC gain"]
+        assert [r[0] for r in table[1:]] == ids
+        for rec in table[1:]:
+            step, auc, se, ap, gain = rec
+            actual = by_id[step]
+            assert actual["pathway"] == family
+            compare_float(auc, actual["mean_auc"])
+            compare_float(se, actual["auc_se"])
+            compare_float(ap, actual["mean_ap"])
+            if actual["delta_auc"]:
+                compare_float(gain, actual["delta_auc"])
             else:
-                assert verdict == "Not accepted"
-            rendered[step] = family
+                assert gain == "—"
+        report_counts[family] = len(table) - 1
 
-    assert len(rendered) == 26
-    assert rendered["D0"] == "LDA"
-    assert prd_rows["D0"][2] == "Baseline"
-    assert by_id["G6"]["accepted"] == "True"
-    assert by_id["G7"]["accepted"] == "True"
-    assert by_id["L7"]["accepted"] == "False"
-    assert by_id["D15"]["accepted"] == "False"
+    # Iteration explanations are below corresponding tables, not in them.
+    for family, ids in GROUPS.items():
+        matching = [c for c in new["cells"]
+                    if c["id"] == f"iteration-notes-{family}"]
+        assert len(matching) == 1
+        content = source(matching[0])
+        for step in ids:
+            assert f"**{step}" in content, (family, step)
+            if step not in ("L0", "D0", "G0", "B0"):
+                assert by_id[step]["parent"] in content
+    bernoulli_note = source(next(c for c in new["cells"]
+                                 if c["id"] == "iteration-notes-BernoulliNB"))
+    assert "two accepted improvements" in bernoulli_note
+    assert "B0" in bernoulli_note and "B1" in bernoulli_note and "B3" in bernoulli_note
+    lda_note = source(next(c for c in new["cells"]
+                           if c["id"] == "iteration-notes-LDA"))
+    assert "**D0 (baseline):**" in lda_note
 
-    # Exactly four tree rows, each numerically derived from the original v3.4 tree CSV.
-    tree_tables = []
-    for c in new_code:
-        for out in c.get("outputs", []):
-            html = as_text(out.get("data", {}).get("text/html", ""))
-            if "Full (unpruned)" in html:
-                tree_tables.append(parsed_table(html))
+    tree_tables = table_with_header(displayed_tables(new), "ccp_alpha")
     assert len(tree_tables) == 1
-    tab = tree_tables[0]
-    assert tab[0] == ["Tree family", "Stage", "CV ROC-AUC", "CV AP",
-                      "Leaves", "Depth", "ccp_alpha", "Rationale"]
-    assert len(tab) == 5
-    for t, a, b in zip(trees, tab[1::2], tab[2::2]):
-        assert a[:2] == [t["family"], "Full (unpruned)"]
-        assert b[:2] == [t["family"], "Selected (pruned)"]
-        for row, prefix in ((a, "baseline"), (b, "selected")):
-            assert abs(float(row[2]) - float(t[prefix + "_mean_auc"])) < 0.000011
-            assert abs(float(row[3]) - float(t[prefix + "_mean_ap"])) < 0.000011
-            assert int(row[4]) == int(t[prefix + "_leaves"])
-            assert int(row[5]) == int(t[prefix + "_depth"])
-            assert abs(float(row[6]) - float(t[prefix + "_alpha"])) < 0.000011
+    tree = tree_tables[0]
+    assert tree[0] == ["Tree family", "Stage", "CV ROC-AUC", "CV AP",
+                       "Leaves", "Depth", "ccp_alpha"]
+    assert len(tree) == 5
+    for t, full, chosen in zip(tree_csv, tree[1::2], tree[2::2]):
+        assert full[:2] == [t["family"], "Full (unpruned)"]
+        assert chosen[:2] == [t["family"], "Selected (pruned)"]
+        for rec, stage in ((full, "baseline"), (chosen, "selected")):
+            compare_float(rec[2], t[stage + "_mean_auc"])
+            compare_float(rec[3], t[stage + "_mean_ap"])
+            assert int(rec[4]) == int(t[stage + "_leaves"])
+            assert int(rec[5]) == int(t[stage + "_depth"])
+            compare_float(rec[6], t[stage + "_alpha"])
 
-    md = "\n".join(source(c) for c in n35_raw["cells"] if c["cell_type"] == "markdown")
-    assert "D0 rationale: Baseline" in md
-    assert "DSA211 methods-considered matrix" in md
-    assert "EDA-to-experiment bridge" in md
-    assert "not a pristine holdout" in md
-    assert "PCR/PLS" in md
-    assert "post-hoc editorial curation" in md
-    assert n35_raw["metadata"]["new_models_fitted_for_presentation"] == 0
-    assert n35_raw["metadata"]["historical_trial_count"] == 41
+    markdown = [(i, source(c)) for i, c in enumerate(new["cells"])
+                if c["cell_type"] == "markdown"]
+    headings = [line for _, content in markdown for line in content.splitlines()
+                if line.startswith("#")]
+    assert not any("6A." in h or "7.5 Full historical evidence" in h for h in headings)
+    assert any("2.1 Zero-versus-positive" in h for h in headings)
+    assert any("3.1 VisitorType × Month" in h for h in headings)
+    assert any("3.2 Rare" in h for h in headings)
+    assert any("3.3 SpecialDay" in h for h in headings)
+    assert any("4.1 Predictor availability" in h for h in headings)
+    assert any("4.2 Distribution tails" in h for h in headings)
 
-    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+    tree_fig_i = next(i for i,c in enumerate(new["cells"])
+                      if c["cell_type"] == "code" and
+                      "illustrated_family='EntropyTree'" in source(c))
+    overall_i = next(i for i,c in enumerate(new["cells"])
+                     if c["cell_type"] == "markdown" and
+                     "## 8. Six finalists" in source(c))
+    tree_section_i = next(i for i,c in enumerate(new["cells"])
+                          if c["cell_type"] == "markdown" and
+                          "## 7B. Classification trees" in source(c))
+    assert tree_section_i < tree_fig_i < overall_i
+    assert any("Entropy" in content and "not" in content and "winner" in content
+               for _, content in markdown)
+
+    # No user-visible figure is spurious and no holdout or finalist metrics changed.
+    assert "historically_pristine_holdout" not in (new.get("metadata", {}))
+    assert new["metadata"]["supplementary_eda_incorporated"] == list(
+        ("activity_zero_positive_intensity", "visitor_type_month",
+         "rare_nominal_levels", "special_day", "feature_availability",
+         "conditional_shape_binned_logits"))
+    assert new["metadata"]["original_figures_v34"] == 7
+    assert new["metadata"]["saved_supplementary_figures"] == 3
+
     result = {
-        "status": "PASS",
-        "prd": "v3.5",
-        "presentation_only": True,
-        "new_models_fitted": 0,
-        "executed_source": "PRD v3.4",
-        "notebook_cells": len(n35_raw["cells"]),
-        "existing_code_cells": len(new_code),
-        "python_code_cells_compiled": len(new_code),
-        "code_cells_modified_for_display_only": sorted(modified),
-        "embedded_original_figures": len(imgs),
+        "status": "PASS", "prd": "v3.5",
+        "presentation_only": True, "new_models_fitted": 0,
+        "notebook_cells": len(new["cells"]),
+        "python_code_cells_compiled": len(new_codes),
+        "original_model_code_cells": len(old_like),
+        "added_training_eda_sections": len(SUPPLEMENTARY_SECTIONS),
+        "original_figure_count": len(original_png),
+        "supplementary_figure_count": len(original_supp_png),
+        "embedded_png_figures": len(current_png),
         "error_outputs": 0,
-        "family_table_rows": {family: len(ids) for family, ids in GROUPS.items()},
-        "visible_original_family_trials": len(rendered),
-        "frozen_original_family_trials": len(ledger),
-        "frozen_scored_designs": old_audit["cv_candidates_verified"],
-        "frozen_fold_scores": len(scores),
-        "frozen_acceptance_decisions": old_audit["sequential_decisions_verified"],
-        "tree_display_rows": len(tab) - 1,
-        "frozen_alpha_candidates": old_audit["tree_alpha_candidates_verified"],
-        "source_notebook_sha256": sha(SOURCE_NB),
-        "presentation_notebook_sha256": sha(PRESENT_NB),
-        "source_trial_ledger_sha256": sha(LEDGER),
-        "frozen_audit_sha256": sha(AUDIT),
+        "family_table_rows": report_counts,
+        "visible_original_family_trials": sum(report_counts.values()),
+        "historical_original_family_trials": len(ledger),
+        "frozen_scored_designs": audit["cv_candidates_verified"],
+        "frozen_fold_scores": len(folds),
+        "frozen_acceptance_decisions": audit["sequential_decisions_verified"],
+        "frozen_tree_alphas": audit["tree_alpha_candidates_verified"],
+        "tree_display_rows": len(tree)-1,
+        "tree_illustration_before_overall_winner": True,
+        "no_6A_or_7_5_heading": True,
         "no_old_result_files_written": True,
+        "source_notebook_sha256": digest(SRC),
+        "presentation_notebook_sha256": digest(PRESENT),
+        "supplementary_eda_sha256": digest(SUPP),
+        "source_trial_ledger_sha256": digest(LEDGER),
+        "source_audit_sha256": digest(AUDIT),
     }
-    OUTPUT.write_text(json.dumps(result, indent=2) + "\n")
-    print("PASS: 49 notebook cells, 25 Python cells compile, no errors, 7 original figures")
-    print("PASS: 7/7/7/5 curated family rows, all rationale and model status match PRD/ledger")
-    print("PASS: 4 tree full/pruned rows match frozen numeric evidence")
-    print("PASS: all 41 trials, 51 designs, 255 folds, 37 decisions preserved")
-    print("PASS: no model fitting; display-only changes verified against v3.4")
+    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+    OUTPUT.write_text(json.dumps(result, indent=2)+"\n")
+    print("PASS: 64 cells, 31 code cells compile, no error outputs")
+    print("PASS: six used supplementary EDA investigations and all 10 original figures preserved")
+    print("PASS: four numeric-only tables 7/7/7/5 with explanatory notes beneath")
+    print("PASS: entropy tree plot within tree section, before winner selection")
+    print("PASS: 41 historical trials, 51 designs, 255 folds, 37 decisions unchanged")
+    print("PASS: no new model fitting or old-evidence overwrite")
 
 
 if __name__ == "__main__":

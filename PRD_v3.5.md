@@ -1,40 +1,35 @@
 # DSA211 — Predicting Online Purchases
-## Product Requirements Document (PRD) v3.5: concise, EDA-grounded final presentation
+## PRD v3.5 — Approved EDA-complete, streamlined notebook presentation
 
-**Frozen presentation specification:** 3 November 2026.  
-**Source of truth:** [PRD v3.4](archive/versions/v3.4/PRD_v3.4.md), [fully executed v3.4 notebook](archive/versions/v3.4/online_shoppers_prd_v3_4.ipynb) and the [v3.4 all-trials ledger](artifacts/prd_v3_4/all_attempts_ledger.csv).  
-**Isolated development branch:** `analysis/prd-v3-5-presentation`, based on successful executed v3.4 branch `analysis/prd-v3-4-notebook`.  
-**Work authorised now:** **PRD only.** Do **not** edit, recreate, execute, commit or regenerate any notebook, numeric result, plot, audit, modelling recipe or data artefact during this phase.
+**Current revision:** 3 November 2026. **Review branch:** `analysis/prd-v3-5-presentation`.  
+**Current notebook:** [online_shoppers_prd_v3_5.ipynb](online_shoppers_prd_v3_5.ipynb).  
+**Frozen modelling origin:** [archived executed v3.4](archive/versions/v3.4/online_shoppers_prd_v3_4.ipynb) · [verified v3.4 evidence](artifacts/prd_v3_4/) · [source supplementary EDA](supplementary/training_eda.ipynb).  
+**Nature of revision:** Reformatting and inclusion of previously executed EDA only; **no new modelling, new AUC claims or threshold optimisation**.
 
-## 1. Purpose and decisions frozen
+## 1. Frozen scientific objective and protocol
 
-Version 3.5 is a **presentation-only curation** of the completed prediction project. The final notebook will be designed to read as a defensible EDA → hypothesis → experiment → CV outcome → retain/revert narrative rather than presenting every historical trial. All 41 original-family trial records remain discoverable and auditable; the reader sees **no more than seven per family** in the main report.
+Predict `Revenue=1` for an online browsing session, using the 16 operational predictors. The 17th source predictor `PageValues` is excluded as a cautious decision-time availability judgment, **not** demonstrated label leakage.
 
-**Final visible original-family shortlist (26 total):**
+The source has 12,330 observations and the frozen seed-42 stratified partition includes 9,864 training and 2,466 historically consulted reserved observations. Every original model uses the same five shuffled stratified training folds and leakage-safe fold-specific preprocessing. Original v3.1 sequential, v3.2/v3.3 anchored and v3.4 sequential experiments remain unaltered.
 
-- **Logistic Regression (7):** L0, L1, L4, L7, L8, L13, L14.
-- **LDA (7):** D0, D1, D4, D9, D10, D11, D15.
-- **Gaussian NB (7):** G0, G1, G2, G3, G6, G7, G8.
-- **Bernoulli NB (5):** B0, B1, B2, B3, B4.
-- **Trees:** exactly four main comparison rows, *full* and *selected pruned* for each of Gini and Entropy; both complete alpha paths remain in supplementary evidence.
+Historical acceptance is **mean challenger five-fold ROC-AUC minus mean parent five-fold ROC-AUC strictly greater than challenger's own five-fold AUC SE**. It is an exploratory heuristic, **not** a formal significance test. Retained overall champion **L1 Logistic Regression**: training mean ROC-AUC **0.75746739** and AP **0.33622615**; historically reused reserved-set AUC **0.74054250**, AP **0.32719856**. The reserved set is **not pristine**; no causal upsell-effect claim is justified.
 
-A baseline is included because it is the **baseline**, not because an EDA observation recommended it. In particular, **D0's rationale column must say exactly "Baseline".** D0 is the final retained LDA specification only because no LDA challenger satisfied the existing acceptance rule. Do not invent an EDA-based explanation for choosing D0, or claim it was accepted through an improvement test.
+## 2. EDA completeness — integrate all used supporting investigations
 
-**Historical modelling results are frozen:** winner L1 Logistic Regression, five-fold training mean ROC-AUC 0.75746739, historically reused reserved ROC-AUC 0.74054250. No more model searches or threshold optimisation are authorised in v3.5.
+The main notebook must retain its original data-quality, numerical, categorical and predictor-assumption EDA **and directly incorporate** all substantive supplementary training-only analyses, with their **original saved outputs** (not newly computed models):
 
-## 2. Non-negotiable preservation rules
+1. **Zero versus positive activity and intensity**: all six activity variables' zero/positive session support, buyer rates, positive quantiles, positive-intensity bins. This supports log1p and positive-presence hypotheses (especially L7, D10).
+2. **VisitorType × Month**: observed cross-cell sample counts and purchase rates, chart, sparse cell check. This informed the decision not to force an interaction from a few thin cells.
+3. **Rare nominal levels**: full training-level support/rates for Browser, TrafficType and Region, including 13 of 42 levels with fewer than 50 observations. This motivates cautious one-hot modelling and warns against overinterpreting rare levels.
+4. **SpecialDay raw score versus presence**: per-score support/rate, zero-versus-positive contrast and plot, previously used to consider representation trials (even though excluded from the final 26 displayed shortlist).
+5. **Timing/availability assessment**: all 17 source predictors with what they measure and plausible time-of-availability issues. This is critical support for omitting `PageValues` but does not certify other predictors as real-time-safe.
+6. **Detailed shapes and conditional evidence**: numerical skew/zero shares/p95, within-class correlation summaries, six binned marginal empirical-logit tables, and four original distribution plots. These motivate skew, nonlinear and dependence-aware trials without establishing multivariate Gaussianity or causality.
 
-1. **Source data/protocol unchanged:** UCI 12,330 rows, the established 9,864/2,466 stratified split (seed 42), same five outer training folds and 16 operational predictors, with PageValues excluded as a decision-time availability precaution, not established leakage.
-2. **No statistical recomputation:** Preserve original definitions, results, fit warnings, penalties, inner CV, selected source subsets, fold IDs, all OOF probabilities, tree-alpha searches, thresholds, full-data refit and reserved check. The reserved set has already been consulted across versions and is **not pristine**.
-3. **All original experiments remain:** exactly 41 original-family attempts (20 v3.1 + 11 v3.2 + 7 v3.3 + 3 v3.4), 51 scored designs (including diagnostics/baselines/selected trees), 255 five-fold score rows, 37 nonbaseline acceptance decisions and 80 D15 backward-path rows. The 26 displayed rows are a *view*, not a new 26-model rerun.
-4. **Historical accept/reject decisions are immutable:** use gain > challenger five-fold AUC SE (strict), respecting each trial's **actual historical comparison parent**. v3.2/v3.3 trials were independently anchored; L13/L14 followed the v3.4 sequential rule. The internal D15 one-SE subset-size selection is a distinct procedure.
-5. **No post-hoc explanations presented as proof:** label reasons as *EDA-motivated hypotheses*, never as validated causality or a demonstration that the observed effect is driven by a specific mechanism. A trial may show a higher mean AUC and still fail the fixed acceptance hurdle.
-6. **Version isolation:** the future presentation notebook, if authorised, will be a new `online_shoppers_prd_v3_5.ipynb`, with any future presentation-only assets under `artifacts/prd_v3_5/`; none are to be created in the current PRD-only phase. Never overwrite v3.0–v3.4 notebooks, PRDs or evidence.
-7. **Show all course-method coverage as a truthful status matrix:** distinguish "applied", "considered but not fitted", "not applicable to binary classification" and "marked not examinable". Do not mislabel unimplemented methods as experiments.
+The supplementary data-quality/split check is already represented by the original main data-quality section; avoid needless duplicate code. All included EDA must be **training-only** and clearly labelled **descriptive**. Reuse the original executed supplementary outputs and code adapted to the frozen main training partition. Preserve the supplementary source notebook as supplementary evidence.
 
 ## 3. Exact curated experiment tables and on-screen rationales
 
-**Main notebook display contract:** Render **one independent family table**, in the order below, with columns **ID**, **actual comparison parent**, **change tested**, **EDA rationale / baseline purpose**, **mean five-fold CV ROC-AUC** and **historical decision**. The following are the *locked trial IDs, EDA rationales and verified v3.4 values*. Rationale must be immediately visible in the family table (not only in a distant methodology section). When displaying, also show the recorded AP and challenger AUC SE where space allows, but never substitute other values or alter the decision.
+**Reference only:** The detailed matrices below preserve the locked trial IDs, EDA motivations, exact parents and historical decisions. **They are NOT the display format of the current notebook**. The notebook's own tables show **numbers only**—ID, CV ROC-AUC, AUC SE, AP and AUC gain. Immediately *under* each table, one explanation per iteration reports the change, parent, EDA rationale and acceptance. No unshortlisted model appears in the main model-family tables.
 
 ### 3.1 Logistic Regression — exactly 7
 
@@ -101,63 +96,33 @@ A baseline is included because it is the **baseline**, not because an EDA observ
 
 The displayed tree rows are **not** part of the seven-row limit per original classifier family. Preserve all 722 alpha-path candidates and their 3,610 fold scores; put the full pruning audit in the retained supplementary files, not as hundreds of visible notebook rows.
 
-## 4. Final notebook narrative, ordering and visual requirements
 
-When notebook work is separately authorised, keep the existing EDA, plots, model and reserved-check evidence; replace the *main displayed experiment-history views* with the sections below. Avoid new data exploration or model training solely to improve storytelling.
+## 4. Final notebook presentation and ordering
 
-1. **Prediction objective and original data protocol.** Define Revenue=1 and the six-family comparison. Explain why PageValues is removed, avoiding an unsupported leakage assertion.
-2. **Compact numerical/categorical EDA → explicit hypotheses.** Retain source-backed quantities: Informational 78.5% zero, Informational_Duration 80.5% zero, ProductRelated_Duration skew 8.01, Administrative_Duration skew 5.68, BounceRates 44.8% zero; within-class BounceRates–ExitRates correlations 0.915/0.723, ProductRelated–duration 0.839/0.896; categorical rare Browser/TrafficType levels. Connect each observation to the corresponding trial IDs. No invented diagnostic findings.
-3. **Six all-17 versus operational-16 diagnostics.** One compact comparison, not additional hidden versions of family development tables.
-4. **Course-method coverage table (Section 5 below).** Demonstrate conscious choice of methods across the taught module without falsely suggesting all possible algorithms were fitted.
-5. **Four independent family development sections**, in this order: Logistic 7, LDA 7, GaussianNB 7, BernoulliNB 5. Each table must contain its own visible rationale column, parent and honest accepted/not accepted label, followed by **one short family-specific interpretation paragraph** explaining what the EDA predicted, what CV found, and why the retained model survived.
-6. **Two independent tree paths summarised as four rows**, with their own brief explanation of why pruning matters. Do not display every alpha candidate in the main report.
-7. **Unchanged six-way finalist table and existing ROC, PR and calibration plots**, threshold comparisons, hypothetical business assumptions, historically reused reserved-set check, final fit and limitations. The winner is unchanged by presentation choices.
-8. **Supplementary full-history link / appendix** to the machine-readable all-41 attempt ledger, 51-design/five-fold evidence and independent PASS audit. If a reader wants omitted candidate results, they must remain accessible without being presented as extra main-table rows.
+1. Keep Sections **0–4** (protocol, source quality, numerical EDA, categorical EDA and predictor assumptions), now with the complete detailed training EDA of Section 2 visibly embedded **under the corresponding EDA sections**. Explain why the evidence motivated the experiments.
+2. Keep **six all-17 first-pass diagnostics** and **six operational baselines** as separate numerical comparisons. Do not convert baseline specifications into post-baseline accepted changes.
+3. **Remove the former 6A course-methods matrix entirely.** Lecture 8's grouped backward selection appears under D15; Lecture 9's Ridge/LASSO/Elastic Net adaptations appear under L4/L13/L14. Do not claim that unrelated OLS-only syllabus methods were fitted.
+4. Present **four separate model-family subsections** with exactly **7 / 7 / 7 / 5 numeric-only result rows**, in the locked order from Section 3. Each table has only **ID, CV ROC-AUC, AUC SE, CV AP and AUC gain**.
+5. **Directly below each numeric table**, explain **every displayed iteration**, including the actual historical parent, exactly what was changed, the supporting EDA/theoretical motivation, and whether accepted. Correctly identify D0 as **Baseline**. Preserve L7's higher-but-unaccepted AUC and G6/G7's independent qualification vs G0.
+6. **Bernoulli NB conclusion:** five original trials suffice. The three **retained pathway stages** are B0 baseline, B1 accepted, B3 accepted; **only B1 and B3 are accepted improvements**. Stop trying more variations after B4 fails. Do not falsely say there were three accepted improvements.
+7. **Remove the previous 7.5 historical-evidence heading** from the visible notebook; the complete 41-attempt ledger remains accessible in the frozen artefacts, with its original code-generated evidence preserved.
+8. Present two independently pruned trees as four full-versus-pruned rows. **Move the illustration of the selected Entropy tree into the tree section, BEFORE the six-way overall model comparison**; explain it is the stronger *tree finalist*, **not** the overall winner.
+9. Keep the subsequent **six-way final comparison**, original winner OOF score distributions, ROC/PR, reliability, four thresholds, cost sensitivity, historically reused reserved check, final refit and limitations **unchanged in their substantive numerical findings**.
 
-**Displaying findings:** Baselines and accepted retained trials must be distinguished from unsuccessful experiments. Put factual EDA reasons, including numerical evidence where available, in every displayed rationale. The AUC and acceptance decision must be shown **alongside** each trial. No statements of formal significance, causality, confirmed future economic value or fresh independent holdout generalisation.
+The result should read **EDA → modelling hypothesis → numerical comparison → decision narrative → overall selection**, not a wall of wide justification tables.
 
-## 5. Explicit course-method consideration matrix
+## 5. Invariants and source of truth
 
-Add the following compact matrix to the final notebook. It is a **methodological coverage statement**, not a claim that every taught technique was fitted. Preserve lecture naming and distinguish techniques taught for a continuous response from those adapted to the binary target.
+- **Four original-family shortlists:** 7 Logistic, 7 LDA, 7 Gaussian NB and 5 Bernoulli NB; 26 displayed, 41 historical trials preserved.
+- **Unchanged metrics/evaluation:** 51 scored model designs, 255 fold scores, 37 original-family nonbaseline decisions, 80 D15 subset-path entries, 722 tree alpha candidates and 3,610 tree-alpha fold results.
+- **Unchanged source/statistics:** data SHA, partition, folds, model specifications, coefficients, winner, OOF scores, six finalists, fit diagnostics, thresholds and reserved check.
+- **Preserved archive:** no rewriting archived v3.0–v3.4 notebooks/PRDs or the original `artifacts/prd_v3_4/` evidence.
+- **Presentation integrity:** the newly embedded supplementary EDA outputs and three supplementary PNGs match the original `supplementary/training_eda.ipynb`; the seven original notebook figures remain.
+- **Notebook correctness:** all original computational model and statistical audit code remains; no error outputs; every code cell passes syntax compilation. A **presentation-only audit** verifies these properties without refitting any model.
+- **Branch:** `analysis/prd-v3-5-presentation`; do not merge without review.
 
-| Lecture/topic | Relevant methods taught | Project coverage and honest status |
-|---|---|---|
-| Lecture 1: EDA | Numerical and categorical summaries, plots, skew, outliers, predictor relationships | **Applied:** EDA sections drive the annotated family experiments |
-| Lectures 2–4: Linear Regression and diagnostics | Simple/multiple OLS, interactions, linear-model assumptions, residual/influence diagnostics, collinearity | **Considered/partly transferred:** continuous-response OLS and its specific inference/residual diagnostics are not fitted as the binary classifier; collinearity, transformations and model-complexity reasoning inform the workflow |
-| Lecture 5: Logistic Regression | Logistic probabilities, classification threshold and interpretation | **Applied:** L0–L14 historical pathway, seven displayed |
-| Lecture 6: Generative classification | LDA and Naive Bayes | **Applied:** D0–D15, G0–G9, B0–B4; KNN explicitly labelled *not examinable* in lecture, so not claimed as a missing experiment. QDA is not added under the frozen scope |
-| Lecture 7: Validation and CV | Training/reserved split, five-fold CV, stratification, pipelines, ROC/PR and related metrics | **Applied:** fixed folds, leakage-safe tuning and final evaluation |
-| Lecture 8: Model selection | Best subset, forward/backward stepwise, AIC/BIC, CV and one-SE parsimony | **Applied:** D15 group-wise nested backward selection with one-SE size choice. **Considered but not separately fitted:** exhaustive best subset, forward stepwise and AIC/BIC specifications (principally taught in linear-model setting) |
-| Lecture 9: Regularisation and dimension reduction | Ridge, LASSO, Elastic Net, cross-validated penalty choice; PCR/PLS overview | **Applied classification adaptations:** L4 L2, L13 LASSO and L14 Elastic Net. **Considered but not fitted:** PCR/PLS, presented as course overview rather than claimed binary-classifier results |
-| Lecture 10: Tree-Based Methods | Regression/classification trees, Gini/Entropy splits, cost-complexity pruning | **Applied:** independently chosen Gini/Entropy classification trees, full-versus-pruned comparison. Regression trees are inappropriate for the binary classification objective |
+## 6. Hand-off and verification
 
-**Do not state that every regression-only method was implemented.** The objective is coverage of course reasoning and a justified choice of applied methods, not indiscriminate extra trials. An unimplemented item should have a brief defensible reason, not fabricated numbers.
+The notebook is the active submission candidate on the review branch. The Python verification script `scripts/verify_prd_v3_5_presentation.py` and [GitHub Actions workflow](.github/workflows/verify-prd-v3-5.yml) must report **PASS** against the archived original, the complete v3.4 ledger and original supplementary EDA. The suite performs **no model training**.
 
-## 6. Frozen statistical interpretation and result limitations
-
-- The retained six-way ranking in the verified v3.4 training CV is: **L1 Logistic 0.75747**, Entropy tree **0.74414**, B3 Bernoulli NB **0.74227**, D0 LDA **0.74088**, Gini tree **0.73306**, G7 Gaussian NB **0.71284**.
-- A higher point-estimated AUC for a rejected modification is **not** a rule violation. The original one-SE hurdle is a descriptive conservative selection heuristic, *not* a paired significance test or proof of equal predictive quality.
-- More attempted candidates on the same shared CV folds create multiple-search optimism. The final shortlist is **post-hoc editorial curation of executed results**, not a new pre-registered model-selection procedure.
-- Holdout v3.4 ROC-AUC **0.74054** / average precision **0.32720**, but the reserved set has been consulted in earlier versions and is **not a pristine new test set**.
-- The dataset retains the original excess exact duplicates for comparability; note potential CV-fold dependence, source-metric limitations, model-assumption violations and hypothetical nature of business-cost examples.
-- The project is **prediction-focused**. Avoid causal, inference and guaranteed commercial-uplift claims.
-
-## 7. Acceptance criteria for the future presentation notebook
-
-No execution is requested in this PRD-writing phase. If a separate notebook-build instruction is later given, the implementation is complete only when all of the following hold:
-
-1. Four main tables contain **exactly 7 / 7 / 7 / 5** *uniquely identified* rows, in the locked order of Section 3, with no omitted baseline or newly invented ID. Each has **a visible rationales column**, including **D0: Baseline**.
-2. Every displayed AUC, AP/SE if included, parent, historical accepted/rejected/superseded status and retained model matches the verified original `artifacts/prd_v3_4/all_attempts_ledger.csv`. Special checks: L7 higher AUC but rejected; G6 qualified but not chosen; G7 final; B1 → B3; L13/L14 rejected; D15 rejected.
-3. The model-family tables each have concise EDA → trial → outcome → retain/revert interpretation. Every nonbaseline trial rationale is tied to an EDA observation, a course-taught technique, or both. Do not present those hypotheses as demonstrated causal explanations.
-4. A separate methods matrix truthfully distinguishes applied versus considered/not fitted/out-of-scope course material, especially Lecture 8 and 9 techniques; no unsupported assertion that all methods were trained.
-5. Four tree comparison rows, six all-17 diagnostic models, all six operational baselines and the six-way finalist ranking remain visible in their appropriate *separate* sections. The seven-per-family display cap is not used to delete these important comparisons.
-6. All 41 historical attempts, 51 designs, 255 scored folds, 37 acceptance decisions, 80 D15 nested path records and 722 tree alpha candidates remain accessible and unchanged in the authoritative evidence. The original independent v3.4 training audit remains **PASS**.
-7. No change in source hash, train/test row membership, seeds, preprocessing, model coefficients, fitted predictions, thresholds, selected winner, reserved check, test data usage, or audit meaning. If a derived presentation file is later generated, verify it traces to the frozen data rather than silently rerunning feature searches.
-8. No pre-emptive update of `main` or past versioned files. Future work must occur on its own isolated branch, undergo user review and not be merged automatically.
-
-## 8. Current handoff
-
-**Authorised deliverable:** This `PRD_v3.5.md` file, committed on the separate v3.5 branch.  
-**Not authorised yet:** v3.5 notebook implementation, edits to the executed v3.4 notebook, any reruns, new analyses, changes to project acceptance criteria, or a merge.
-
-The next step requires an explicit instruction to rebuild the presentation notebook against this frozen specification.
+The inclusion of earlier executed EDA does not make its descriptive relationships causal, nor does the reuse of historical CV folds or reserved observations create new independent validation.
