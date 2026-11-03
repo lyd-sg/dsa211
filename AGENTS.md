@@ -1,20 +1,29 @@
-# Active DSA211 implementation guidance — PRD v3.4
+# Active DSA211 guidance — PRD v3.5 presentation
 
-Follow [PRD v3.4](PRD_v3.4.md) and [implementation notes](docs/implementation_v3_4.md). Work on `analysis/prd-v3-4-notebook` only; do **not** overwrite historical v3.0/v3.1/v3.2/v3.3 notebooks, PRDs, or their artefacts.
+**Current specification:** [PRD v3.5](PRD_v3.5.md).  
+**Current review notebook:** [online_shoppers_prd_v3_5.ipynb](online_shoppers_prd_v3_5.ipynb).  
+**Isolated branch:** `analysis/prd-v3-5-presentation`; do not merge without user review.
 
-Prediction-only task with the unchanged UCI dataset, seed-42 9,864 training/2,466 historically reused reserved split, five shared stratified outer training CV folds, and 16 operational source predictors (PageValues excluded as a timing precaution, not established leakage).
+This phase is **presentation-only curation** of the successfully executed, independently verified v3.4 notebook; it is not a new modelling search. All earlier v3.0–v3.4 PRDs, notebooks, statistical results, original trial ledger and audits must remain unchanged.
 
-**Keep all trials grouped by family in the notebook:**
-1. Logit: L0–L10, plus L13 LASSO and L14 Elastic Net; standalone family history, chronological parent, effect, mean CV AUC/AP, fold SE, delta and retained verdict.
-2. LDA: D0–D11, plus D15 nested grouped backward source elimination; its own complete history and selected-source stability table.
-3. GaussianNB: G0–G9 including G7 retained; no new v3.4 tests.
-4. BernoulliNB: B0–B4 including B3 retained; no new v3.4 tests.
-5. Retain unchanged Gini/Entropy tree pruning and final six-way competition and business-threshold illustrations.
+## Visible original-family modelling shortlist
 
-**New v3.4 experiments only:** L13 `LogisticRegression(penalty='l1', solver='saga')`; L14 `penalty='elasticnet', l1_ratio=.5`; both scaled inside the relevant fit fold with a frozen 6-point C grid and 3 inner folds; L14 sequentially compares to latest accepted Logit and replaces rather than stacks penalty. D15 backward LDA must select source-variable groups, group all nominal dummies, use 3-fold inner CV to build 16→1 source deletion path and choose fewest features within one SE of best; score entire procedure on five untouched outer validation folds.
+- **Logit (7):** L0, L1, L4, L7, L8, L13, L14. Retained model **L1**.
+- **LDA (7):** D0, D1, D4, D9, D10, D11, D15. Retained model **D0**; its reason must be **"Baseline"**, not an EDA explanation.
+- **GaussianNB (7):** G0, G1, G2, G3, G6, G7, G8. Retained model **G7**. G6 **also qualified** independently vs G0.
+- **BernoulliNB (5):** B0–B4. Retained model **B3**, after B1 was accepted.
+- **Trees:** four rows, full/pruned for Gini and Entropy; preserve their full paths in the original evidence.
 
-**Preserve original acceptance rule:** challenger mean outer CV ROC-AUC gain against latest accepted family model must strictly exceed its own outer 5-fold SE. Earlier v3.2/v3.3 independent anchored trials retain their recorded comparison rules and labels. Do not tune thresholds or new candidate choices after seeing outcomes.
+Each visible family row must have the actual historical comparison parent, change tested, **EDA rationale (or baseline purpose)**, mean five-fold CV AUC, SE/AP and truthful historical acceptance outcome. The one-SE external selection rule and all previous anchor comparisons remain unchanged. No rejected trial becomes accepted simply because its AUC looks higher.
 
-**Acceptance:** Require an executed notebook with no cell errors and independent numerical `PASS`: **41** original-family attempts (20+11+7+3), **51** scored designs, **255** fold results, **37** decisions, **80** nested D15 path records; four complete model-specific tables, both tree alpha audits and six-way model winner. Versioned evidence may only be created under `artifacts/prd_v3_4/`. The historical reserved set is **not pristine**.
+Keep a separate DSA211 methods-considered matrix including Lectures 8/9, distinguishing applied classification adaptations (backward selection, L2, LASSO, Elastic Net) from considered-but-not-fitted methods (e.g. best subset, forward stepwise, PCR/PLS overview). The classification target does not justify indiscriminate regression-only model fits.
 
-Do not claim a new result before full execution, do not force an accepted LDA modification and do not merge without user review.
+## Frozen source/evidence
+
+- **Original execution:** [v3.4 notebook](online_shoppers_prd_v3_4.ipynb).
+- **Unmodified source ledger:** [41 trial rows](artifacts/prd_v3_4/all_attempts_ledger.csv); 51 scored designs; 255 five-fold results; 37 historical decisions.
+- **Independent original audit:** [v3.4 PASS](artifacts/prd_v3_4/independent_training_audit.json).
+- **Presentation audit:** [v3.5 PASS](artifacts/prd_v3_5/presentation_audit.json); validated 26 visible family rows, four tree rows, 25 compilable code cells, seven original figures and unchanged computational definitions, **without fitting any new model**.
+- **Verification:** `python scripts/verify_prd_v3_5_presentation.py` (nbformat installed); GitHub workflow `.github/workflows/verify-prd-v3-5.yml`.
+
+The v3.5 notebook embeds previously verified v3.4 numerical outputs for immediate inspection. Any *voluntary future* full notebook execution writes only to `artifacts/prd_v3_5/`, never to `artifacts/prd_v3_4/`. Do not automatically rerun models for presentation-only changes. Reserved observations have been repeatedly consulted in prior versions; do **not** describe them as pristine or make causal claims about the hypothetical upsell threshold.
