@@ -1,0 +1,127 @@
+name: Execute and audit PRD v3.1 notebook
+
+on:
+  push:
+    branches:
+      - analysis/prd-v3-1-notebook
+    paths:
+      - 'online_shoppers_prd_v3_1.ipynb'
+      - '.github/workflows/build-prd-v3-1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  execute:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install project dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Frozen structural and syntax preflight
+        run: |
+          python - <<'PY'
+          import nbformat
+          n=nbformat.read('online_shoppers_prd_v3_1.ipynb',as_version=4)
+          nbformat.validate(n)
+          for i,c in enumerate(n.cells):
+              if c.cell_type=='code':
+                  compile(c.source,f'cell_{i}','exec')
+          assert len([c for c in n.cells if c.cell_type=='code'])>=20
+          print('PASS: notebook format and Python cell syntax')
+          PY
+      - name: Execute v3.1 notebook against source data
+        run: |
+          jupyter nbconvert --to notebook --execute online_shoppers_prd_v3_1.ipynb \
+            --ExecutePreprocessor.timeout=7200 --output online_shoppers_prd_v3_1_executed.ipynb
+          mv online_shoppers_prd_v3_1_executed.ipynb online_shoppers_prd_v3_1.ipynb
+      - name: Consolidated PRD v3.1 acceptance verification
+        run: |
+          python - <<'PY'
+          import json, pathlib, nbformat, pandas as pd, numpy as np
+          p=pathlib.Path('online_shoppers_prd_v3_1.ipynb')
+          n=nbformat.read(p,as_version=4)
+          nbformat.validate(n)
+          codes=[c for c in n.cells if c.cell_type=='code']
+          assert codes and all(c.execution_count is not None for c in codes)
+          assert not [(i,o) for i,c in enumerate(codes) for o in c.get('outputs',[]) if o.output_type=='error']
+          a=pathlib.Path('artifacts/prd_v3_1')
+          required=[
+            'six_all17_diagnostics.csv','six_operational_baselines.csv',
+            'all17_vs_operational16.csv','all17_vs_operational16_folds.csv',
+            'all_attempts_ledger.csv','all_attempt_fold_scores.csv',
+            'tree_alpha_paths.csv','tree_alpha_fold_scores.csv','tree_selection.json',
+            'tree_full_vs_selected.csv','six_finalists.csv','six_finalists_roc.png',
+            'selected_tree_top_levels.png','finalist_fold_scores.csv',
+            'finalist_oof_scores.csv','winner_oof.csv',
+            'four_threshold_references.csv','threshold_curves.csv',
+            'upsell_sensitivity.csv','frozen_holdout_scores.csv',
+            'final_specification.json','run_metadata.json',
+            'independent_training_audit.json','fit_warnings.csv',
+            'train_row_ids.csv','test_row_ids.csv','cv_fold_row_ids.csv']
+          assert all((a/f).exists() and (a/f).stat().st_size>0 for f in required)
+          m=json.loads((a/'run_metadata.json').read_text())
+          audit=json.loads((a/'independent_training_audit.json').read_text())
+          trees=json.loads((a/'tree_selection.json').read_text())
+          finalist=pd.read_csv(a/'six_finalists.csv')
+          full17=pd.read_csv(a/'six_all17_diagnostics.csv')
+          ops=pd.read_csv(a/'six_operational_baselines.csv')
+          path=pd.read_csv(a/'tree_alpha_paths.csv')
+          folds=pd.read_csv(a/'tree_alpha_fold_scores.csv')
+          thresholds=pd.read_csv(a/'four_threshold_references.csv')
+          assert m['prd']=='v3.1' and m['training_rows']==9864 and m['test_rows']==2466
+          assert m['final_rows']==12330 and m['random_state']==42 and m['cv_folds']==5
+          assert len(full17)==6 and len(ops)==6 and len(finalist)==6
+          assert set(finalist.pathway)=={'Logit','LDA','GaussianNB','BernoulliNB','GiniTree','EntropyTree'}
+          assert m['selected_model']==finalist.sort_values(['mean_auc','candidate'],ascending=[False,True]).iloc[0].candidate
+          assert len(pd.read_csv(a/'all_attempts_ledger.csv'))==20
+          assert audit['status']=='PASS' and audit['cv_candidates_verified']==30
+          assert audit['individual_fold_scores_verified']==150 and audit['sequential_decisions_verified']==16
+          assert audit['threshold_rows_verified']==4
+          assert set(trees)=={'GiniTree','EntropyTree'}
+          for family in trees:
+              g=path[path.family.eq(family)]
+              assert len(g)==trees[family]['total_candidates']
+              assert g.selected.sum()==1 and g.eligible.sum()>=1
+              assert g[g.selected].iloc[0].leaves==g[g.eligible].leaves.min()
+              assert len(folds[folds.family.eq(family)])==5*len(g)
+          assert len(thresholds)==4 and np.isclose(thresholds.loc[thresholds.reference.eq('Cost-based (hypothetical)'),'threshold'].iloc[0],.2)
+          assert (thresholds[['TP','FP','TN','FN']].sum(axis=1)==9864).all()
+          assert m['historically_pristine_holdout'] is False
+          assert len(pd.read_csv(a/'frozen_holdout_scores.csv'))==2466
+          assert pathlib.Path('online_shoppers_prd_v3.ipynb').exists()
+          assert pathlib.Path('artifacts/prd_v3/run_metadata.json').exists()
+          assert pathlib.Path('scripts/build_prd_v3.py').exists()
+          print('PASS: six diagnostics and baselines, two complete pruning paths, six-way model selection')
+          print('PASS: 30 fully audited CV specs, 150 fold scores, pruning candidates:',audit['tree_alpha_candidates_verified'])
+          print('PASS: winner-specific OOF thresholds, held-out check, all-data refit, v3.0 preserved')
+          print('Winner:',m['selected_model'],'CV AUC:',float(finalist.mean_auc.max()),
+                'test AUC:',m['test_check']['roc_auc'])
+          PY
+      - name: Commit only v3.1 notebook and versioned evidence
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add online_shoppers_prd_v3_1.ipynb artifacts/prd_v3_1/
+          git diff --cached --quiet || git commit -m "results: execute and verify PRD v3.1 notebook [skip ci]"
+          git stash push --include-untracked -m "runner-only historical outputs"
+          git fetch origin "$GITHUB_REF_NAME"
+          git rebase "origin/$GITHUB_REF_NAME"
+          git push origin HEAD:"$GITHUB_REF_NAME"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dsa211-prd-v3-1-evidence
+          path: |
+            online_shoppers_prd_v3_1.ipynb
+            artifacts/prd_v3_1/
+          retention-days: 30

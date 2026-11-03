@@ -1,0 +1,151 @@
+{
+  "prd": "v3.2",
+  "data_sha256": "b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+  "random_state": 42,
+  "training_rows": 9864,
+  "test_rows": 2466,
+  "final_rows": 12330,
+  "cv_folds": 5,
+  "inner_folds": 3,
+  "selected_model": "L1 | Logit",
+  "selected_family": "Logit",
+  "selected_recipe": {
+    "log_activity": true
+  },
+  "four_original_path_finalists": {
+    "Logit": "L1 | Logit",
+    "LDA": "Operational16 | LDA",
+    "GaussianNB": "Operational16 | GaussianNB",
+    "BernoulliNB": "B3 | BernoulliNB"
+  },
+  "updated_v32_path_finalists": {
+    "Logit": "L1 | Logit",
+    "LDA": "Operational16 | LDA",
+    "GaussianNB": "G7 | GaussianNB",
+    "BernoulliNB": "B3 | BernoulliNB"
+  },
+  "v32_anchored_probe_selection": {
+    "Logit": {
+      "anchor": "L1 | Logit",
+      "selected": "L1 | Logit",
+      "qualified": []
+    },
+    "LDA": {
+      "anchor": "Operational16 | LDA",
+      "selected": "Operational16 | LDA",
+      "qualified": []
+    },
+    "GaussianNB": {
+      "anchor": "Operational16 | GaussianNB",
+      "selected": "G7 | GaussianNB",
+      "qualified": [
+        "G7 | GaussianNB",
+        "G6 | GaussianNB"
+      ]
+    },
+    "BernoulliNB": {
+      "anchor": "B3 | BernoulliNB",
+      "selected": "B3 | BernoulliNB",
+      "qualified": []
+    }
+  },
+  "six_finalists": [
+    "L1 | Logit",
+    "Selected | EntropyTree",
+    "B3 | BernoulliNB",
+    "Operational16 | LDA",
+    "Selected | GiniTree",
+    "G7 | GaussianNB"
+  ],
+  "tree_selection": {
+    "GiniTree": {
+      "criterion": "gini",
+      "ccp_alpha": 0.0010076415207989561,
+      "depth": 4,
+      "leaves": 8,
+      "mean_auc": 0.7330553881106839,
+      "mean_ap": 0.30389436712475826,
+      "best_mean_auc": 0.7360256512739178,
+      "best_auc_se": 0.0068146139470206075,
+      "one_se_cutoff": 0.7292110373268972,
+      "eligible_candidates": 11,
+      "total_candidates": 364,
+      "exact_tie_count": 1
+    },
+    "EntropyTree": {
+      "criterion": "entropy",
+      "ccp_alpha": 0.0012870610395821214,
+      "depth": 6,
+      "leaves": 14,
+      "mean_auc": 0.7441426378611298,
+      "mean_ap": 0.31300216042391743,
+      "best_mean_auc": 0.7484868726288736,
+      "best_auc_se": 0.005294075617458357,
+      "one_se_cutoff": 0.7431927970114153,
+      "eligible_candidates": 10,
+      "total_candidates": 358,
+      "exact_tie_count": 1
+    }
+  },
+  "test_check": {
+    "n_test": 2466,
+    "roc_auc": 0.7405425028388821,
+    "average_precision": 0.32719855953352933,
+    "cost_threshold_0_20": {
+      "threshold": 0.2,
+      "TP": 237,
+      "FP": 569,
+      "TN": 1515,
+      "FN": 145,
+      "sensitivity": 0.6204188481675392,
+      "specificity": 0.7269673704414588,
+      "precision": 0.29404466501240695,
+      "hypothetical_relative_loss_SGD": 3447
+    }
+  },
+  "train_fit_audit": {
+    "description": "Frozen training fit",
+    "finite_parameters": true,
+    "encoded_columns": 67,
+    "sample_design_rank": 56,
+    "max_absolute_coefficient": 27.36232696100484,
+    "probability_min": 1.08466011952402e-10,
+    "probability_max": 0.7482950638213298,
+    "chosen_inner_CV_params": {}
+  },
+  "final_fit_audit": {
+    "description": "Final all-data refit",
+    "finite_parameters": true,
+    "encoded_columns": 67,
+    "sample_design_rank": 55,
+    "max_absolute_coefficient": 25.258704810308096,
+    "probability_min": 7.088060868925515e-10,
+    "probability_max": 0.6928182805879625,
+    "chosen_inner_CV_params": {}
+  },
+  "train_warnings": [],
+  "final_warnings": [],
+  "historically_pristine_holdout": false,
+  "training_evidence_audit": {
+    "status": "PASS",
+    "cv_candidates_verified": 41,
+    "individual_fold_scores_verified": 205,
+    "tree_alpha_candidates_verified": 722,
+    "tree_alpha_folds_verified": 3610,
+    "six_all17": 6,
+    "six_operational_baselines": 6,
+    "sequential_decisions_verified": 27,
+    "legacy_decisions_verified": 16,
+    "new_anchored_probes_verified": 11,
+    "threshold_rows_verified": 4,
+    "winner": "L1 | Logit",
+    "test_data_used_in_verification": false
+  },
+  "versions": {
+    "python": "3.12.15",
+    "pandas": "3.0.6",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "sklearn": "1.9.1"
+  }
+}

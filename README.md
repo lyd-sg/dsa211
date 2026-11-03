@@ -1,36 +1,52 @@
-# DSA211 — Predicting Online Purchases (PRD v3.1 requirements; v3.0 implementation)
+# DSA211 — Predicting Online Purchases
 
-**Current requirements:** [PRD v3.1](PRD_v3.1.md). **Current executed implementation:** [v3.0 notebook](online_shoppers_prd_v3.ipynb) and [v3.0 technical plan](docs/technical_plan_v3.md). **Archived requirements:** [PRD v3.0](archive/PRD_v3.md).
+## Current version: PRD v3.5
 
-**Version boundary:** v3.1 is a **requirements-only extension**, not an implemented or validated model update. It adds two **all-17 tree diagnostics** (Gini/Entropy), two full-grown **16-source** tree baselines, independent cost-complexity pruning with five-fold CV ROC-AUC and the **1-SE simplicity-first rule**, and a direct **six-specification comparison** (four existing finalists plus both selected trees). Equal-leaf qualifying trees are resolved by higher mean CV ROC-AUC. Trees are exempt from the original 3–5 sequential modification process; existing paths and thresholds are preserved.
+**Open the current project:** [PRD v3.5](PRD_v3.5.md) · [executed presentation notebook](online_shoppers_prd_v3_5.ipynb) · [presentation audit — PASS](artifacts/prd_v3_5/presentation_audit.json).
 
-**Research question:** How effectively can session characteristics predict `Revenue=1`, and which of the taught classification specifications produces the highest mean five-fold training ROC-AUC? This remains a **prediction** project, not coefficient inference, causal uplift analysis or a deployment claim.
+**Status (3 November 2026):** v3.5 is an editorial, EDA-grounded presentation of the successfully executed and independently verified v3.4 modelling results. **No new model was trained for v3.5.** Work is isolated on `analysis/prd-v3-5-presentation`; review before merging to the default branch.
 
-## Current executed v3.0 notebook and results
+### What the notebook shows
 
-- **[Executed PRD v3 notebook](online_shoppers_prd_v3.ipynb)** — directly reusable v2 EDA and baselines; four sequential model pathways; complete attempted-specification ledger; four finalists and winner; ROC/PR and score displays; sensitivity/specificity and the hypothetical S$3/S$12 cost threshold.
-- **[Supporting evidence](artifacts/prd_v3/)** — 20 attempted operational specifications, fold scores, finalist OOF probabilities, 0.20 cost-cutoff comparisons, sensitivity scenarios, one reserved-set check, warning logs and audit metadata.
-- **[PRD v3 requirements audit](docs/requirements_audit_v3.md)** and [build source](scripts/build_prd_v3.py); [supplementary training EDA](supplementary/training_eda.ipynb).
+- **Logistic Regression:** 7 selected experiments (L0, L1, L4, L7, L8, L13, L14). Retained L1.
+- **LDA:** 7 (D0, D1, D4, D9, D10, D11, D15). Retained D0; its reason is simply **Baseline**.
+- **Gaussian NB:** 7 (G0, G1, G2, G3, G6, G7, G8). Retained G7; G6 also qualified independently.
+- **Bernoulli NB:** all 5 (B0–B4). Retained B3.
+- **Classification trees:** full versus pruned Gini and Entropy comparisons.
+- **Lecture 8/9 techniques:** explained alongside the relevant iterations (D15; L4/L13/L14), not in a separate methods matrix.
 
-The current selected specification is **L1 Logistic Regression** with `log1p` activity magnitudes, mean five-fold CV ROC-AUC **0.757469** and mean AP **0.336226**. The reserved-set check reports ROC-AUC **0.740543**, AP **0.327199**, with mandatory disclosure that the same reserved rows were examined in historical versions.
+**All used supplementary EDA is now integrated into the main EDA sections:** zero/positive activity and intensity, VisitorType×Month support, rare categories, SpecialDay, predictor availability, correlations, marginal empirical logits and long-tail plots. The six EDA investigations' original saved outputs are retained, alongside the original figures. Each family table reports only numerical results; individual modification rationales and outcomes appear underneath. The selected pruned Entropy tree plot now sits in the tree section, before final winner selection.
 
-## Reproduce the full executed notebook
+These are **26 displayed original-family trials**, not a fresh 26-model search. All 41 original-family trials, 51 scored designs, 255 fold scores, 37 decisions, nested stepwise paths and complete tree pruning evidence remain in the frozen [v3.4 artifacts](artifacts/prd_v3_4/).
 
-From the repository root with Python 3.12:
+### Verified model and statistical limitations
+
+The retained winner is **L1 Logistic Regression**, mean five-fold training ROC-AUC **0.75747** and mean AP **0.33623**. The historically reused reserved-set ROC-AUC is **0.74054**, AP **0.32720**. The reserved observations were inspected in earlier versions; this is **not** a pristine holdout. The original improvement > challenger-SE rule is a conservative heuristic, not a significance test. The hypothetical contact-cost threshold does not establish upsell causality or deployment-ready profitability.
+
+### Reproducibility
+
+The current notebook includes **all seven original figures and three original supplementary EDA figures**, with v3.4-computed model results and previously executed training-only supplementary EDA outputs. A presentation-only audit checks every visible curated trial against the frozen full trial ledger, the four tree rows, all original embedded figures and unchanged modelling code **without rerunning models**:
 
 ```bash
-python -m pip install -r requirements.txt
-python -m pip install 'nbformat>=5' 'nbconvert>=7' 'nbclient>=0.10'
-python scripts/build_prd_v3.py
-OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
-  jupyter nbconvert --to notebook --execute online_shoppers_prd_v3.ipynb \
-  --ExecutePreprocessor.timeout=3000 --output online_shoppers_prd_v3_executed.ipynb
+python -m pip install nbformat==5.10.4
+python scripts/verify_prd_v3_5_presentation.py
 ```
 
-The [GitHub Actions workflow](.github/workflows/build-prd-v3.yml) executes and validates the notebook, then commits the executed `.ipynb` and v3 evidence on the development branch. The builder **replaces cell outputs** with fresh results before execution; do not run it just to view the saved output.
+The automated audit runs in [the active v3.5 workflow](.github/workflows/verify-prd-v3-5.yml). The frozen computation is archived byte-for-byte at [v3.4 notebook](archive/versions/v3.4/online_shoppers_prd_v3_4.ipynb), with [independent training PASS](artifacts/prd_v3_4/independent_training_audit.json).
 
-## Boundaries and historical preservation
+### Repository organisation
 
-The dataset contains 12,330 browsing sessions and 125 excess exact duplicate rows. Operational models use 16 original predictors, excluding `PageValues` due to uncertain prediction-time availability; this does **not** prove leakage. The upsell illustration assumes S$3 agent assistance cost, 30% conditional success among actual buyers and S$50 incremental gross margin; the **0.20** threshold does **not** show true intervention uplift or necessarily calibrated probabilities. A separate **20-minute slide presentation** remains a different project deliverable.
+| Location | Purpose |
+|---|---|
+| [PRD_v3.5.md](PRD_v3.5.md) | Current requirements |
+| [online_shoppers_prd_v3_5.ipynb](online_shoppers_prd_v3_5.ipynb) | Current readable notebook, with saved outputs |
+| [artifacts/prd_v3_5/](artifacts/prd_v3_5/) | Non-training presentation verification |
+| [artifacts/prd_v3_4/](artifacts/prd_v3_4/) | **Frozen authoritative** modelling evidence |
+| [archive/versions/](archive/versions/) | Retired v3.0–v3.4 notebooks and PRDs, indexed by version |
+| [archive/workflows/](archive/workflows/) | Disabled historical CI definitions; not active GitHub Actions workflows |
+| [archive/legacy/](archive/legacy/) | Early superseded working notebook |
+| [docs/](docs/) | Prior technical notes and reviews (historical; see its index) |
+| [data/uci_468.csv](data/uci_468.csv) | Original source dataset |
 
-The [archived v3.0 PRD](archive/PRD_v3.md) and original [v2 notebook](online_shoppers_revised.ipynb), [v2 PRD](docs/PRD_v2.md), [v2 technical plan](docs/technical_plan.md), [v2 README snapshot](docs/README_v2_archive.md), [v2 agent instructions](docs/AGENTS_v2_archive.md) and historical artifacts remain available for provenance. The current notebook does not mix old v2 comparisons with v3 findings.
+**Preservation policy:** Older notebooks, PRDs, scripts and workflows are relocated, not deleted from repository history or rewritten to change their conclusions. Versioned evidence folders remain under `artifacts/` because the frozen audit and current notebook reference those exact paths. For historical material, use the [archive index](archive/README.md), not legacy root paths.
+

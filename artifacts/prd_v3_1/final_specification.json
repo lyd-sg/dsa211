@@ -1,0 +1,8 @@
+{
+  "winner": "L1 | Logit",
+  "family": "Logit",
+  "configuration": {
+    "log_activity": true
+  },
+  "test_evaluated_only_after_training_freeze": true
+}

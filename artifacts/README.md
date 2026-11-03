@@ -1,3 +1,9 @@
+# Evidence directory — historical results and current presentation audit
+
+**Current submission:** [PRD v3.5](../PRD_v3.5.md) and [presentation notebook](../online_shoppers_prd_v3_5.ipynb). The v3.5 presentation audit is [here](prd_v3_5/presentation_audit.json). **Authoritative frozen modelling outcomes** are in [v3.4](prd_v3_4/) with independent [PASS](prd_v3_4/independent_training_audit.json). Older versioned folders `prd_v3/` through `prd_v3_3/` and the unversioned root evidence are **historical** and deliberately retained at their original paths for provenance and reproducibility. The content below documents the earlier approved protocol, not the current v3.5 project entry point.
+
+---
+
 # Final audit artifacts
 
 These files come from the approved protocol and its official completed execution; they are not additional model searches. Row IDs are zero-based positions in the unchanged CSV, not customer identifiers. Read probability/metric CSVs with `float_precision='round_trip'` when reproducing numerical checks.
