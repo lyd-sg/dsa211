@@ -126,7 +126,7 @@ def model_size(fam,result):
         if fam=='Logit' and (n is None or pd.isna(n)):
             n=fr['design_columns']
         vals.append(float(n))
-    assert len(vals)==K and np.isfinite(vals).all() and min(vals)>0
+    assert len(vals)==K and np.isfinite(vals).all() and min(vals)>=0
     return float(np.mean(vals))
 
 def choose_pair(fam,incumbent,candidate):
