@@ -1,11 +1,18 @@
-name: Verify DSA211 v3.6 notebook
+name: Verify and save DSA211 v3.6 notebook
 on:
   push:
     branches: [analysis/prd-v3-6-sequential-one-se]
   workflow_dispatch:
+permissions:
+  contents: write
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -13,3 +20,18 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install -r requirements.txt
       - run: python scripts/execute_prd_v3_6.py
+      - name: Save verified v3.6 notebook and evidence to review branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add online_shoppers_prd_v3_6.ipynb artifacts/prd_v3_6/
+          git diff --cached --quiet || git commit -m "results: execute and verify v3.6 notebook [skip ci]"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push origin HEAD:"$GITHUB_REF_NAME"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dsa211-v3-6-executed-notebook
+          path: |
+            online_shoppers_prd_v3_6.ipynb
+            artifacts/prd_v3_6/
