@@ -1,12 +1,12 @@
 # DSA211 — Predicting Online Purchases
 ## Product Requirements Document (PRD) v3.7 — Seven-per-family, EDA-grounded, sequential 1-SE
 
-**Status:** Approved implementation specification; **not** an executed or validated v3.7 notebook.  
+**Status:** **IMPLEMENTED AND VERIFIED — PASS**. The executed [v3.7 notebook](online_shoppers_prd_v3_7.ipynb), [full audit](artifacts/prd_v3_7/v3_7_verification.json), and [versioned results](artifacts/prd_v3_7/) satisfy the frozen acceptance criteria.  
 **Date:** 5 November 2026.  
-**Planning branch:** `planning/prd-v3-7-seven-per-family`.  
+**Development provenance:** `planning/prd-v3-7-seven-per-family` → [PR #17](https://github.com/lyd-sg/dsa211/pull/17) → `main`.  
 **Computational predecessor:** [executed v3.6 notebook](online_shoppers_prd_v3_6.ipynb), with its [v3.6 requirements](PRD_v3.6.md) and [v3.6 evidence](artifacts/prd_v3_6/).  
 **Presentation predecessor:** [v3.5 notebook on main](https://github.com/lyd-sg/dsa211/blob/main/online_shoppers_prd_v3_5.ipynb) and [PRD v3.5](PRD_v3.5.md).  
-**Future deliverable:** `online_shoppers_prd_v3_7.ipynb` with separately versioned evidence under `artifacts/prd_v3_7/`. Update `README.md` and `AGENTS.md` **when the v3.7 notebook is delivered and verified**, not prematurely.
+**Delivered:** [executed `online_shoppers_prd_v3_7.ipynb`](online_shoppers_prd_v3_7.ipynb), with [PASS audit](artifacts/prd_v3_7/v3_7_verification.json) and separately versioned evidence under `artifacts/prd_v3_7/`. `README.md` and `AGENTS.md` have been updated with verified results.
 
 ### 1. Objective and development strategy — inherit, do not start from scratch
 
@@ -127,7 +127,7 @@ The existing v3.6 plan had **41** original-family trial IDs, of which **five** w
 | Separately shown tree full/pruned comparison rows | **4** |
 | Finalist comparison | **6 = 4 original families + 2 pruned trees** |
 
-These are **conditional expectations**, not executed v3.7 numerical outcomes. Preserve the remaining ten scored trials and five skipped trials in `artifacts/prd_v3_7/all_attempts_ledger.csv`, and retain the exact canonical IDs alongside aliases and complete fold-level metrics. In particular, skipped trials exist **only as audit entries**, never as visible table rows. Ensure the actual ledger/fold counts reconcile; fail verification if an unexpected additional skip prevents seven scored display rows.
+These counts were **confirmed by the executed v3.7 notebook and independent PASS audit**. Preserve the remaining ten scored trials and five skipped trials in `artifacts/prd_v3_7/all_attempts_ledger.csv`, and retain the exact canonical IDs alongside aliases and complete fold-level metrics. In particular, skipped trials exist **only as audit entries**, never as visible table rows. Ensure the actual ledger/fold counts reconcile; fail verification if an unexpected additional skip prevents seven scored display rows.
 
 Keep original `artifacts/prd_v3_4/`, `artifacts/prd_v3_5/`, and `artifacts/prd_v3_6/` untouched. New evidence includes a presentation-ID mapping file, complete attempts/decisions, all fold scores, family configurations, nested selection diagnostics, tree pruning evidence, final six-way comparison, winner-dependent metrics and run metadata.
 
@@ -155,3 +155,13 @@ Keep original `artifacts/prd_v3_4/`, `artifacts/prd_v3_5/`, and `artifacts/prd_v
 The repeated training CV folds and reserved observations have informed historical model development; additional B5/B6 experimentation can increase selection optimism. The sequential one-SE rule is not a hypothesis test or guarantee of true model equality. ROC-AUC/AP evaluate ranking, not calibrated probabilities. Threshold economics use hypothetical assumptions, and the reused reserved check is **not an untouched independent test**. Neither classifier coefficients nor EDA relations establish a causal effect of purchasing-related interventions.
 
 **Implementation boundary:** The approved change is an incremental v3.6→v3.7 presentation and EDA restoration, with **only B5/B6** as genuinely new model hypotheses. If new numerical outcomes require updated conclusion/refit, make those changes; otherwise preserve and verify existing computations. **Do not build from scratch.**
+
+### 11. Execution closeout (5 November 2026)
+
+The source notebook executed **all 31 code cells with no error outputs** and passed independent verification: **43 planned**, **38 scored**, **five skipped**, **28 consecutive display aliases**, **34 independently verified sequential decisions**, **48 evaluated CV designs** and **240 fold scores**. Both original tree pruning workflows were checked (722 alpha candidates and 3,610 alpha-fold values). All seven-row classifier display tables and EDA restorations are present; the Entropy tree plot is in Section 7B before the overall comparison.
+
+**New Bernoulli trials:** B5 (composite) AUC **0.74003** and B6 (rare-level pooling) AUC **0.73953**, both retained for greater simplicity under the sequential 1-SE rule. The final Bernoulli NB specification is original/displayed **B6** (mean AP **0.30574**).
+
+**Final six-way winner:** original **L13 Logistic Regression**, displayed **L5**, with mean five-fold training CV ROC-AUC **0.75892** and mean AP **0.34236**. The next-ranked pruned Entropy tree AUC was **0.74414**. The historically consulted reserved sample scored AUC **0.74313** and AP **0.33358**; these **are not independent generalisation estimates**, because earlier versions examined that sample.
+
+The authoritative machine-readable closeout is [`artifacts/prd_v3_7/v3_7_verification.json`](artifacts/prd_v3_7/v3_7_verification.json), with all full historical trial IDs, family configurations, fold scores, presentation-ID mapping, trees, and evaluation outputs preserved in the versioned artefact folder. No unapproved new model families or experiments were introduced.
