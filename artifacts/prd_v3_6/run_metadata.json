@@ -115,9 +115,9 @@
     "finite_parameters": true,
     "encoded_columns": 56,
     "sample_design_rank": 47,
-    "max_absolute_coefficient": 1.131916310858928,
-    "probability_min": 0.00010317651914237434,
-    "probability_max": 0.655007481850272,
+    "max_absolute_coefficient": 1.1319163108589316,
+    "probability_min": 0.00010317651914237398,
+    "probability_max": 0.6550074818502722,
     "chosen_inner_CV_params": {
       "clf__C": 0.05
     }
@@ -127,8 +127,8 @@
     "finite_parameters": true,
     "encoded_columns": 56,
     "sample_design_rank": 46,
-    "max_absolute_coefficient": 1.0282838300652417,
-    "probability_min": 0.00013191367769767496,
+    "max_absolute_coefficient": 1.0282838300652448,
+    "probability_min": 0.00013191367769767377,
     "probability_max": 0.6583414541778797,
     "chosen_inner_CV_params": {
       "clf__C": 0.05
