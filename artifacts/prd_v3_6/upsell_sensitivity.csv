@@ -1,0 +1,4 @@
+assumed_upsell_success_q,agent_cost_SGD,incremental_gross_margin_SGD,net_TP_value_SGD,C_FP_SGD,C_FN_SGD,theoretical_probability_cutoff
+0.2,3.0,50.0,7.0,3.0,7.0,0.3
+0.3,3.0,50.0,12.0,3.0,12.0,0.2
+0.4,3.0,50.0,17.0,3.0,17.0,0.15
