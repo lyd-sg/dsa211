@@ -1,0 +1,44 @@
+name: Execute and verify DSA211 PRD v3.7 notebook
+
+on:
+  push:
+    branches:
+      - planning/prd-v3-7-seven-per-family
+    paths:
+      - 'online_shoppers_prd_v3_7.ipynb'
+      - 'scripts/run_verify_prd_v3_7.py'
+      - 'PRD_v3.7.md'
+      - '.github/workflows/verify-prd-v3-7.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  full-execution:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout this development branch
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Install the versioned project runtime
+        run: python -m pip install -r requirements.txt
+      - name: Parse and audit the inherited v3.7 notebook structure
+        run: python scripts/run_verify_prd_v3_7.py
+      - name: Execute all notebook cells and independently audit saved evidence
+        env:
+          MPLBACKEND: Agg
+        run: python scripts/run_verify_prd_v3_7.py --run
+      - name: Save the executed notebook, v3.7 evidence and verification result
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add online_shoppers_prd_v3_7.ipynb artifacts/prd_v3_7/
+          git diff --cached --quiet || git commit -m "audit: record fully executed and verified PRD v3.7 results [skip ci]"
+          git push origin HEAD:"$GITHUB_REF_NAME"
