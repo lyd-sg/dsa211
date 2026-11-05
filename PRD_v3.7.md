@@ -4,8 +4,8 @@
 **Status:** **IMPLEMENTED AND VERIFIED — PASS**. The executed [v3.7 notebook](online_shoppers_prd_v3_7.ipynb), [full audit](artifacts/prd_v3_7/v3_7_verification.json), and [versioned results](artifacts/prd_v3_7/) satisfy the frozen acceptance criteria.  
 **Date:** 5 November 2026.  
 **Development provenance:** `planning/prd-v3-7-seven-per-family` → [PR #17](https://github.com/lyd-sg/dsa211/pull/17) → `main`.  
-**Computational predecessor:** [executed v3.6 notebook](online_shoppers_prd_v3_6.ipynb), with its [v3.6 requirements](PRD_v3.6.md) and [v3.6 evidence](artifacts/prd_v3_6/).  
-**Presentation predecessor:** [v3.5 notebook on main](https://github.com/lyd-sg/dsa211/blob/main/online_shoppers_prd_v3_5.ipynb) and [PRD v3.5](PRD_v3.5.md).  
+**Computational predecessor:** [archived executed v3.6 notebook](archive/versions/v3.6/online_shoppers_prd_v3_6.ipynb), with its [v3.6 requirements](archive/versions/v3.6/PRD_v3.6.md) and [v3.6 evidence](artifacts/prd_v3_6/).  
+**Presentation predecessor:** [archived v3.5 notebook](archive/versions/v3.5/online_shoppers_prd_v3_5.ipynb) and [PRD v3.5](archive/versions/v3.5/PRD_v3.5.md).  
 **Delivered:** [executed `online_shoppers_prd_v3_7.ipynb`](online_shoppers_prd_v3_7.ipynb), with [PASS audit](artifacts/prd_v3_7/v3_7_verification.json) and separately versioned evidence under `artifacts/prd_v3_7/`. `README.md` and `AGENTS.md` have been updated with verified results.
 
 ### 1. Objective and development strategy — inherit, do not start from scratch
