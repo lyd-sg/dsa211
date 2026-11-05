@@ -1,52 +1,53 @@
 # DSA211 — Predicting Online Purchases
 
-## Current version: PRD v3.5
+## v3.7 development candidate — numerical execution pending
 
-**Open the current project:** [PRD v3.5](PRD_v3.5.md) · [executed presentation notebook](online_shoppers_prd_v3_5.ipynb) · [presentation audit — PASS](artifacts/prd_v3_5/presentation_audit.json).
+**v3.7 entry points:** [Requirements](PRD_v3.7.md) · [v3.7 notebook](online_shoppers_prd_v3_7.ipynb) · [verification script](scripts/run_verify_prd_v3_7.py) · [draft review PR #17](https://github.com/lyd-sg/dsa211/pull/17).
 
-**Status (3 November 2026):** v3.5 is an editorial, EDA-grounded presentation of the successfully executed and independently verified v3.4 modelling results. **No new model was trained for v3.5.** **Merged into `main` via [PR #15](https://github.com/lyd-sg/dsa211/pull/15)**; the original review branch remains for provenance.
+**Important:** This feature branch contains the **constructed but not yet independently verified** v3.7 notebook. The notebook's saved execution outputs were cleared before re-execution; do **not** cite or reuse previous v3.6 model outputs as if they were v3.7 results. The current verified version on `main` remains [v3.5](https://github.com/lyd-sg/dsa211/blob/main/README.md); its findings follow the older v3.4 computation and selection policy.
 
-### What the notebook shows
+### What v3.7 changes
 
-- **Logistic Regression:** 7 selected experiments (L0, L1, L4, L7, L8, L13, L14). Retained L1.
-- **LDA:** 7 (D0, D1, D4, D9, D10, D11, D15). Retained D0; its reason is simply **Baseline**.
-- **Gaussian NB:** 7 (G0, G1, G2, G3, G6, G7, G8). Retained G7; G6 also qualified independently.
-- **Bernoulli NB:** all 5 (B0–B4). Retained B3.
-- **Classification trees:** full versus pruned Gini and Entropy comparisons.
-- **Lecture 8/9 techniques:** explained alongside the relevant iterations (D15; L4/L13/L14), not in a separate methods matrix.
+- **Built from earlier versions, not from scratch:** Computational structure, split, fold indices, 1-SE selection implementation, tree pruning, downstream metrics and audit inherited from [executed v3.6](online_shoppers_prd_v3_6.ipynb).
+- **Restore v3.5's EDA/presentation:** Zero versus positive activity and positive intensity, VisitorType × Month support, rare nominal levels, SpecialDay, prediction-time feature availability, class correlations, long tails, empirical logits, and EDA-to-experiment bridge.
+- **Exactly two new experiments:** Bernoulli **B5** (fold-median composite product-engagement indicator) and **B6** (fold-fitted rare Browser/TrafficType level pooling). They must be scored before the new winner can be stated.
+- **Four readable tables, seven rows each:** Consecutive **presentation labels** `L0–L6`, `D0–D6`, `G0–G6`, `B0–B6`, while original experiment IDs and all intermediate incumbent/selection decisions remain available in audit evidence.
+- **Clean table columns:** Model, CV ROC-AUC, AUC SE, CV AP, ΔAUC against the actual incumbent, complexity, and retained after iteration. Hidden/scored and skipped attempts are excluded from main tables, not deleted from the audit.
+- **Tree section:** Four full-versus-pruned Gini/Entropy rows, with the selected Entropy tree diagram directly after this comparison and before the six-way ranking.
+- **Course references:** Fold-safe feature engineering and CV; binary NB likelihoods; combined/dropped/trimmed predictors; nonlinear transformations and the penalised Logistic / grouped backward LDA course adaptations.
 
-**All used supplementary EDA is now integrated into the main EDA sections:** zero/positive activity and intensity, VisitorType×Month support, rare categories, SpecialDay, predictor availability, correlations, marginal empirical logits and long-tail plots. The six EDA investigations' original saved outputs are retained, alongside the original figures. Each family table reports only numerical results; individual modification rationales and outcomes appear underneath. The selected pruned Entropy tree plot now sits in the tree section, before final winner selection.
+**Expected trial accounting, conditional on successful execution:** 43 planned original-family attempts; 38 scored; five inapplicable historical attempts; **28 displayed** across four classifier tables, ten other scored attempts retained only in the audit. Plus two independent tree-pruning pathways and their separate four-row full/pruned comparison. **These counts are requirements, not execution results.**
 
-These are **26 displayed original-family trials**, not a fresh 26-model search. All 41 original-family trials, 51 scored designs, 255 fold scores, 37 decisions, nested stepwise paths and complete tree pruning evidence remain in the frozen [v3.4 artifacts](artifacts/prd_v3_4/).
+### Methodology and reporting boundaries
 
-### Verified model and statistical limitations
+Selection is **sequential within each family**. At every iteration, take the higher of the incumbent/challenger mean five-fold ROC-AUC values, subtract **that best model's fold AUC SE**, and choose the simplest model still above the cutoff. A tie in complexity favours higher AUC, then the incumbent. Inner regularisation strength also uses the one-SE principle. The overall six-way comparison uses highest mean five-fold training ROC-AUC, with AP as supporting minority-class ranking information.
 
-The retained winner is **L1 Logistic Regression**, mean five-fold training ROC-AUC **0.75747** and mean AP **0.33623**. The historically reused reserved-set ROC-AUC is **0.74054**, AP **0.32720**. The reserved observations were inspected in earlier versions; this is **not** a pristine holdout. The original improvement > challenger-SE rule is a conservative heuristic, not a significance test. The hypothetical contact-cost threshold does not establish upsell causality or deployment-ready profitability.
+Use the original **12,330 sessions**, seed-42 stratified **9,864/2,466** training/reserved split, the same five outer training folds, and 16 operational inputs (excluding `PageValues` because its decision-time availability has not been verified). The reserved observations were historically inspected; they are **not a pristine independent test**. The project is prediction-only and makes no causal claim.
 
-### Reproducibility
+### Execution and verification
 
-The current notebook includes **all seven original figures and three original supplementary EDA figures**, with v3.4-computed model results and previously executed training-only supplementary EDA outputs. A presentation-only audit checks every visible curated trial against the frozen full trial ledger, the four tree rows, all original embedded figures and unchanged modelling code **without rerunning models**:
+From the repository root, in a Python environment with `requirements.txt` installed:
 
 ```bash
-python -m pip install nbformat==5.10.4
-python scripts/verify_prd_v3_5_presentation.py
+python scripts/run_verify_prd_v3_7.py --run
 ```
 
-The automated audit runs in [the active v3.5 workflow](.github/workflows/verify-prd-v3-5.yml). The frozen computation is archived byte-for-byte at [v3.4 notebook](archive/versions/v3.4/online_shoppers_prd_v3_4.ipynb), with [independent training PASS](artifacts/prd_v3_4/independent_training_audit.json).
+This parses every source cell, executes the entire notebook from top to bottom, checks the full sequential ledger, all 28 canonical-to-presentation aliases, five skipped entries, two new Bernoulli trials, the six finalists, and the output files, then writes `artifacts/prd_v3_7/v3_7_verification.json` **only on PASS**. The development-branch workflow [.github/workflows/verify-prd-v3-7.yml](.github/workflows/verify-prd-v3-7.yml) is intended to perform this check and commit the executed notebook and new v3.7 evidence.
 
-### Repository organisation
+**Do not label v3.7 verified, merge the draft PR, publish winning AUC/AP or claim a pristine test result until the audit file exists and reports PASS.**
+
+### Evidence and preservation
 
 | Location | Purpose |
 |---|---|
-| [PRD_v3.5.md](PRD_v3.5.md) | Current requirements |
-| [online_shoppers_prd_v3_5.ipynb](online_shoppers_prd_v3_5.ipynb) | Current readable notebook, with saved outputs |
-| [artifacts/prd_v3_5/](artifacts/prd_v3_5/) | Non-training presentation verification |
-| [artifacts/prd_v3_4/](artifacts/prd_v3_4/) | **Frozen authoritative** modelling evidence |
-| [archive/versions/](archive/versions/) | Retired v3.0–v3.4 notebooks and PRDs, indexed by version |
-| [archive/workflows/](archive/workflows/) | Disabled historical CI definitions; not active GitHub Actions workflows |
-| [archive/legacy/](archive/legacy/) | Early superseded working notebook |
-| [docs/](docs/) | Prior technical notes and reviews (historical; see its index) |
-| [data/uci_468.csv](data/uci_468.csv) | Original source dataset |
+| [PRD_v3.7.md](PRD_v3.7.md) | New specification and frozen acceptance criteria |
+| [online_shoppers_prd_v3_7.ipynb](online_shoppers_prd_v3_7.ipynb) | New constructed notebook; awaiting executed outputs |
+| [scripts/run_verify_prd_v3_7.py](scripts/run_verify_prd_v3_7.py) | Full run plus independent lineage/alias verification |
+| `artifacts/prd_v3_7/` | Version-isolated evidence and audit **after execution** |
+| [PRD_v3.6.md](PRD_v3.6.md), [online_shoppers_prd_v3_6.ipynb](online_shoppers_prd_v3_6.ipynb) | Corrected sequential model-selection predecessor |
+| [PRD_v3.5.md](PRD_v3.5.md) | Prior presentation contract |
+| [artifacts/prd_v3_4/](artifacts/prd_v3_4/) | Historical v3.4 model outputs; never silently treated as updated v3.7 predictions |
+| [archive/versions/](archive/versions/) | Earlier archived source and evidence |
+| [data/uci_468.csv](data/uci_468.csv) | Original fixed input data |
 
-**Preservation policy:** Older notebooks, PRDs, scripts and workflows are relocated, not deleted from repository history or rewritten to change their conclusions. Versioned evidence folders remain under `artifacts/` because the frozen audit and current notebook reference those exact paths. For historical material, use the [archive index](archive/README.md), not legacy root paths.
-
+Previous notebooks, historical results and original artefacts are intentionally preserved. Once v3.7 passes execution and is selected as the repository's current version, replace this provisional status with **actual** verified winner, scores, audit hash and reproducible run instructions.
