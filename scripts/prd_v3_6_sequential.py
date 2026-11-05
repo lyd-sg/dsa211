@@ -37,6 +37,15 @@ def apply_change_to_incumbent(fam,step,base,change):
     active=set(active_sources(cfg))
     if 'remove' in change:
         x=change['remove']
+        # Preserve the semantic preconditions in the original trial descriptions.
+        # A historical "drop X, retain Y" trial cannot silently drop both X and Y.
+        required_retained={'G2':('ExitRates',),
+            'G3':('ProductRelated_Duration',),
+            'G5':('BounceRates',),
+            'G6':('ProductRelated',)}
+        missing=[c for c in required_retained.get(step,()) if c not in active]
+        if missing:
+            return None,f'{step} requires already removed retained counterpart(s): {missing}'
         if x not in active:
             return None,f'{x} already dropped'
         cfg['drop_features']=tuple(dict.fromkeys([*cfg.get('drop_features',()),x]))
