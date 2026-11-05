@@ -73,6 +73,13 @@ def apply_change_to_incumbent(fam,step,base,change):
             }.get(key,[])
             if key in ('log_cols','presence_cols','quadratic_cols','winsor_cols','drop_features'):
                 requires=list(value)
+            # G5/G6 are historical v3.2 drop_features proposals, unlike G2/G3
+            # which used the older 'remove' spelling. Enforce their counterpart
+            # prerequisites here as well, before creating a candidate.
+            if key=='drop_features' and step in ('G5','G6'):
+                counterpart={'G5':'BounceRates','G6':'ProductRelated'}[step]
+                if counterpart not in active:
+                    return None,f'{step} cannot retain previously deleted {counterpart}'
             missing=[c for c in requires if c not in active]
             if missing:
                 return None,f'Previously dropped predictor(s) required by {key}: {missing}'
