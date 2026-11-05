@@ -26,7 +26,12 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add online_shoppers_prd_v3_6.ipynb artifacts/prd_v3_6/
           git diff --cached --quiet || git commit -m "results: execute and verify v3.6 notebook [skip ci]"
-          git pull --rebase origin "$GITHUB_REF_NAME"
+          # The notebook also writes historical split-ID and local progress files.
+          # They are runner-only, not part of the v3.6 evidence commit.
+          git reset --hard HEAD
+          git clean -fd
+          git fetch origin "$GITHUB_REF_NAME"
+          git rebase "origin/$GITHUB_REF_NAME"
           git push origin HEAD:"$GITHUB_REF_NAME"
       - uses: actions/upload-artifact@v4
         if: always()
