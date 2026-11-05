@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "planned_trial_ids": 43,
+  "scored_family_trials": 38,
+  "skipped_inapplicable": 5,
+  "sequential_decisions_verified": 34,
+  "cv_designs_verified": 48,
+  "cv_fold_scores_verified": 240,
+  "backward_subset_path_entries": 80,
+  "tree_alpha_candidates": 722,
+  "tree_alpha_folds": 3610,
+  "winner": "L13 | Logit",
+  "historically_pristine_holdout": false,
+  "reserved_used_for_model_selection": false
+}

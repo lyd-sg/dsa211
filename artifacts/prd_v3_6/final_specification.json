@@ -1,0 +1,11 @@
+{
+  "winner": "L13 | Logit",
+  "family": "Logit",
+  "configuration": {
+    "log_activity": true,
+    "rare_pool": true,
+    "scale": true,
+    "tune": "lasso"
+  },
+  "test_evaluated_only_after_training_freeze": true
+}

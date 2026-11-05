@@ -1,0 +1,30 @@
+{
+  "GiniTree": {
+    "criterion": "gini",
+    "ccp_alpha": 0.0010076415207989561,
+    "depth": 4,
+    "leaves": 8,
+    "mean_auc": 0.7330553881106839,
+    "mean_ap": 0.30389436712475826,
+    "best_mean_auc": 0.7360256512739178,
+    "best_auc_se": 0.0068146139470206075,
+    "one_se_cutoff": 0.7292110373268972,
+    "eligible_candidates": 11,
+    "total_candidates": 364,
+    "exact_tie_count": 1
+  },
+  "EntropyTree": {
+    "criterion": "entropy",
+    "ccp_alpha": 0.0012870610395821214,
+    "depth": 6,
+    "leaves": 14,
+    "mean_auc": 0.7441426378611298,
+    "mean_ap": 0.31300216042391743,
+    "best_mean_auc": 0.7484868726288736,
+    "best_auc_se": 0.005294075617458357,
+    "one_se_cutoff": 0.7431927970114153,
+    "eligible_candidates": 10,
+    "total_candidates": 358,
+    "exact_tie_count": 1
+  }
+}

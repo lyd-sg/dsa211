@@ -1,0 +1,5 @@
+pathway,finalist,configuration
+Logit,L13 | Logit,"{""log_activity"": true, ""rare_pool"": true, ""scale"": true, ""tune"": ""lasso""}"
+LDA,D15 | LDA,"{""log_activity"": true, ""rare_pool"": true, ""winsor_cols"": [""ProductRelated_Duration""], ""backward_select"": true}"
+GaussianNB,G9 | GaussianNB,"{""drop_features"": [""BounceRates"", ""ProductRelated"", ""SpecialDay""], ""log_cols"": [""ProductRelated_Duration"", ""Administrative_Duration""], ""drop_nominal"": true}"
+BernoulliNB,B6 | BernoulliNB,"{""median_cols"": [""ProductRelated"", ""ProductRelated_Duration"", ""ExitRates""], ""drop_features"": [""BounceRates""], ""product_composite"": true, ""rare_pool"": true}"
