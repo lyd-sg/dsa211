@@ -2,13 +2,13 @@
 
 ## Current version: PRD v3.7 — executed and verified
 
-**Current project entry points:** [Requirements](PRD_v3.7.md) · [v3.7 notebook](online_shoppers_prd_v3_7.ipynb) · [verification script](scripts/run_verify_prd_v3_7.py) · [draft review PR #17](https://github.com/lyd-sg/dsa211/pull/17).
+**Current project entry points:** [Requirements](PRD_v3.7.md) · [v3.7 notebook](online_shoppers_prd_v3_7.ipynb) · [verification script](scripts/run_verify_prd_v3_7.py) · [merged PR #17](https://github.com/lyd-sg/dsa211/pull/17).
 
-**Verification (5 November 2026): PASS.** All 31 code cells executed without errors. [Independent numerical verification](artifacts/prd_v3_7/v3_7_verification.json) confirms all 43 planned trials, 38 scored, 5 inapplicable, 28 displayed aliases, 34 sequential decisions and 240 fold records. This v3.7 notebook supersedes v3.5 as the current project analysis upon merge into `main`.
+**Verification (5 November 2026): PASS.** All 31 code cells executed without errors. [Independent numerical verification](artifacts/prd_v3_7/v3_7_verification.json) confirms all 43 planned trials, 38 scored, 5 inapplicable, 28 displayed aliases, 34 sequential decisions and 240 fold records. This executed v3.7 notebook is the current analysis on `main`.
 
 ### What v3.7 changes
 
-- **Built from earlier versions, not from scratch:** Computational structure, split, fold indices, 1-SE selection implementation, tree pruning, downstream metrics and audit inherited from [executed v3.6](online_shoppers_prd_v3_6.ipynb).
+- **Built from earlier versions, not from scratch:** Computational structure, split, fold indices, 1-SE selection implementation, tree pruning, downstream metrics and audit inherited from [archived executed v3.6](archive/versions/v3.6/online_shoppers_prd_v3_6.ipynb).
 - **Restore v3.5's EDA/presentation:** Zero versus positive activity and positive intensity, VisitorType × Month support, rare nominal levels, SpecialDay, prediction-time feature availability, class correlations, long tails, empirical logits, and EDA-to-experiment bridge.
 - **Exactly two new experiments:** Bernoulli **B5** (fold-median composite product-engagement indicator) and **B6** (fold-fitted rare Browser/TrafficType level pooling), both scored and audited.
 - **Four readable tables, seven rows each:** Consecutive **presentation labels** `L0–L6`, `D0–D6`, `G0–G6`, `B0–B6`, while original experiment IDs and all intermediate incumbent/selection decisions remain available in audit evidence.
@@ -32,7 +32,7 @@ From the repository root, in a Python environment with `requirements.txt` instal
 python scripts/run_verify_prd_v3_7.py --run
 ```
 
-This parses every source cell, executes the entire notebook from top to bottom, checks the full sequential ledger, all 28 canonical-to-presentation aliases, five skipped entries, two new Bernoulli trials, the six finalists, and the output files, then writes `artifacts/prd_v3_7/v3_7_verification.json` **only on PASS**. The development-branch workflow [.github/workflows/verify-prd-v3-7.yml](.github/workflows/verify-prd-v3-7.yml) performed this verification and committed the executed notebook and new v3.7 evidence.
+This parses every source cell, executes the entire notebook from top to bottom, checks the full sequential ledger, all 28 canonical-to-presentation aliases, five skipped entries, two new Bernoulli trials, the six finalists, and the output files, then writes `artifacts/prd_v3_7/v3_7_verification.json` **only on PASS**. The initial [v3.7 verification workflow](.github/workflows/verify-prd-v3-7.yml) produced the executed notebook and versioned evidence; its maintained main-branch configuration checks the saved results without refitting models.
 
 **Verified six-way winner:** Original trial **L13 Logistic Regression** (displayed as **L5** in the curated table), training CV mean ROC-AUC **0.75892** and mean AP **0.34236**. Runner-up: pruned Entropy tree, ROC-AUC **0.74414**. New Bernoulli NB B5 and B6 were **both retained for simplicity**; Bernoulli finalist B6 has mean AUC **0.73953** and AP **0.30574**. The historically consulted reserved sample scored AUC **0.74313** and AP **0.33358**, and **is not a pristine independent test**. These are descriptive, not causal or calibrated-probability claims.
 
@@ -44,10 +44,10 @@ This parses every source cell, executes the entire notebook from top to bottom, 
 | [online_shoppers_prd_v3_7.ipynb](online_shoppers_prd_v3_7.ipynb) | **Executed and verified** notebook, with saved outputs |
 | [scripts/run_verify_prd_v3_7.py](scripts/run_verify_prd_v3_7.py) | Full run plus independent lineage/alias verification |
 | [artifacts/prd_v3_7/](artifacts/prd_v3_7/) | Version-isolated results, fold-level evidence, lineage and **PASS** audit |
-| [PRD_v3.6.md](PRD_v3.6.md), [online_shoppers_prd_v3_6.ipynb](online_shoppers_prd_v3_6.ipynb) | Corrected sequential model-selection predecessor |
-| [PRD_v3.5.md](PRD_v3.5.md) | Prior presentation contract |
+| [v3.6 PRD](archive/versions/v3.6/PRD_v3.6.md), [v3.6 notebook](archive/versions/v3.6/online_shoppers_prd_v3_6.ipynb) | Archived corrected sequential model-selection predecessor |
+| [v3.5 PRD](archive/versions/v3.5/PRD_v3.5.md), [v3.5 notebook](archive/versions/v3.5/online_shoppers_prd_v3_5.ipynb) | Archived EDA-oriented presentation predecessor |
 | [artifacts/prd_v3_4/](artifacts/prd_v3_4/) | Historical v3.4 model outputs; never silently treated as updated v3.7 predictions |
-| [archive/versions/](archive/versions/) | Earlier archived source and evidence |
+| [archive/versions/](archive/versions/) | Read-only index of v3.0–v3.6 notebooks, PRDs, version scripts and historical references |
 | [data/uci_468.csv](data/uci_468.csv) | Original fixed input data |
 
 Previous notebooks, historical results and original artefacts remain preserved. The executed v3.7 evidence is verified in [v3_7_verification.json](artifacts/prd_v3_7/v3_7_verification.json); use this notebook as the current analysis rather than the superseded v3.5 results.
