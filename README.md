@@ -8,6 +8,8 @@
 
 ### Changes from v3.7 to v3.8
 
+For the full section-by-section comparison, reasoning behind each retained/removed analysis, and verification boundaries, see the **[detailed v3.7 → v3.8 change report](docs/v3.7-to-v3.8-detailed-change-report.md)**.
+
 - **Restructured EDA:** Separated the full-dataset overview and stratified split from training-only general and in-depth EDA.
 - **Condensed general EDA:** Kept numerical skewness summaries and two histograms; merged rare-category findings into the categorical summary.
 - **Streamlined in-depth EDA:** Retained zero/positive activity rates, positive-intensity and BounceRates percentile tables, four within-class correlations, Q–Q plots and an annotated SpecialDay chart.
