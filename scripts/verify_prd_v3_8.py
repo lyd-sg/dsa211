@@ -38,7 +38,7 @@ def check():
     assert "PageValues is excluded" not in body
     figures=[(i,o) for i,c in enumerate(nb.cells[:eda_end]) for o in c.get("outputs",[]) 
              if "image/svg+xml" in o.get("data",{})]
-    assert len(figures)==3,figures
+    assert len(figures)==2,figures
     assert "Month × VisitorType" not in body
 
     # All original model code (from cell 24), saved results and historical numerical evidence
@@ -75,7 +75,7 @@ def check():
     assert results==[(4423,19.2),(1361,23.4),(1365,16.7),(1355,8.0),(1360,1.8)],results
     for r in [("ProductRelated",27),("Informational",7747),("Informational_Duration",7938)]:
         assert tr[r[0]].eq(0).sum()==r[1]
-    print("PASS v3.8: notebook syntax, ordered sections, 3 embedded figures,")
+    print("PASS v3.8: notebook syntax, ordered sections, 2 embedded figures,")
     print("  frozen model code+outputs unchanged, verified source split/EDA metrics.")
     return nb,eda_end
 

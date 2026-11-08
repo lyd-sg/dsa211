@@ -36,21 +36,21 @@ Precisely, “125 identical observations” refers to **125 excess repeated full
 
 **2.1 Numerical distributions**
 - One ten-row table with `Predictor | Median | % Zeros | Skewness` for all ten source numerical variables, including `PageValues` as an original **descriptive** source variable; excluding `PageValues` from operational modelling is a separate issue.
-- **Keep two representative skewness histograms**: `Informational_Duration` and `ProductRelated_Duration`, properly labelled and based only on training observations.
-- Findings: (i) substantial right-skewness, especially duration variables; (ii) strong zero concentrations, particularly `SpecialDay`, informational measures and `PageValues`; distinguish skewness from zero mass (e.g., `ProductRelated_Duration` is very skewed despite relatively few zeros).
+- Keep the numerical table only; the two redundant duration histograms have been removed for readability.
+- Findings: (i) substantial right-skewness, especially duration variables; (ii) strong zero concentrations, particularly `SpecialDay`, informational measures and `PageValues`.
 - Consolidate duplicate distribution tables/histograms from original notebook cells; no modelling discussion.
 
 **2.2 Categorical distributions**
 - One six-row table with `Predictor | Number of categories | Categories with n < 50`.
 - Counts from the executed training EDA: `Month` 10/0; `OperatingSystems` 8/3; `Browser` 13/4; `Region` 9/0; `TrafficType` 20/9; `VisitorType` 3/0.
-- Findings: `Browser` and `TrafficType` have 13 rare levels combined, including levels represented by **one session**; very small cells yield unreliable observed purchase rates. Rare `OperatingSystems` levels also exist (3); do not falsely imply Browser and TrafficType are the only sparse variables.
+- Findings: `Browser` and `TrafficType` have 13 rare levels combined; very small cells yield unreliable observed purchase rates. Rare `OperatingSystems` levels also exist (3); do not falsely imply Browser and TrafficType are the only sparse variables.
 - **Do not include a purchase-rate-range column.** The previously proposed `Month × VisitorType` investigation is removed, so do not keep a descriptive range merely to motivate a deleted analysis.
 - Fold the evidence from the old standalone 42-row `Browser/TrafficType/Region` rare-category table into these findings; remove the large table.
 
 #### Section 3 — In-depth EDA (training data only)
 
 **3.1 Zero versus positive activity**
-- Six-row table, one row per `ACTIVITY` variable, with `Predictor | Purchase rate (X=0) | Purchase rate (X>0) | Zero-group n`. Show both group rates; positive-group n is redundant given n=9,864.
+- Six-row table, one row per `ACTIVITY` variable, with `Predictor | Purchase rate (X=0) | Purchase rate (X>0) | Sessions with X = 0 (n)`. Show both group rates; positive-group n is redundant given n=9,864.
 - Findings: positive activity is associated with higher observed buying rates for all six measures; the `ProductRelated=0` comparison is particularly uncertain because it contains only **27 sessions**.
 - No causal or adjusted-effect language. Remove repeats of the same zero-versus-positive contrasts elsewhere.
 
@@ -140,7 +140,7 @@ The implementation has been completed, with v3.8 EDA execution verified and inhe
 1. Versioned notebook parses/executes without errors; all rendered EDA tables/figures contain training-only values after 1.4.
 2. Section order is **1 Initial Data Overview → 2 General EDA → 3 In-depth EDA → Model Development**; no CV explanation before Model Development and no model-motivation commentary in EDA.
 3. Section 1 retains approved duplicate-row explanation and fixed 80/20 stratified split; no deduplication or data changes.
-4. Section 2 contains only the approved 10-row numeric table, two skewness histograms and six-row categorical summary plus findings; no category purchase-rate ranges or standalone rare-level table.
+4. Section 2 contains only the approved 10-row numeric table, and six-row categorical summary plus findings; no category purchase-rate ranges or standalone rare-level table.
 5. Section 3 contains exactly the six approved distinct analyses: zero/positive activity, positive-only intensity, BounceRates quartiles, four conceptual correlation pairs, two class-specific Q–Q plots and the annotated six-point SpecialDay chart. Definitions, rounding, sample supports and stated findings reconcile with the data.
 6. `Month × VisitorType` standalone output, 17-row timing table, dedicated `PageValues` purchase-rate output, duplicated empirical-logit output and EDA-to-experiment bridge are absent from EDA. The operational-input timing assumption appears once in Model Development.
 7. Every original model specification, actual fold, selected incumbent, family finalist, tree, six-way winner, training metric, reserved check and full-data refit is numerically unchanged from verified v3.7, with independent machine-readable PASS/FAIL results. Check no EDA cleanup removes variables required downstream.

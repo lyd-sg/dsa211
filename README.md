@@ -11,7 +11,7 @@
 For the full section-by-section comparison, reasoning behind each retained/removed analysis, and verification boundaries, see the **[detailed v3.7 → v3.8 change report](docs/v3.7-to-v3.8-detailed-change-report.md)**.
 
 - **Restructured EDA:** Separated the full-dataset overview and stratified split from training-only general and in-depth EDA.
-- **Condensed general EDA:** Kept numerical skewness summaries and two histograms; merged rare-category findings into the categorical summary.
+- **Condensed general EDA:** Kept the numerical skewness and zero-share table; removed two redundant histograms; merged rare-category findings into the categorical summary.
 - **Streamlined in-depth EDA:** Retained zero/positive activity rates, positive-intensity and BounceRates percentile tables, four within-class correlations, Q–Q plots and an annotated SpecialDay chart.
 - **Removed redundant analyses:** Dropped Month × VisitorType, standalone PageValues purchase-rate EDA, the 17-row predictor-availability table and repeated tables/plots.
 - **Improved narrative:** Moved the PageValues timing assumption into Model Development; removed the standalone EDA-to-experiment bridge while retaining broader model-specific discussion.
@@ -20,7 +20,7 @@ For the full section-by-section comparison, reasoning behind each retained/remov
 ### Notebook structure
 
 1. **Initial Data Overview:** Dataset, missingness, 125 excess identical records retained, target distribution and finally the stratified 80/20 split.
-2. **General EDA (training only):** Numerical distribution table and two skewness figures; concise categorical distribution and rare-level findings.
+2. **General EDA (training only):** Numerical distribution table (no separate histograms); concise categorical distribution and rare-level findings.
 3. **In-depth EDA (training only):** Zero vs positive activity, positive-only intensity, BounceRates groups, within-class correlations, Q–Q plots and SpecialDay.
 4. **Model Development:** Unchanged classifier and tree specification history, sequential one-SE model selection, finalist ranking and results. Modelling rationales are discussed here rather than in EDA.
 

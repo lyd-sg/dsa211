@@ -13,7 +13,7 @@
 ## Approved v3.8 EDA narrative
 
 1. **Initial Data Overview (full dataset):** Dataset structure, missingness/duplicates, outcome class balance; stratified split last.
-2. **General EDA (training only):** Ten-row numerical table with two skewness histograms; six-row categorical summary and merged rare-level findings.
+2. **General EDA (training only):** Ten-row numerical table without histograms; six-row categorical summary and merged rare-level findings.
 3. **In-depth EDA (training only):** Zero/positive activity; positive-only activity quartiles; BounceRates (zero + four positive percentiles); four conceptually selected correlations; two class-conditional normal Q–Q plots; annotated six-point SpecialDay chart.
 4. **Model Development:** Cross-validation and trial-specific motivations, results, acceptance decisions and final comparison.
 
