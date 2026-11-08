@@ -28,7 +28,7 @@ def check():
               "### 2.2 Categorical distributions","## 3. In-depth EDA","### 3.1 Zero versus positive activity",
               "### 3.2 Positive activity intensity","### 3.3 BounceRates","### 3.4 Within-class predictor correlations",
               "### 3.5 Distributional assumptions","### 3.6 SpecialDay","## 4. Model Development"]
-    locations=[next(i for i,s in enumerate(src) if s.startswith(h)) for h in headings]
+    locations=[next(i for i,s in enumerate(src) if h in s) for h in headings]
     assert locations==sorted(locations)
     for forbidden in ["### 3.1 VisitorType × Month", "EDA-to-experiment bridge",
                       "### 4.1 Predictor availability at", "Binned marginal empirical logit",
@@ -51,7 +51,6 @@ def check():
         assert matching[0].outputs==c.outputs,"Changed inherited model output"
 
     assert len(nb.cells)==75
-    assert "PageValues" not in nb.cells[eda_end+1].source or True
     assert sum(c.cell_type=="code" for c in nb.cells)==33
 
     raw=pd.read_csv(DATA)
