@@ -8,7 +8,7 @@ import pandas as pd
 import nbformat
 
 ROOT=Path(__file__).resolve().parents[1]
-OLD=ROOT/"online_shoppers_prd_v3_7.ipynb"
+OLD=ROOT/"archive/versions/v3.7/online_shoppers_prd_v3_7.ipynb"
 NEW=ROOT/"online_shoppers_prd_v3_8.ipynb"
 DATA=ROOT/"data/uci_468.csv"
 IDS=ROOT/"artifacts/train_row_ids.csv"

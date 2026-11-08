@@ -1,57 +1,39 @@
 # DSA211 — Predicting Online Purchases
 
-## Current presentation: PRD v3.8 (EDA verified) · Numerical baseline: v3.7 (fully verified)
+## Active version: PRD v3.8
 
-**v3.8:** [New notebook](online_shoppers_prd_v3_8.ipynb) · [v3.8 PRD](PRD_v3.8.md) · [EDA/preservation verifier](scripts/verify_prd_v3_8.py) · [PASS CI run](https://github.com/lyd-sg/dsa211/actions/runs/42484250765). The new notebook reorganises EDA into concise full-data overview, general EDA and in-depth EDA; all model code and saved results are inherited unchanged. **Only EDA was re-executed for v3.8 verification, not full model retraining.**
+**Current presentation:** [v3.8 notebook](online_shoppers_prd_v3_8.ipynb) · [v3.8 PRD](PRD_v3.8.md) · [verification script](scripts/verify_prd_v3_8.py) · [active GitHub Actions workflow](.github/workflows/verify-prd-v3-8.yml).
 
-**v3.7 computational evidence:**
+**Verified scope:** The v3.8 EDA was re-executed successfully, and all inherited model source code and saved model outputs were checked against v3.7. **The entire v3.8 model-development pipeline has not been retrained.** Its numerical results remain grounded in the fully executed, independently verified [archived v3.7 notebook](archive/versions/v3.7/online_shoppers_prd_v3_7.ipynb) and [v3.7 PASS audit](artifacts/prd_v3_7/v3_7_verification.json).
 
-**Current project entry points:** [Requirements](PRD_v3.7.md) · [v3.7 notebook](online_shoppers_prd_v3_7.ipynb) · [verification script](scripts/run_verify_prd_v3_7.py) · [merged PR #17](https://github.com/lyd-sg/dsa211/pull/17).
+### Notebook structure
 
-**Verification (5 November 2026): PASS.** All 31 code cells executed without errors. [Independent numerical verification](artifacts/prd_v3_7/v3_7_verification.json) confirms all 43 planned trials, 38 scored, 5 inapplicable, 28 displayed aliases, 34 sequential decisions and 240 fold records. This executed v3.7 notebook is the current analysis on `main`.
+1. **Initial Data Overview:** Dataset, missingness, 125 excess identical records retained, target distribution and finally the stratified 80/20 split.
+2. **General EDA (training only):** Numerical distribution table and two skewness figures; concise categorical distribution and rare-level findings.
+3. **In-depth EDA (training only):** Zero vs positive activity, positive-only intensity, BounceRates groups, within-class correlations, Q–Q plots and SpecialDay.
+4. **Model Development:** Unchanged classifier and tree specification history, sequential one-SE model selection, finalist ranking and results. Modelling rationales are discussed here rather than in EDA.
 
-### What v3.7 changes
+The standalone Month × VisitorType exploration, PageValues purchase-rate table, 17-row timing table, repeated summaries and EDA-to-experiment bridge were removed or relocated under [PRD v3.8](PRD_v3.8.md).
 
-- **Built from earlier versions, not from scratch:** Computational structure, split, fold indices, 1-SE selection implementation, tree pruning, downstream metrics and audit inherited from [archived executed v3.6](archive/versions/v3.6/online_shoppers_prd_v3_6.ipynb).
-- **Restore v3.5's EDA/presentation:** Zero versus positive activity and positive intensity, VisitorType × Month support, rare nominal levels, SpecialDay, prediction-time feature availability, class correlations, long tails, empirical logits, and EDA-to-experiment bridge.
-- **Exactly two new experiments:** Bernoulli **B5** (fold-median composite product-engagement indicator) and **B6** (fold-fitted rare Browser/TrafficType level pooling), both scored and audited.
-- **Four readable tables, seven rows each:** Consecutive **presentation labels** `L0–L6`, `D0–D6`, `G0–G6`, `B0–B6`, while original experiment IDs and all intermediate incumbent/selection decisions remain available in audit evidence.
-- **Clean table columns:** Model, CV ROC-AUC, AUC SE, CV AP, ΔAUC against the actual incumbent, complexity, and retained after iteration. Hidden/scored and skipped attempts are excluded from main tables, not deleted from the audit.
-- **Tree section:** Four full-versus-pruned Gini/Entropy rows, with the selected Entropy tree diagram directly after this comparison and before the six-way ranking.
-- **Course references:** Fold-safe feature engineering and CV; binary NB likelihoods; combined/dropped/trimmed predictors; nonlinear transformations and the penalised Logistic / grouped backward LDA course adaptations.
+### Fixed methodology and results
 
-**Verified trial accounting:** 43 planned original-family attempts; **38 scored**, **five inapplicable** historical attempts, **28 displayed** (7 per classifier), and ten additional scored attempts retained in audit evidence. Tree pruning was independently verified over 722 alpha candidates and 3,610 tree fold scores.
+- **Dataset:** 12,330 source sessions; 17 predictors. Stratified seed-42 split: 9,864 training and 2,466 historically consulted reserved observations. Operational candidates use 16 predictors, excluding `PageValues` due to uncertain decision-time availability, not confirmed leakage.
+- **Evaluation:** Five shared stratified training folds with fold-fitted preprocessing and nested tuning. Within classifier families, the sequential 1-SE parsimony rule compares the actual incumbent and challenger. Six finalists are ranked by highest mean training-fold ROC-AUC.
+- **Original experiment lineage:** 43 planned, 38 scored, five inapplicable, and 28 displayed aliases (seven per classifier). Four classifier finalists and two pruned-tree finalists are retained.
+- **Verified historical winner:** Original L13 Logistic Regression (displayed L5); mean training CV ROC-AUC **0.75892**, mean AP **0.34236**. Reserved ROC-AUC **0.74313**, AP **0.33358**. The historically reused reserved set is **not a pristine independent test**.
 
-### Methodology and reporting boundaries
+### Verification
 
-Selection is **sequential within each family**. At every iteration, take the higher of the incumbent/challenger mean five-fold ROC-AUC values, subtract **that best model's fold AUC SE**, and choose the simplest model still above the cutoff. A tie in complexity favours higher AUC, then the incumbent. Inner regularisation strength also uses the one-SE principle. The overall six-way comparison uses highest mean five-fold training ROC-AUC, with AP as supporting minority-class ranking information.
-
-Use the original **12,330 sessions**, seed-42 stratified **9,864/2,466** training/reserved split, the same five outer training folds, and 16 operational inputs (excluding `PageValues` because its decision-time availability has not been verified). The reserved observations were historically inspected; they are **not a pristine independent test**. The project is prediction-only and makes no causal claim.
-
-### Execution and verification
-
-From the repository root, in a Python environment with `requirements.txt` installed:
+From the repository root with project Python dependencies installed:
 
 ```bash
-python scripts/run_verify_prd_v3_7.py --run
+python scripts/verify_prd_v3_8.py --run-eda
 ```
 
-This parses every source cell, executes the entire notebook from top to bottom, checks the full sequential ledger, all 28 canonical-to-presentation aliases, five skipped entries, two new Bernoulli trials, the six finalists, and the output files, then writes `artifacts/prd_v3_7/v3_7_verification.json` **only on PASS**. The initial [v3.7 verification workflow](.github/workflows/verify-prd-v3-7.yml) produced the executed notebook and versioned evidence; its maintained main-branch configuration checks the saved results without refitting models.
+This checks EDA calculations and figures against the original source rows, executes only pre-modelling code, and verifies that inherited modelling code and saved outputs match the **archived** v3.7 notebook. The historical v3.7 full-run evidence is available in [artifacts/prd_v3_7/](artifacts/prd_v3_7/); the retired v3.7 verifier is preserved byte-for-byte but assumes its original root-level layout.
 
-**Verified six-way winner:** Original trial **L13 Logistic Regression** (displayed as **L5** in the curated table), training CV mean ROC-AUC **0.75892** and mean AP **0.34236**. Runner-up: pruned Entropy tree, ROC-AUC **0.74414**. New Bernoulli NB B5 and B6 were **both retained for simplicity**; Bernoulli finalist B6 has mean AUC **0.73953** and AP **0.30574**. The historically consulted reserved sample scored AUC **0.74313** and AP **0.33358**, and **is not a pristine independent test**. These are descriptive, not causal or calibrated-probability claims.
+### Archive and evidence
 
-### Evidence and preservation
+The [archive version index](archive/versions/README.md) includes v3.0–v3.7. The [v3.7 notebook](archive/versions/v3.7/online_shoppers_prd_v3_7.ipynb), [PRD](archive/versions/v3.7/PRD_v3.7.md), [historical verifier](archive/versions/v3.7/run_verify_prd_v3_7.py), and [retired workflow](archive/workflows/verify-prd-v3-7.yml) retain their original Git blobs. The [retirement manifest](archive/versions/v3.7/RETIREMENT_MANIFEST.json) records their exact identifiers. All prior-version `artifacts/` remain at their existing paths.
 
-| Location | Purpose |
-|---|---|
-| [PRD_v3.7.md](PRD_v3.7.md) | New specification and frozen acceptance criteria |
-| [online_shoppers_prd_v3_7.ipynb](online_shoppers_prd_v3_7.ipynb) | **Executed and verified** notebook, with saved outputs |
-| [scripts/run_verify_prd_v3_7.py](scripts/run_verify_prd_v3_7.py) | Full run plus independent lineage/alias verification |
-| [artifacts/prd_v3_7/](artifacts/prd_v3_7/) | Version-isolated results, fold-level evidence, lineage and **PASS** audit |
-| [v3.6 PRD](archive/versions/v3.6/PRD_v3.6.md), [v3.6 notebook](archive/versions/v3.6/online_shoppers_prd_v3_6.ipynb) | Archived corrected sequential model-selection predecessor |
-| [v3.5 PRD](archive/versions/v3.5/PRD_v3.5.md), [v3.5 notebook](archive/versions/v3.5/online_shoppers_prd_v3_5.ipynb) | Archived EDA-oriented presentation predecessor |
-| [artifacts/prd_v3_4/](artifacts/prd_v3_4/) | Historical v3.4 model outputs; never silently treated as updated v3.7 predictions |
-| [archive/versions/](archive/versions/) | Read-only index of v3.0–v3.6 notebooks, PRDs, version scripts and historical references |
-| [data/uci_468.csv](data/uci_468.csv) | Original fixed input data |
-
-Previous notebooks, historical results and original artefacts remain preserved. The executed v3.7 evidence is verified in [v3_7_verification.json](artifacts/prd_v3_7/v3_7_verification.json); use this notebook as the current analysis rather than the superseded v3.5 results.
+The project is prediction-only: EDA patterns and model scores are descriptive/predictive, not causal.
