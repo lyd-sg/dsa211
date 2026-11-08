@@ -1,6 +1,10 @@
 # DSA211 — Predicting Online Purchases
 
-## Current version: PRD v3.7 — executed and verified
+## Current presentation: PRD v3.8 (EDA verified) · Numerical baseline: v3.7 (fully verified)
+
+**v3.8:** [New notebook](online_shoppers_prd_v3_8.ipynb) · [v3.8 PRD](PRD_v3.8.md) · [EDA/preservation verifier](scripts/verify_prd_v3_8.py) · [PASS CI run](https://github.com/lyd-sg/dsa211/actions/runs/42484250765). The new notebook reorganises EDA into concise full-data overview, general EDA and in-depth EDA; all model code and saved results are inherited unchanged. **Only EDA was re-executed for v3.8 verification, not full model retraining.**
+
+**v3.7 computational evidence:**
 
 **Current project entry points:** [Requirements](PRD_v3.7.md) · [v3.7 notebook](online_shoppers_prd_v3_7.ipynb) · [verification script](scripts/run_verify_prd_v3_7.py) · [merged PR #17](https://github.com/lyd-sg/dsa211/pull/17).
 
