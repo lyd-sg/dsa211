@@ -14,7 +14,7 @@ For the full section-by-section comparison, reasoning behind each retained/remov
 - **Condensed general EDA:** Kept numerical skewness summaries and two histograms; merged rare-category findings into the categorical summary.
 - **Streamlined in-depth EDA:** Retained zero/positive activity rates, positive-intensity and BounceRates percentile tables, four within-class correlations, Q–Q plots and an annotated SpecialDay chart.
 - **Removed redundant analyses:** Dropped Month × VisitorType, standalone PageValues purchase-rate EDA, the 17-row predictor-availability table and repeated tables/plots.
-- **Improved narrative:** Moved PageValues timing assumptions and EDA-to-experiment justifications into Model Development; kept EDA focused on findings.
+- **Improved narrative:** Moved the PageValues timing assumption into Model Development; removed the standalone EDA-to-experiment bridge while retaining broader model-specific discussion.
 - **Preserved results and archived v3.7:** No model specifications, selection decisions or saved scores changed; retired v3.7 files are preserved under [archive/versions/v3.7](archive/versions/v3.7/).
 
 ### Notebook structure
