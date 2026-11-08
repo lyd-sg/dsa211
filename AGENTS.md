@@ -1,6 +1,8 @@
-# Current DSA211 implementation handoff — PRD v3.7 verified
+# Current DSA211 implementation handoff — v3.8 EDA presentation; verified v3.7 computation
 
-**Current notebook:** [online_shoppers_prd_v3_7.ipynb](online_shoppers_prd_v3_7.ipynb). **Requirements:** [PRD_v3.7.md](PRD_v3.7.md). **Verification:** [v3.7 audit — PASS](artifacts/prd_v3_7/v3_7_verification.json). **History:** [merged PR #17](https://github.com/lyd-sg/dsa211/pull/17). The notebook was executed in full and independently checked on 5 November 2026; retain the earlier version evidence for historical reference.
+**Current presentation notebook:** [online_shoppers_prd_v3_8.ipynb](online_shoppers_prd_v3_8.ipynb). **New requirements:** [PRD_v3.8.md](PRD_v3.8.md). **v3.8 verification:** [GitHub Actions PASS](https://github.com/lyd-sg/dsa211/actions/runs/42484250765); pre-modelling code executed successfully, while model code and outputs are inherited unchanged. A complete v3.8 model retraining was not performed.
+
+**Frozen computational notebook:** [online_shoppers_prd_v3_7.ipynb](online_shoppers_prd_v3_7.ipynb). **Requirements:** [PRD_v3.7.md](PRD_v3.7.md). **Verification:** [v3.7 audit — PASS](artifacts/prd_v3_7/v3_7_verification.json). **History:** [merged PR #17](https://github.com/lyd-sg/dsa211/pull/17). The notebook was executed in full and independently checked on 5 November 2026; retain the earlier version evidence for historical reference.
 
 ## Core implementation principle
 
@@ -19,9 +21,11 @@ Display tables contain only: **Model, CV ROC-AUC, AUC SE, CV AP, ΔAUC against r
 
 **Sequential selection:** The 1-SE cutoff uses the **best mean fold ROC-AUC of the incumbent/challenger pair minus the SE of that best model**. Select simplest candidate above cutoff; break complexity ties by higher AUC, then incumbent. Inner regularisation picks the strongest penalty within inner 1-SE. Across six finalists select highest mean training ROC-AUC, not a global 1-SE model. AP and hypothetical business thresholds do not drive selection.
 
-## EDA / syllabus contract
+## v3.8 EDA / syllabus contract
 
-Restore zero/positive activity, positive intensity, Month × VisitorType support, rare-category counts, SpecialDay, feature availability, within-class covariance, long tails, binned marginal logits and the EDA-to-hypothesis bridge. Cite course correspondences as appropriate: Lectures 2–4 for function forms, collinearity and interactions; Lecture/Lab 6 for Naive Bayes and binarisation; Lab 7 for cross-validation, leakage-safe pipelines and polynomial features; Lecture 8 for grouped subset/1-SE; Lecture/Lab 9 for Ridge, LASSO and Elastic Net; Lecture 10 for classification trees. Do not add unsupported VisitorType × Month interaction or unrelated models solely for syllabus breadth.
+**Approved presentation order:** Section 1 Initial Data Overview (full source dataset; includes data quality, class balance, and finally stratified 80/20 split), Section 2 General EDA (numerical and categorical distributions on training rows), Section 3 In-depth EDA (zero/positive activity; positive-only quartiles; BounceRates zero + four quartiles; theoretically motivated within-class correlations; two class-specific Q–Q plots; annotated SpecialDay chart). Each EDA presents *what was analysed* and *what the evidence reveals* — no future model specifications, CV methodology, or EDA-to-experiment bridge. The rare category detail is merged into general categorical EDA; standalone Month × VisitorType, long predictor timing table, and standalone PageValues purchase-rate EDA are removed. The PageValues timing precaution appears as one line when introducing operational models. **Do not reintroduce removed EDA merely to cover syllabus topics.**
+
+**Course alignment remains unchanged:** Lectures 2–4: functional forms, collinearity and interactions; Lecture/Lab 6: Naive Bayes and binarisation; Lab 7: cross-validation, leakage-safe pipelines and polynomial features; Lecture 8: grouped subset/1-SE; Lecture/Lab 9: Ridge/LASSO/Elastic Net; Lecture 10: trees. Model and experiment explanations remain in Model Development, with original canonical IDs preserved in the full audit.
 
 **Tree:** Four compact full/pruned comparison rows in Section 7B. The **Entropy pruned tree image must be directly after this comparison and before Section 8**.
 
