@@ -6,14 +6,21 @@
 
 **Verified scope:** The v3.8 EDA was re-executed successfully, and all inherited model source code and saved model outputs were checked against v3.7. **The entire v3.8 model-development pipeline has not been retrained.** Its numerical results remain grounded in the fully executed, independently verified [archived v3.7 notebook](archive/versions/v3.7/online_shoppers_prd_v3_7.ipynb) and [v3.7 PASS audit](artifacts/prd_v3_7/v3_7_verification.json).
 
+### Changes from v3.7 to v3.8
+
+- **Restructured EDA:** Separated the full-dataset overview and stratified split from training-only general and in-depth EDA.
+- **Condensed general EDA:** Kept numerical skewness summaries and two histograms; merged rare-category findings into the categorical summary.
+- **Streamlined in-depth EDA:** Retained zero/positive activity rates, positive-intensity and BounceRates percentile tables, four within-class correlations, Q–Q plots and an annotated SpecialDay chart.
+- **Removed redundant analyses:** Dropped Month × VisitorType, standalone PageValues purchase-rate EDA, the 17-row predictor-availability table and repeated tables/plots.
+- **Improved narrative:** Moved PageValues timing assumptions and EDA-to-experiment justifications into Model Development; kept EDA focused on findings.
+- **Preserved results and archived v3.7:** No model specifications, selection decisions or saved scores changed; retired v3.7 files are preserved under [archive/versions/v3.7](archive/versions/v3.7/).
+
 ### Notebook structure
 
 1. **Initial Data Overview:** Dataset, missingness, 125 excess identical records retained, target distribution and finally the stratified 80/20 split.
 2. **General EDA (training only):** Numerical distribution table and two skewness figures; concise categorical distribution and rare-level findings.
 3. **In-depth EDA (training only):** Zero vs positive activity, positive-only intensity, BounceRates groups, within-class correlations, Q–Q plots and SpecialDay.
 4. **Model Development:** Unchanged classifier and tree specification history, sequential one-SE model selection, finalist ranking and results. Modelling rationales are discussed here rather than in EDA.
-
-The standalone Month × VisitorType exploration, PageValues purchase-rate table, 17-row timing table, repeated summaries and EDA-to-experiment bridge were removed or relocated under [PRD v3.8](PRD_v3.8.md).
 
 ### Fixed methodology and results
 
