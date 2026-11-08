@@ -4,7 +4,7 @@
 **Status:** IMPLEMENTED — EDA AND PRESENTATION VERIFIED; MODEL RESULTS INHERITED UNCHANGED FROM VERIFIED v3.7  
 **Date:** 8 November 2026  
 **Scope:** EDA presentation and narrative restructuring only; no new modelling experiments.  
-**Source of truth:** [Executed v3.7 notebook](online_shoppers_prd_v3_7.ipynb), [v3.7 PRD](PRD_v3.7.md), [v3.7 verification](artifacts/prd_v3_7/v3_7_verification.json). v3.7 remains the current verified analysis until v3.8 is built and passes its own checks.
+**Active presentation:** [v3.8 notebook](online_shoppers_prd_v3_8.ipynb). **Frozen numerical provenance:** [archived executed v3.7 notebook](archive/versions/v3.7/online_shoppers_prd_v3_7.ipynb), [archived v3.7 PRD](archive/versions/v3.7/PRD_v3.7.md), [v3.7 PASS audit](artifacts/prd_v3_7/v3_7_verification.json). v3.8 is the active presentation; its model results are inherited unchanged from v3.7.
 
 ### 1. Objective and non-negotiable boundaries
 
@@ -13,7 +13,7 @@ Produce an easier-to-follow notebook by eliminating redundant EDA outputs while 
 1. **EDA shows only the analysis performed and what the data reveal.** Do not introduce model specifications, transformations, CV results, predictions, or an EDA-to-experiment bridge in Sections 1–3. Explanations of how findings motivate particular experiments belong inside **Model Development**.
 2. **Keep each result once.** Combine duplicate summaries, repeated histograms, replicated correlations, long intermediate tables and repeated commentary. Retain short interpretations, sample support where it affects reliability, and approved figures.
 3. **No statistical redesign.** Preserve the fixed source data, duplicate-row retention, split, fold membership, preprocessing, all historical candidate configurations/IDs, sequential 1-SE decisions, inner tuning, trees, thresholds, finalist selection, saved performance and final refit. Do not silently modify or rerun model selection as part of presentation cleanup.
-4. **Preserve v3.7.** Implement later in a separate versioned notebook, proposed `online_shoppers_prd_v3_8.ipynb`, with separate verification/evidence if required. Do not overwrite or falsely re-label v3.7 results.
+4. **Preserve v3.7.** Keep the original executed notebook, PRD and verification source in `archive/versions/v3.7/` and the retired workflow in `archive/workflows/`. Leave the original numerical evidence under `artifacts/prd_v3_7/` unchanged.
 5. **Course-aligned and prediction-only.** No causal claims, unsupported significance claims, claims of verified predictor availability, or additional techniques unrelated to the already executed project.
 
 ### 2. Final notebook narrative and exact EDA requirements
@@ -134,7 +134,7 @@ All requirements and PASS evidence from **PRD v3.7 Sections 2–4 and 6–11** r
 
 ### 6. Implementation and acceptance criteria
 
-Build only when the implementation task is authorised; **creating this PRD does not mark v3.8 implemented**.
+The implementation has been completed, with v3.8 EDA execution verified and inherited v3.7 model code/outputs checked unchanged; the following acceptance criteria remain applicable.
 
 **Required verification before declaring PASS:**
 1. Versioned notebook parses/executes without errors; all rendered EDA tables/figures contain training-only values after 1.4.
@@ -144,7 +144,7 @@ Build only when the implementation task is authorised; **creating this PRD does 
 5. Section 3 contains exactly the six approved distinct analyses: zero/positive activity, positive-only intensity, BounceRates quartiles, four conceptual correlation pairs, two class-specific Q–Q plots and the annotated six-point SpecialDay chart. Definitions, rounding, sample supports and stated findings reconcile with the data.
 6. `Month × VisitorType` standalone output, 17-row timing table, dedicated `PageValues` purchase-rate output, duplicated empirical-logit output and EDA-to-experiment bridge are absent from EDA. The operational-input timing assumption appears once in Model Development.
 7. Every original model specification, actual fold, selected incumbent, family finalist, tree, six-way winner, training metric, reserved check and full-data refit is numerically unchanged from verified v3.7, with independent machine-readable PASS/FAIL results. Check no EDA cleanup removes variables required downstream.
-8. Update the new version-specific verifier, documentation and README **only after the new notebook passes**. The existing v3.7 verification script remains usable for v3.7; preserve all earlier notebooks, PRDs and evidence untouched.
+8. Update the new version-specific verifier, documentation and README **only after the new notebook passes**. The historical v3.7 verifier is archived unchanged; it was written for the former root-level layout and is retained for provenance, not as the active v3.8 command. Preserve all historical numerical evidence.
 9. Delivery includes an explicit before/after EDA inventory and concise change log, and states clearly whether checks passed. Do not print a giant internal traceability table in the notebook's EDA.
 
 ### 7. Completion boundary
@@ -159,3 +159,8 @@ Build only when the implementation task is authorised; **creating this PRD does 
 - **Results:** Original v3.7 model results, winner, thresholds, holdout caveats and final refit are inherited without numerical changes. The verification is **not** a claim that the full computational model-development section was retrained from scratch in v3.8.
 - **Presentation removals:** Month × VisitorType analysis; standalone PageValues purchase-rate output; detailed 17-row predictor timing table; duplicate category, correlation, histogram, quantile and empirical-logit tables; EDA-to-experiment bridge. Relevant rationales remain with model-development explanations.
 - **No change** to source data, train/holdout partition, five CV folds, 43-trial ledger, 28 curated experiment labels, six finalists or original model-selection logic.
+
+
+### 9. v3.7 retirement and active-version housekeeping (8 November 2026)
+
+v3.8 is the sole root-level notebook/PRD pair. The superseded v3.7 executed notebook, PRD and historical verifier are preserved without byte changes in [`archive/versions/v3.7/`](archive/versions/v3.7/README.md); its historical GitHub Actions definition is preserved in [`archive/workflows/`](archive/workflows/verify-prd-v3-7.yml). [Historical numerical evidence](artifacts/prd_v3_7/) stays at its existing location because the v3.8 notebook inherits its results. The [active verifier](scripts/verify_prd_v3_8.py) checks v3.8 against the archived v3.7 notebook. The archival [manifest](archive/versions/v3.7/RETIREMENT_MANIFEST.json) records original Git blob identifiers. This change does not refit or reselect models.

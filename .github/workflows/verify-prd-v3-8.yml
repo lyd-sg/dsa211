@@ -1,11 +1,19 @@
-name: Verify v3.8 EDA redesign without model retraining
+name: Verify active DSA211 v3.8 EDA and inherited evidence
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'online_shoppers_prd_v3_8.ipynb'
+      - 'scripts/verify_prd_v3_8.py'
+      - 'archive/versions/v3.7/online_shoppers_prd_v3_7.ipynb'
+      - '.github/workflows/verify-prd-v3-8.yml'
   pull_request:
     branches: [main]
     paths:
       - 'online_shoppers_prd_v3_8.ipynb'
       - 'scripts/verify_prd_v3_8.py'
       - '.github/workflows/verify-prd-v3-8.yml'
+      - 'archive/versions/v3.7/online_shoppers_prd_v3_7.ipynb'
   workflow_dispatch:
 
 permissions:

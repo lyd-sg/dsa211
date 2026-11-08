@@ -12,5 +12,6 @@ They remain available for historical verification only, with the original conten
 - `validate-notebook.yml`: early revised notebook
 - [verify-prd-v3-5.yml](verify-prd-v3-5.yml): v3.5 historical presentation audit
 - [build-prd-v3-6.yml](build-prd-v3-6.yml): v3.6 historical full execution
+- [verify-prd-v3-7.yml](verify-prd-v3-7.yml): v3.7 historical saved-evidence verification
 
-**Active workflow:** [verify-prd-v3-7.yml](../../.github/workflows/verify-prd-v3-7.yml) verifies the executed current notebook and saved evidence **without refitting models**. Historical CI definitions are not runnable from their relocated paths without explicit, carefully reviewed adaptation, and should not be reactivated casually.
+**Active workflow:** [verify-prd-v3-8.yml](../../.github/workflows/verify-prd-v3-8.yml) verifies current EDA execution and frozen model evidence against archived v3.7 **without model retraining**. Historical CI definitions are not runnable from their relocated paths without explicit, carefully reviewed adaptation, and should not be reactivated casually.

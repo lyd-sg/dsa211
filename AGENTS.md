@@ -1,36 +1,47 @@
-# Current DSA211 implementation handoff — v3.8 EDA presentation; verified v3.7 computation
+# DSA211 implementation handoff — active v3.8
 
-**Current presentation notebook:** [online_shoppers_prd_v3_8.ipynb](online_shoppers_prd_v3_8.ipynb). **New requirements:** [PRD_v3.8.md](PRD_v3.8.md). **v3.8 verification:** [GitHub Actions PASS](https://github.com/lyd-sg/dsa211/actions/runs/42484250765); pre-modelling code executed successfully, while model code and outputs are inherited unchanged. A complete v3.8 model retraining was not performed.
+**Active analysis:** [v3.8 notebook](online_shoppers_prd_v3_8.ipynb) and [PRD v3.8](PRD_v3.8.md). **Current verifier:** `python scripts/verify_prd_v3_8.py --run-eda` and [active workflow](.github/workflows/verify-prd-v3-8.yml). v3.8's pre-modelling cells were executed and all inherited modelling source/output checked; **a new full model retrain was not performed**.
 
-**Frozen computational notebook:** [online_shoppers_prd_v3_7.ipynb](online_shoppers_prd_v3_7.ipynb). **Requirements:** [PRD_v3.7.md](PRD_v3.7.md). **Verification:** [v3.7 audit — PASS](artifacts/prd_v3_7/v3_7_verification.json). **History:** [merged PR #17](https://github.com/lyd-sg/dsa211/pull/17). The notebook was executed in full and independently checked on 5 November 2026; retain the earlier version evidence for historical reference.
+**Frozen numerical provenance:** [archived executed v3.7 notebook](archive/versions/v3.7/online_shoppers_prd_v3_7.ipynb), [v3.7 requirements](archive/versions/v3.7/PRD_v3.7.md), [v3.7 PASS audit](artifacts/prd_v3_7/v3_7_verification.json). The [historical verifier](archive/versions/v3.7/run_verify_prd_v3_7.py) and [retired workflow](archive/workflows/verify-prd-v3-7.yml) are preserved **unchanged**; their original root-layout path assumptions do not make them current tools. Do not recreate root-level v3.7 duplicates.
 
-## Core implementation principle
+## Scope and invariants
 
-**Do not rebuild v3.7 from scratch.** Preserve the exact executed v3.6 notebook's computation, seed-42 split, common outer folds, fold-fitted feature transform, sequential 1-SE comparator, nested regularisation selection, D15 grouped backward subset search, trees, selection, thresholds, training/reserved check and refits. Restore the six substantive EDA investigations and readable presentation from the executed v3.5 notebook. Add **only** B5/B6 as new model hypotheses. Keep historical v3.4/v3.5/v3.6 evidence unchanged.
+- Do **not** rebuild from scratch, add new classifiers, reselect models, or rerun the historically consulted reserved set. Preserve the 12,330-row original data, 125 excess identical full rows, seed-42 stratified **9,864/2,466** split, five shared outer folds, nested fold-safe fitting, 43 original trials, all selection decisions, trees, thresholds and final refit.
+- `PageValues` remains included in the **All17 diagnostic baselines** but excluded from all **Operational16** specifications due to uncertain prediction-time availability. Other 16 input features are assumed available, not independently verified. The reserved set is not a pristine independent generalisation check.
+- Never modify historical `artifacts/prd_v3_7/` (or prior versions), and do not change archived Git blobs. The active v3.8 verifier compares code and saved outputs to the archived v3.7 notebook.
 
-## v3.7 presentation aliases
+## Approved v3.8 EDA narrative
 
-- Logistic: displayed `L0–L6` maps to original `L0,L1,L3,L4,L10,L13,L14`.
-- LDA: displayed `D0–D6` maps to original `D0,D1,D3,D4,D9,D11,D15`.
-- Gaussian NB: displayed `G0–G6` maps to original `G0,G2,G3,G4,G7,G8,G9`.
-- Bernoulli NB: displayed `B0–B6` maps to original `B0,B1,B2,B3,B4,B5,B6`.
+1. **Initial Data Overview (full dataset):** Dataset structure, missingness/duplicates, outcome class balance; stratified split last.
+2. **General EDA (training only):** Ten-row numerical table with two skewness histograms; six-row categorical summary and merged rare-level findings.
+3. **In-depth EDA (training only):** Zero/positive activity; positive-only activity quartiles; BounceRates (zero + four positive percentiles); four conceptually selected correlations; two class-conditional normal Q–Q plots; annotated six-point SpecialDay chart.
+4. **Model Development:** Cross-validation and trial-specific motivations, results, acceptance decisions and final comparison.
 
-Display tables contain only: **Model, CV ROC-AUC, AUC SE, CV AP, ΔAUC against real incumbent, Complexity, Retained after iteration**. Exactly seven scored rows per family. No status, trial-version, raw-parent, skip-reason or full-ledger table in the submitted notebook. All original experiment IDs, parents, skipped trials, fold results and acceptance decisions must remain in machine-readable audit files. `Retained after iteration` is derived from the **full actual sequential** pathway, including hidden scored tests; it is not recomputed by replaying only seven displayed rows.
+Do not reinsert Month × VisitorType, standalone PageValues purchase-rate EDA, the lengthy timing table, redundant empirical-logit tables, or the EDA-to-experiment bridge. EDA text should only describe what the data show, not anticipate later trials.
 
-**B5:** Replace `ProductRelated` and `ProductRelated_Duration` Bernoulli binary inputs with one conjunction of their separate training-fold median exceedance indicators. Learn both medians within each fitting fold; do not retain the original pair alongside the composite. **B6:** Pool rare Browser/TrafficType categories with fewer than 50 observations per fitting fold, preserving binary one-hot encoding. Apply B6 to the actually retained incumbent after the B5 selection decision. Do not assume either is accepted.
+## Classifier presentations and selection (unchanged)
 
-**Sequential selection:** The 1-SE cutoff uses the **best mean fold ROC-AUC of the incumbent/challenger pair minus the SE of that best model**. Select simplest candidate above cutoff; break complexity ties by higher AUC, then incumbent. Inner regularisation picks the strongest penalty within inner 1-SE. Across six finalists select highest mean training ROC-AUC, not a global 1-SE model. AP and hypothetical business thresholds do not drive selection.
+Curated table labels are **display aliases**; original canonical IDs remain in the full historical ledger:
 
-## v3.8 EDA / syllabus contract
+| Family | Display IDs | Original trial IDs |
+|---|---|---|
+| Logistic | L0–L6 | L0,L1,L3,L4,L10,L13,L14 |
+| LDA | D0–D6 | D0,D1,D3,D4,D9,D11,D15 |
+| Gaussian NB | G0–G6 | G0,G2,G3,G4,G7,G8,G9 |
+| Bernoulli NB | B0–B6 | B0,B1,B2,B3,B4,B5,B6 |
 
-**Approved presentation order:** Section 1 Initial Data Overview (full source dataset; includes data quality, class balance, and finally stratified 80/20 split), Section 2 General EDA (numerical and categorical distributions on training rows), Section 3 In-depth EDA (zero/positive activity; positive-only quartiles; BounceRates zero + four quartiles; theoretically motivated within-class correlations; two class-specific Q–Q plots; annotated SpecialDay chart). Each EDA presents *what was analysed* and *what the evidence reveals* — no future model specifications, CV methodology, or EDA-to-experiment bridge. The rare category detail is merged into general categorical EDA; standalone Month × VisitorType, long predictor timing table, and standalone PageValues purchase-rate EDA are removed. The PageValues timing precaution appears as one line when introducing operational models. **Do not reintroduce removed EDA merely to cover syllabus topics.**
+Visible table columns: Model, CV ROC-AUC, AUC SE, CV AP, ΔAUC against **the true incumbent**, Complexity, Retained after iteration. A retained alias must reflect the **full sequential history**, not an abbreviated seven-step replay. All original trials, skips, fold scores and real parents are preserved in artifacts.
 
-**Course alignment remains unchanged:** Lectures 2–4: functional forms, collinearity and interactions; Lecture/Lab 6: Naive Bayes and binarisation; Lab 7: cross-validation, leakage-safe pipelines and polynomial features; Lecture 8: grouped subset/1-SE; Lecture/Lab 9: Ridge/LASSO/Elastic Net; Lecture 10: trees. Model and experiment explanations remain in Model Development, with original canonical IDs preserved in the full audit.
+The within-family sequential one-SE rule uses **the higher mean fold ROC-AUC of the incumbent/challenger pair minus the SE of that better model**; among the two eligible candidates choose the simpler (on complexity ties: higher AUC, then incumbent). Inner tuning is fold-safe. Overall finalist selection uses highest mean five-fold training ROC-AUC without a global one-SE rule. Retain historical grouped backward LDA, penalised logistic and Gini/Entropy tree pruning methods. A 1-SE cutoff is a parsimony heuristic, not a significance test.
 
-**Tree:** Four compact full/pruned comparison rows in Section 7B. The **Entropy pruned tree image must be directly after this comparison and before Section 8**.
+**Frozen outcome:** 43 planned, 38 scored, 5 inapplicable; 28 visible trial aliases, six finalists. Canonical **L13 Logistic Regression** (display L5) wins with mean CV ROC-AUC **0.75892**, AP **0.34236**. Historically reused reserved check AUC **0.74313**, AP **0.33358**. No causal inference or pristine test-set claims.
 
-## Verification and change discipline
+## Verification and archival hygiene
 
-Run `python scripts/run_verify_prd_v3_7.py --run` using the repository's `requirements.txt`. Its audit expects **43 planned**, **38 scored**, **five skipped** (`D5,D6,D8,G5,G6`), **28 displayed**, and six finalists. These counts have been **verified**. `artifacts/prd_v3_7/` receives a full ledger, fold results, display-ID mapping, original and pruned trees, finalist OOF, outcome analyses and run metadata. Reconfirm independently that all accepted sequential stages are visible. Run passed: all 31 code cells executed without errors; 34 sequential decisions and 240 fold records independently verified.
+Run only the active verifier for presentation checks:
 
-**Verified family finalists:** Logistic original L13 (displayed L5), LDA original D15 (displayed D6), Gaussian NB G9 (displayed G6), and Bernoulli NB B6 (displayed B6). **Overall winner:** original L13 Logit with training CV AUC 0.75892 and mean AP 0.34236. B5 and B6 were both accepted under sequential 1-SE parsimony; B6 AUC 0.73953, AP 0.30574. Historically reused reserved AUC 0.74313 and AP 0.33358 are not fresh independent test evidence. [Numerical audit](artifacts/prd_v3_7/v3_7_verification.json) is PASS and v3.7 is live on `main`. Previous notebooks/PRDs, version-specific scripts and workflows are preserved under [archive/](archive/README.md). The reserved sample is historically reused and must never be described as pristine. Avoid overwriting `artifacts/prd_v3_4/`, `artifacts/prd_v3_5/`, `artifacts/prd_v3_6/`, or archived notebooks. Avoid moving goalposts: no new hypotheses or extra experiments without a concrete defect or user authorisation.
+```bash
+python scripts/verify_prd_v3_8.py --run-eda
+```
+
+This **does not retrain models**. The archived v3.7 PASS audit supplies the fully executed numerical history. The old v3.7 verifier is immutable and retains historical root-path assumptions. Consult the [archive index](archive/versions/README.md), [workflow archive](archive/workflows/README.md) and [v3.7 retirement manifest](archive/versions/v3.7/RETIREMENT_MANIFEST.json) for source provenance. Don't reactivate archived workflows or overwrite evidence.
