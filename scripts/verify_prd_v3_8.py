@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Verify v3.8 presentation changes without retraining frozen v3.7 models."""
 from __future__ import annotations
-import argparse, ast, json
+import argparse, ast, json, copy, re
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -47,42 +47,74 @@ def check():
     models=[c for c in nb.cells if c.cell_type=="code"]
 
     def without_note_wording(source):
-        # The EDA_NOTES dictionary contains ONLY presentation copy.
-        # Compare every other byte of the inherited model cell to the archive.
+        # Only the 28 explanation strings and display-only alias rendering may change.
         begin="\nEDA_NOTES={"
         end="\nDISPLAY_ALIAS_ROWS=[]"
         if begin not in source: return source
         assert source.count(begin)==1 and source.count(end)==1
         a=source.index(begin); b=source.index(end,a)
-        return source[:a]+"\nEDA_NOTES=<PRESENTATION_COPY_ONLY>"+source[b:]
+        normalized=source[:a]+"\nEDA_NOTES=<PRESENTATION_COPY_ONLY>"+source[b:]
+        normalized=normalized.replace(
+            "labels={original:prefix+str(i+1) for i,original in enumerate(origins)}",
+            "labels={original:prefix+str(i) for i,original in enumerate(origins)}"
+        )
+        normalized=normalized.replace(
+            "state='Baseline' if initial else ('Accepted' if record['accepted'] else 'Rejected')",
+            "state='baseline' if initial else ('accepted' if record['accepted'] else 'not retained')"
+        )
+        normalized=normalized.replace(
+            'notes.append(f"- **{alias} — {state}, retained {visible_survivor}**\\n\\n  {EDA_NOTES[original]}")',
+            'notes.append(f"- **{alias} — {state}; retained {visible_survivor}.** {EDA_NOTES[original]}")'
+        )
+        normalized=normalized.replace(
+            "**Iteration notes — EDA evidence and specification reasoning**",
+            "**Iteration notes, EDA and course rationale**"
+        )
+        return normalized
 
-    def check_saved_outputs(old_outputs,new_outputs):
-        import copy
+    def restore_old_display_aliases(value):
+        def lower(match):
+            return match.group(1)+str(int(match.group(2))-1)
+        if isinstance(value,str):
+            return re.sub(r"\b([LDBG])([1-7])\b",lower,value)
+        if isinstance(value,list):
+            return [restore_old_display_aliases(item) for item in value]
+        return value
+
+    def check_saved_outputs(old_outputs,new_outputs,display_model_table=False):
         assert len(old_outputs)==len(new_outputs),"Changed model output count"
-        for old,new in zip(old_outputs,new_outputs):
+        for i,(old,new) in enumerate(zip(old_outputs,new_outputs)):
             if old==new: continue
-            # Permit revisions ONLY to displayed explanatory markdown;
-            # numerical score tables, plots and all other output bytes are frozen.
             assert old.output_type=="display_data" and new.output_type=="display_data"
-            assert "text/markdown" in old.data and "text/markdown" in new.data
             a=copy.deepcopy(old); b=copy.deepcopy(new)
-            del a.data["text/markdown"]; del b.data["text/markdown"]
-            assert a==b,"Changed inherited non-rationale model output"
+            if "text/markdown" in a.data and "text/markdown" in b.data:
+                # Text explanation only, with no numerical changes.
+                del a.data["text/markdown"];del b.data["text/markdown"]
+            elif display_model_table and i==0:
+                # The only permitted table edit shifts visible labels N -> N+1.
+                for format in ("text/plain","text/html"):
+                    assert format in a.data and format in b.data
+                    b.data[format]=restore_old_display_aliases(b.data[format])
+            assert a==b,"Changed inherited model values, plots or non-display outputs"
 
     for c in original:
         matching=[n for n in models
                   if without_note_wording(n.source.strip())==without_note_wording(c.source.strip())]
-        assert len(matching)==1, f"Missing/changed model code outside explanatory notes: {c.source[:80]}"
-        check_saved_outputs(c.outputs,matching[0].outputs)
+        assert len(matching)==1, f"Missing/changed model code outside approved display edits: {c.source[:80]}"
+        check_saved_outputs(c.outputs,matching[0].outputs,
+                            display_model_table="display_family(" in c.source)
 
-    # Every scored display has seven notes, including the baseline;
-    # each changed model has a concrete Section 2/3 EDA reference.
-    for cell_index in (48,50,52,54):
+    assert "labels={original:prefix+str(i+1)" in nb.cells[46].source
+    for cell_index,prefix in ((48,"L"),(50,"D"),(52,"G"),(54,"B")):
         data=nb.cells[cell_index].outputs[-1].data
         markdown="".join(data["text/markdown"])
-        items=[line for line in markdown.splitlines() if line.startswith("- **")]
-        assert len(items)==7,(cell_index,len(items))
-        assert sum("Section " in line or "Sections " in line for line in items)>=6,cell_index
+        titles=re.findall(r"^- \*\*([LDBG]\d+) — (Baseline|Accepted|Rejected), retained ([LDBG]\d+)\*\*$",
+                          markdown,re.MULTILINE)
+        assert len(titles)==7,(cell_index,titles)
+        assert [a for a,_,_ in titles]==[f"{prefix}{j}" for j in range(1,8)]
+        paragraphs=[part for part in markdown.split("\n\n- **") if "Section " in part or "Sections " in part]
+        assert len(paragraphs)>=6,(cell_index,len(paragraphs))
+        assert "\n\n  " in markdown
 
     assert len(nb.cells)==75
     assert sum(c.cell_type=="code" for c in nb.cells)==33
