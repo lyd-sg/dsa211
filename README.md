@@ -29,7 +29,7 @@ For the full section-by-section comparison, reasoning behind each retained/remov
 - **Dataset:** 12,330 source sessions; 17 predictors. Stratified seed-42 split: 9,864 training and 2,466 historically consulted reserved observations. Operational candidates use 16 predictors, excluding `PageValues` due to uncertain decision-time availability, not confirmed leakage.
 - **Evaluation:** Five shared stratified training folds with fold-fitted preprocessing and nested tuning. Within classifier families, the sequential 1-SE parsimony rule compares the actual incumbent and challenger. Six finalists are ranked by highest mean training-fold ROC-AUC.
 - **Original experiment lineage:** 43 planned, 38 scored, five inapplicable, and 28 displayed aliases (seven per classifier). Four classifier finalists and two pruned-tree finalists are retained.
-- **Verified historical winner:** Original L13 Logistic Regression (displayed L5); mean training CV ROC-AUC **0.75892**, mean AP **0.34236**. Reserved ROC-AUC **0.74313**, AP **0.33358**. The historically reused reserved set is **not a pristine independent test**.
+- **Verified historical winner:** Original L13 Logistic Regression (displayed L6); mean training CV ROC-AUC **0.75892**, mean AP **0.34236**. Reserved ROC-AUC **0.74313**, AP **0.33358**. The historically reused reserved set is **not a pristine independent test**.
 
 ### Verification
 
