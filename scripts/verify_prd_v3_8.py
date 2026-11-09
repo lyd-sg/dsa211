@@ -45,10 +45,44 @@ def check():
     # are preserved byte-for-byte, excluding the removed independent PageValues EDA cell 28.
     original=[c for i,c in enumerate(v37.cells) if i>=24 and i!=28 and c.cell_type=="code"]
     models=[c for c in nb.cells if c.cell_type=="code"]
+
+    def without_note_wording(source):
+        # The EDA_NOTES dictionary contains ONLY presentation copy.
+        # Compare every other byte of the inherited model cell to the archive.
+        begin="\\nEDA_NOTES={"
+        end="\\nDISPLAY_ALIAS_ROWS=[]"
+        if begin not in source: return source
+        assert source.count(begin)==1 and source.count(end)==1
+        a=source.index(begin); b=source.index(end,a)
+        return source[:a]+"\\nEDA_NOTES=<PRESENTATION_COPY_ONLY>"+source[b:]
+
+    def check_saved_outputs(old_outputs,new_outputs):
+        import copy
+        assert len(old_outputs)==len(new_outputs),"Changed model output count"
+        for old,new in zip(old_outputs,new_outputs):
+            if old==new: continue
+            # Permit revisions ONLY to displayed explanatory markdown;
+            # numerical score tables, plots and all other output bytes are frozen.
+            assert old.output_type=="display_data" and new.output_type=="display_data"
+            assert "text/markdown" in old.data and "text/markdown" in new.data
+            a=copy.deepcopy(old); b=copy.deepcopy(new)
+            del a.data["text/markdown"]; del b.data["text/markdown"]
+            assert a==b,"Changed inherited non-rationale model output"
+
     for c in original:
-        matching=[n for n in models if n.source.strip()==c.source.strip()]
-        assert len(matching)==1, f"Missing/changed model code: {c.source[:80]}"
-        assert matching[0].outputs==c.outputs,"Changed inherited model output"
+        matching=[n for n in models
+                  if without_note_wording(n.source.strip())==without_note_wording(c.source.strip())]
+        assert len(matching)==1, f"Missing/changed model code outside explanatory notes: {c.source[:80]}"
+        check_saved_outputs(c.outputs,matching[0].outputs)
+
+    # Every scored display has seven notes, including the baseline;
+    # each changed model has a concrete Section 2/3 EDA reference.
+    for cell_index in (48,50,52,54):
+        data=nb.cells[cell_index].outputs[-1].data
+        markdown="".join(data["text/markdown"])
+        items=[line for line in markdown.splitlines() if line.startswith("- **")]
+        assert len(items)==7,(cell_index,len(items))
+        assert sum("Section " in line or "Sections " in line for line in items)>=6,cell_index
 
     assert len(nb.cells)==75
     assert sum(c.cell_type=="code" for c in nb.cells)==33
