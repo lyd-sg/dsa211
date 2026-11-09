@@ -49,12 +49,12 @@ def check():
     def without_note_wording(source):
         # The EDA_NOTES dictionary contains ONLY presentation copy.
         # Compare every other byte of the inherited model cell to the archive.
-        begin="\\nEDA_NOTES={"
-        end="\\nDISPLAY_ALIAS_ROWS=[]"
+        begin="\nEDA_NOTES={"
+        end="\nDISPLAY_ALIAS_ROWS=[]"
         if begin not in source: return source
         assert source.count(begin)==1 and source.count(end)==1
         a=source.index(begin); b=source.index(end,a)
-        return source[:a]+"\\nEDA_NOTES=<PRESENTATION_COPY_ONLY>"+source[b:]
+        return source[:a]+"\nEDA_NOTES=<PRESENTATION_COPY_ONLY>"+source[b:]
 
     def check_saved_outputs(old_outputs,new_outputs):
         import copy
