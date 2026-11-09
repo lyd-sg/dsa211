@@ -75,13 +75,24 @@ def check():
     assert results==[(4423,19.2),(1361,23.4),(1365,16.7),(1355,8.0),(1360,1.8)],results
     for r in [("ProductRelated",27),("Informational",7747),("Informational_Duration",7938)]:
         assert tr[r[0]].eq(0).sum()==r[1]
+    activity=["Administrative","Administrative_Duration","Informational",
+              "Informational_Duration","ProductRelated","ProductRelated_Duration"]
+    for col in activity:
+        mask=tr[col].gt(0)
+        assert int((~mask).sum())+int(mask.sum())==9864
+        qbin, qedges=pd.qcut(tr.loc[mask,col],4,labels=False,duplicates="drop",retbins=True)
+        assert int(qbin.value_counts().sum())==int(mask.sum()),col
+        if col=="Informational":
+            assert qbin.nunique()==3, f"Expected 3 informational groups, got {qbin.nunique()}"
+            assert len(qedges)==4, f"Expected 4 distinct informational edges, got {qedges}"
+    print("PASS v3.8: independently verified Section 3 group sizes and 3 Informational bins")
     print("PASS v3.8: notebook syntax, ordered sections, 2 embedded figures,")
     print("  frozen model code+outputs unchanged, verified source split/EDA metrics.")
     return nb,eda_end
 
 def run_eda(nb,stop):
     from nbclient import NotebookClient
-    # Run only the EDA and data partition cells: no model fitting or selection.
+    # Run only EDA and data partition cells, not inherited model fitting/selection.
     sub=nbformat.v4.new_notebook(cells=nb.cells[:stop],metadata=nb.metadata)
     NotebookClient(sub,timeout=150,kernel_name="python3",allow_errors=False,
                    resources={"metadata":{"path":str(ROOT)}}).execute()
@@ -89,8 +100,25 @@ def run_eda(nb,stop):
         if c.cell_type=="code":
             assert c.execution_count is not None,f"Unexecuted EDA cell {i}"
             assert not [o for o in c.outputs if o.output_type=="error"],i
+    review=["DSA211 v3.8 | executed training-only EDA | Sections 3.1 and 3.2"]
+    for cell_idx,heading in [(19,"3.1 Zero versus positive activity"),
+                             (22,"3.2 Positive-only activity bins and diagnostic")]:
+        review.extend(["",heading])
+        for output in sub.cells[cell_idx].outputs:
+            if output.output_type=="stream":
+                review.append(str(output.text))
+            elif output.output_type in ("display_data","execute_result"):
+                value=output.data.get("text/plain","")
+                review.append("".join(value) if isinstance(value,list) else str(value))
+    result="\n".join(review)+"\n"
+    audit_dir=ROOT/"work"/"section3_eda_review"
+    audit_dir.mkdir(parents=True,exist_ok=True)
+    (audit_dir/"section3_results.txt").write_text(result,encoding="utf-8")
+    nbformat.write(sub,audit_dir/"executed_eda_only.ipynb")
+    print(result)
     print("PASS v3.8: executed every pre-modelling code cell without errors")
-    
+    print("Saved reproducible EDA-only notebook and Section 3 result text for Actions artifact")
+
 if __name__=="__main__":
     parser=argparse.ArgumentParser()
     parser.add_argument("--run-eda",action="store_true")
