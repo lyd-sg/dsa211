@@ -50,14 +50,15 @@ Precisely, “125 identical observations” refers to **125 excess repeated full
 #### Section 3 — In-depth EDA (training data only)
 
 **3.1 Zero versus positive activity**
-- Six-row table, one row per `ACTIVITY` variable, with `Predictor | Purchase rate (X=0) | Purchase rate (X>0) | Sessions with X = 0 (n)`. Show both group rates; positive-group n is redundant given n=9,864.
+- Six-row table, one row per `ACTIVITY` variable, with `Predictor | Purchase rate (X=0) | Sessions with X = 0 (n) | Purchase rate (X>0) | Sessions with X > 0 (n)`. Show both rates and both group sizes (approved post-v3.8 review). The denominators come from the **9,864 training sessions**, not all 12,330 rows.
 - Findings: positive activity is associated with higher observed buying rates for all six measures; the `ProductRelated=0` comparison is particularly uncertain because it contains only **27 sessions**.
 - No causal or adjusted-effect language. Remove repeats of the same zero-versus-positive contrasts elsewhere.
 
 **3.2 Positive activity intensity**
-- Among **X>0 observations only**, calculate quantile-based activity bins and purchase rates; show a six-row table:
-  `Predictor | 0–25th percentile | 25th–50th | 50th–75th | 75th–100th`.
-- Every cell is a **purchase rate**, not a predictor percentile. In the caption define quantiles on positive observations and note that tied values can collapse bins; `Informational` has only **three** distinct bins.
+- Among **X>0 observations only**, calculate up to four quantile-based activity bins and their purchase rates and group sizes; show a six-row table:
+  `Predictor | Bin 1 (lowest) | Bin 2 | Bin 3 | Bin 4 (highest)`.
+- Every populated cell is **purchase rate (%) and sessions (n)**, e.g. `20.2% (n=1,234)`. Use ordered bin labels rather than claiming four exact 25%-sized intervals when tied values collapse boundaries. A dash signifies an absent bin, **not missing observations**.
+- Add a compact, executable diagnostic immediately below the table for `Informational`: requested positive-only quartile values, actual `qcut` boundaries, observed minimum/maximum activity in each bin, sessions and purchase rates. Verify its three bins against the training data. This addresses the approved Section 3.2 review without changing any model.
 - Findings: purchase rates climb strongly across `ProductRelated` count and duration intensity groups; administrative/informational trends are less uniformly increasing.
 - Do not also show raw percentile-cutoff and positive-quantile ledgers. Preserve the tabulated values from executed training evidence, not guessed recalculations.
 
@@ -99,6 +100,7 @@ Precisely, “125 identical observations” refers to **125 excess repeated full
 **Move into Model Development, once and only where relevant:**
 - Short predictor timing line before operational baseline discussion: **“PageValues is excluded because its availability at the intended prediction time is uncertain; the remaining 16 predictors are assumed available.”** Do not imply the other 16 predictors' timing has been independently established.
 - The **EDA-to-experiment rationale**, embedded concisely when introducing each experiment or its classifier family's specification pathway. Do not create a second large EDA summary/bridge that simply restates Sections 2–3.
+- **Approved model-by-model rationale:** for each displayed L1–L7, D1–D7, G1–G7 and B1–B7 model, retain its Accepted/Rejected retention label and write **one or two sentences** connecting a specific Section 2 or Section 3 finding (preferably with a relevant number) to the exact feature/estimation change and what it tests. Baselines may cite the common 16-predictor timing constraint. Respect the display-alias → historical-trial mapping, inherited cumulative incumbent configurations and frozen model results; EDA provides motivation, not proof of performance. Add an analogous short rationale for full-versus-pruned trees without reinstating a standalone EDA-to-model bridge.
 - Introduce **five-fold stratified CV, within-fold preprocessing, model-selection logic and one-SE** at the beginning of Model Development, not in Section 1.
 - Retain the six **All17** diagnostic baselines (which deliberately include `PageValues`) followed by six **Operational16** models (which do not). The exclusion and same-fold AUC comparison belong in Model Development.
 
@@ -127,7 +129,7 @@ All requirements and PASS evidence from **PRD v3.7 Sections 2–4 and 6–11** r
 - Preserve the seed-42 **9,864/2,466** train/reserved split, the same five stratified outer folds and nested fit-only operations.
 - Preserve **43 planned / 38 scored / 5 inapplicable** original-family ledger entries, **28 visible aliases** (seven scored models per family), **six finalists** (four classifier families plus two pruned trees), and the exact v3.7 sequential 1-SE rule.
 - Preserve all historical trial configurations, genuine incumbent/challenger lineage, complexity definitions, one-SE decisions, tree alpha/pruning logic, AP/AUC results and hypothetically illustrated thresholds. Do not change which historical attempts are displayed.
-- Preserve original v3.7 winner: canonical **L13 Logistic Regression** (displayed **L5**) with training mean CV ROC-AUC **0.75892**, AP **0.34236**, **unless a legitimate verification uncovers an existing inconsistency**. A presentation revision must not produce new model scores.
+- Preserve original v3.7 winner: canonical **L13 Logistic Regression** (displayed **L6**) with training mean CV ROC-AUC **0.75892**, AP **0.34236**, **unless a legitimate verification uncovers an existing inconsistency**. A presentation revision must not produce new model scores.
 - Preserve the reserved-set caveat: historically consulted, **not** a fresh independent generalisation test. Preserve final refit's 16-source predictor set.
 - Do not modify data, source hashes, deduplication policy, tree outputs, final training/refit recipe, threshold formulas, financial assumptions or model-selection criteria.
 - Any v3.7 verification **heading-count** assertions and old requirements expecting restored `Month × VisitorType`, the long timing table or the bridge in EDA are superseded. Adapt version-specific checks rather than breaking correctness checks or leaving stale expectations.
@@ -164,3 +166,8 @@ The implementation has been completed, with v3.8 EDA execution verified and inhe
 ### 9. v3.7 retirement and active-version housekeeping (8 November 2026)
 
 v3.8 is the sole root-level notebook/PRD pair. The superseded v3.7 executed notebook, PRD and historical verifier are preserved without byte changes in [`archive/versions/v3.7/`](archive/versions/v3.7/README.md); its historical GitHub Actions definition is preserved in [`archive/workflows/`](archive/workflows/verify-prd-v3-7.yml). [Historical numerical evidence](artifacts/prd_v3_7/) stays at its existing location because the v3.8 notebook inherits its results. The [active verifier](scripts/verify_prd_v3_8.py) checks v3.8 against the archived v3.7 notebook. The archival [manifest](archive/versions/v3.7/RETIREMENT_MANIFEST.json) records original Git blob identifiers. This change does not refit or reselect models.
+
+
+### Pending methodology follow-up — displayed D7
+
+- **Revisit D7** (previously displayed D6, canonical original trial D15) after the presentation wording review. Backward stepwise selection and the one-SE rule are covered in DSA211 Lecture 8, but this project adapts them to grouped LDA predictors, ROC-AUC, and inner CV within outer CV. Check whether the nested-CV complexity is appropriate for the module and whether the exact procedure should be simplified or explicitly justified. This is a **review note only**, not permission to alter the frozen model, trial scores or selection decisions.

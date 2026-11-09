@@ -14,7 +14,7 @@
 
 1. **Initial Data Overview (full dataset):** Dataset structure, missingness/duplicates, outcome class balance; stratified split last.
 2. **General EDA (training only):** Ten-row numerical table without histograms; six-row categorical summary and merged rare-level findings.
-3. **In-depth EDA (training only):** Zero/positive activity; positive-only activity quartiles; BounceRates (zero + four positive percentiles); four conceptually selected correlations; two class-conditional normal Q–Q plots; annotated six-point SpecialDay chart.
+3. **In-depth EDA (training only):** Zero/positive activity **with n for both groups**; positive-only activity ordered quantile bins **with n per bin and an Informational collapsed-bin audit**; BounceRates (zero + four positive percentiles); four conceptually selected correlations; two class-conditional normal Q–Q plots; annotated six-point SpecialDay chart. Sample sizes in Sections 3.1–3.2 refer to **9,864 training observations**.
 4. **Model Development:** Cross-validation and trial-specific motivations, results, acceptance decisions and final comparison.
 
 Do not reinsert Month × VisitorType, standalone PageValues purchase-rate EDA, the lengthy timing table, redundant empirical-logit tables, or the EDA-to-experiment bridge. EDA text should only describe what the data show, not anticipate later trials.
@@ -25,16 +25,18 @@ Curated table labels are **display aliases**; original canonical IDs remain in t
 
 | Family | Display IDs | Original trial IDs |
 |---|---|---|
-| Logistic | L0–L6 | L0,L1,L3,L4,L10,L13,L14 |
-| LDA | D0–D6 | D0,D1,D3,D4,D9,D11,D15 |
-| Gaussian NB | G0–G6 | G0,G2,G3,G4,G7,G8,G9 |
-| Bernoulli NB | B0–B6 | B0,B1,B2,B3,B4,B5,B6 |
+| Logistic | L1–L7 | L0,L1,L3,L4,L10,L13,L14 |
+| LDA | D1–D7 | D0,D1,D3,D4,D9,D11,D15 |
+| Gaussian NB | G1–G7 | G0,G2,G3,G4,G7,G8,G9 |
+| Bernoulli NB | B1–B7 | B0,B1,B2,B3,B4,B5,B6 |
 
 Visible table columns: Model, CV ROC-AUC, AUC SE, CV AP, ΔAUC against **the true incumbent**, Complexity, Retained after iteration. A retained alias must reflect the **full sequential history**, not an abbreviated seven-step replay. All original trials, skips, fold scores and real parents are preserved in artifacts.
 
+**Per-model EDA reasoning (approved review-branch refinement):** The existing iteration notes next to each displayed model must state, in one or two sentences, the **specific Section 2/3 EDA observation** and **why its feature, deletion or estimation change was tested**. Cite observed values where helpful; do not infer performance benefits before the model comparison. For display aliases such as G4, verify the underlying canonical trial before describing the change. This text stays within Model Development, not a restored EDA-to-model bridge. Inherited numerical model code and outputs remain frozen; verifier permits only rationale wording and presentation-only display-label shifts, with numerical model outputs checked against the archived original. Tree pruning gets the same brief evidence-to-choice treatment.
+
 The within-family sequential one-SE rule uses **the higher mean fold ROC-AUC of the incumbent/challenger pair minus the SE of that better model**; among the two eligible candidates choose the simpler (on complexity ties: higher AUC, then incumbent). Inner tuning is fold-safe. Overall finalist selection uses highest mean five-fold training ROC-AUC without a global one-SE rule. Retain historical grouped backward LDA, penalised logistic and Gini/Entropy tree pruning methods. A 1-SE cutoff is a parsimony heuristic, not a significance test.
 
-**Frozen outcome:** 43 planned, 38 scored, 5 inapplicable; 28 visible trial aliases, six finalists. Canonical **L13 Logistic Regression** (display L5) wins with mean CV ROC-AUC **0.75892**, AP **0.34236**. Historically reused reserved check AUC **0.74313**, AP **0.33358**. No causal inference or pristine test-set claims.
+**Frozen outcome:** 43 planned, 38 scored, 5 inapplicable; 28 visible trial aliases, six finalists. Canonical **L13 Logistic Regression** (display L6) wins with mean CV ROC-AUC **0.75892**, AP **0.34236**. Historically reused reserved check AUC **0.74313**, AP **0.33358**. No causal inference or pristine test-set claims.
 
 ## Verification and archival hygiene
 
@@ -45,3 +47,6 @@ python scripts/verify_prd_v3_8.py --run-eda
 ```
 
 This **does not retrain models**. The archived v3.7 PASS audit supplies the fully executed numerical history. The old v3.7 verifier is immutable and retains historical root-path assumptions. Consult the [archive index](archive/versions/README.md), [workflow archive](archive/workflows/README.md) and [v3.7 retirement manifest](archive/versions/v3.7/RETIREMENT_MANIFEST.json) for source provenance. Don't reactivate archived workflows or overwrite evidence.
+
+
+**Pending review (do not alter model yet):** The displayed **D7** (previously D6, canonical D15) uses grouped backward LDA selection with ROC-AUC and nested inner CV. Lecture 8 teaches backward selection and the one-SE rule, but revisit whether the project-specific nesting and grouped-LDA adaptation are appropriate before final presentation. Do not retune or alter the historical result during this review.
