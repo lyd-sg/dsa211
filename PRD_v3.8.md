@@ -50,14 +50,15 @@ Precisely, “125 identical observations” refers to **125 excess repeated full
 #### Section 3 — In-depth EDA (training data only)
 
 **3.1 Zero versus positive activity**
-- Six-row table, one row per `ACTIVITY` variable, with `Predictor | Purchase rate (X=0) | Purchase rate (X>0) | Sessions with X = 0 (n)`. Show both group rates; positive-group n is redundant given n=9,864.
+- Six-row table, one row per `ACTIVITY` variable, with `Predictor | Purchase rate (X=0) | Sessions with X = 0 (n) | Purchase rate (X>0) | Sessions with X > 0 (n)`. Show both rates and both group sizes (approved post-v3.8 review). The denominators come from the **9,864 training sessions**, not all 12,330 rows.
 - Findings: positive activity is associated with higher observed buying rates for all six measures; the `ProductRelated=0` comparison is particularly uncertain because it contains only **27 sessions**.
 - No causal or adjusted-effect language. Remove repeats of the same zero-versus-positive contrasts elsewhere.
 
 **3.2 Positive activity intensity**
-- Among **X>0 observations only**, calculate quantile-based activity bins and purchase rates; show a six-row table:
-  `Predictor | 0–25th percentile | 25th–50th | 50th–75th | 75th–100th`.
-- Every cell is a **purchase rate**, not a predictor percentile. In the caption define quantiles on positive observations and note that tied values can collapse bins; `Informational` has only **three** distinct bins.
+- Among **X>0 observations only**, calculate up to four quantile-based activity bins and their purchase rates and group sizes; show a six-row table:
+  `Predictor | Bin 1 (lowest) | Bin 2 | Bin 3 | Bin 4 (highest)`.
+- Every populated cell is **purchase rate (%) and sessions (n)**, e.g. `20.2% (n=1,234)`. Use ordered bin labels rather than claiming four exact 25%-sized intervals when tied values collapse boundaries. A dash signifies an absent bin, **not missing observations**.
+- Add a compact, executable diagnostic immediately below the table for `Informational`: requested positive-only quartile values, actual `qcut` boundaries, observed minimum/maximum activity in each bin, sessions and purchase rates. Verify its three bins against the training data. This addresses the approved Section 3.2 review without changing any model.
 - Findings: purchase rates climb strongly across `ProductRelated` count and duration intensity groups; administrative/informational trends are less uniformly increasing.
 - Do not also show raw percentile-cutoff and positive-quantile ledgers. Preserve the tabulated values from executed training evidence, not guessed recalculations.
 
