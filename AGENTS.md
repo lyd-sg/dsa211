@@ -14,7 +14,7 @@
 
 1. **Initial Data Overview (full dataset):** Dataset structure, missingness/duplicates, outcome class balance; stratified split last.
 2. **General EDA (training only):** Ten-row numerical table without histograms; six-row categorical summary and merged rare-level findings.
-3. **In-depth EDA (training only):** Zero/positive activity; positive-only activity quartiles; BounceRates (zero + four positive percentiles); four conceptually selected correlations; two class-conditional normal Q–Q plots; annotated six-point SpecialDay chart.
+3. **In-depth EDA (training only):** Zero/positive activity **with n for both groups**; positive-only activity ordered quantile bins **with n per bin and an Informational collapsed-bin audit**; BounceRates (zero + four positive percentiles); four conceptually selected correlations; two class-conditional normal Q–Q plots; annotated six-point SpecialDay chart. Sample sizes in Sections 3.1–3.2 refer to **9,864 training observations**.
 4. **Model Development:** Cross-validation and trial-specific motivations, results, acceptance decisions and final comparison.
 
 Do not reinsert Month × VisitorType, standalone PageValues purchase-rate EDA, the lengthy timing table, redundant empirical-logit tables, or the EDA-to-experiment bridge. EDA text should only describe what the data show, not anticipate later trials.
